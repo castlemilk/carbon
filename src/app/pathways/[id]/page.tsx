@@ -7,12 +7,14 @@ import MetricTable, {
   type CitationSummary,
   type MetricRow,
 } from '@/components/pathway/metric-table'
+import ShortlistActions from '@/components/pathway/shortlist-actions'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { openDb } from '@/lib/db/instance'
-import { getCitation, getMaterial, getPathway } from '@/lib/db/repos'
+import { getCitation, getMaterial, getPathway, listShortlist } from '@/lib/db/repos'
 import { MaterialClass, type Material } from '@/lib/gen/carbon/v1/material_pb'
 import { Setting } from '@/lib/gen/carbon/v1/pathway_pb'
+import { ShortlistStatus } from '@/lib/gen/carbon/v1/research_pb'
 import { SETTING_COLORS, SETTING_LABELS } from '@/lib/settings'
 
 const MATERIAL_CLASS_LABELS: Record<string, string> = {
@@ -73,6 +75,16 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
     material: getMaterial(db, mid),
   }))
 
+  // plain-object shortlist entry (enum name, not hydrated number) for the client action bar
+  const shortlistEntry = listShortlist(db).find((s) => s.entry.pathwayId === id)
+  const shortlist = shortlistEntry
+    ? {
+        status: ShortlistStatus[shortlistEntry.entry.status] ?? '',
+        rationale: shortlistEntry.entry.rationale,
+        updatedAt: shortlistEntry.entry.updatedAt,
+      }
+    : null
+
   const settingName = Setting[pathway.setting] ?? 'SETTING_UNSPECIFIED'
   const backHref = backRaw ? `/?${decodeBack(backRaw)}` : undefined
 
@@ -103,7 +115,7 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
             <Badge data-testid="benchmark-badge">Benchmark</Badge>
           )}
         </div>
-        {/* Task 9 mounts the shortlist action bar here */}
+        <ShortlistActions pathwayId={pathway.id} entry={shortlist} />
       </header>
 
       <Card>
