@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 
 import ReactMarkdown from 'react-markdown'
 
+import LiteratureErrorBoundary from '@/components/pathway/literature-error-boundary'
+import LiteraturePanel from '@/components/pathway/literature-panel'
 import MetricTable, {
   type CitationSummary,
   type MetricRow,
@@ -189,7 +191,9 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
         </div>
       )}
 
-      {/* Task 10 mounts the literature panel here (cached OpenLibrary works for pathway.searchTerms) */}
+      <LiteratureErrorBoundary>
+        <LiteraturePanel pathwayId={pathway.id} />
+      </LiteratureErrorBoundary>
     </div>
   )
 }
