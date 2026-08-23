@@ -14,20 +14,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { openDb } from '@/lib/db/instance'
 import { getCitation, getMaterial, getPathway, listShortlist } from '@/lib/db/repos'
-import { MaterialClass, type Material } from '@/lib/gen/carbon/v1/material_pb'
+import { type Material } from '@/lib/gen/carbon/v1/material_pb'
 import { Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 import { ShortlistStatus } from '@/lib/gen/carbon/v1/research_pb'
 import { SETTING_COLORS, SETTING_LABELS } from '@/lib/settings'
-
-const MATERIAL_CLASS_LABELS: Record<string, string> = {
-  AMINE_SORBENT: 'Amine sorbent',
-  MOF: 'MOF',
-  LIQUID_SOLVENT: 'Liquid solvent',
-  ENZYME: 'Enzyme',
-  ELECTRODE_MATERIAL: 'Electrode material',
-  MINERAL: 'Mineral',
-  OTHER: 'Other',
-}
+import { materialClassLabel } from '@/lib/material-class'
 
 const decodeBack = (raw: string): string => {
   try {
@@ -148,7 +139,7 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
                       {m?.name || mid}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {m ? MATERIAL_CLASS_LABELS[MaterialClass[m.class]] ?? mid : 'Material page coming soon'}
+                      {m ? materialClassLabel(m) : 'Material page coming soon'}
                     </span>
                   </CardContent>
                 </Card>

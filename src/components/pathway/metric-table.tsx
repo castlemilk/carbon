@@ -20,29 +20,42 @@ export interface CitationSummary {
 interface Props {
   metrics: Record<string, MetricRow>
   citationsById: Record<string, CitationSummary>
+  keyLabel?: string
+  humanizeKey?: (key: string) => string
+  emptyMessage?: string
 }
 
 // axisLabel covers the known plot keys; anything else falls back to Title Case
-const humanizeMetric = (key: string): string => {
-  const label = axisLabel(key)
-  if (label !== key) return label
-  return key
+export const titleCaseKey = (key: string): string =>
+  key
     .split('_')
     .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
+
+const humanizeMetric = (key: string): string => {
+  const label = axisLabel(key)
+  if (label !== key) return label
+  return titleCaseKey(key)
 }
 
 const truncateTitle = (title: string, max = 80): string =>
   title.length > max ? `${title.slice(0, max - 1).trimEnd()}…` : title
 
-export default function MetricTable({ metrics, citationsById }: Props) {
+// generic cited-range table; pathway metrics and material properties share the shape
+export default function MetricTable({
+  metrics,
+  citationsById,
+  keyLabel = 'Metric',
+  humanizeKey = humanizeMetric,
+  emptyMessage = 'No metrics recorded for this pathway.',
+}: Props) {
   return (
     <div className="overflow-x-auto rounded-lg border">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50 text-left text-xs text-muted-foreground">
-            <th className="w-[22%] px-3 py-2 font-medium">Metric</th>
+            <th className="w-[22%] px-3 py-2 font-medium">{keyLabel}</th>
             <th className="w-[22%] px-3 py-2 font-medium">Range</th>
             <th className="w-[12%] px-3 py-2 font-medium">Year basis</th>
             <th className="px-3 py-2 font-medium">Source</th>
@@ -54,7 +67,7 @@ export default function MetricTable({ metrics, citationsById }: Props) {
             return (
               <tr key={key} data-testid="metric-row" data-metric={key} className="border-b last:border-b-0 align-top">
                 <th scope="row" className="px-3 py-2 text-left font-medium">
-                  {humanizeMetric(key)}
+                  {humanizeKey(key)}
                 </th>
                 <td className="px-3 py-2 tabular-nums">{formatRange({ low: m.low, high: m.high, unit: m.unit })}</td>
                 <td className="px-3 py-2 tabular-nums">{m.yearBasis > 0 ? m.yearBasis : '—'}</td>
@@ -84,7 +97,7 @@ export default function MetricTable({ metrics, citationsById }: Props) {
           {Object.keys(metrics).length === 0 && (
             <tr>
               <td colSpan={4} className="px-3 py-8 text-center text-muted-foreground">
-                No metrics recorded for this pathway.
+                {emptyMessage}
               </td>
             </tr>
           )}
