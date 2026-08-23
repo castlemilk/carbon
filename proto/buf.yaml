@@ -1,0 +1,7 @@
+version: v2
+modules:
+  - path: .
+lint:
+  use: [STANDARD]
+  except:
+    - ENUM_VALUE_PREFIX   # spec enum values are POINT_SOURCE, CANDIDATE, ... not SETTING_DAC etc.

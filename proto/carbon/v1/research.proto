@@ -1,0 +1,34 @@
+syntax = "proto3";
+package carbon.v1;
+
+enum ShortlistStatus {
+  SHORTLIST_STATUS_UNSPECIFIED = 0;
+  CANDIDATE = 1;
+  UNDER_EVALUATION = 2;
+  ELIMINATED = 3;
+  CHOSEN = 4;
+}
+
+message ShortlistEntry {
+  string pathway_id = 1;
+  ShortlistStatus status = 2;
+  string rationale = 3;      // markdown
+  string updated_at = 4;     // ISO 8601
+}
+
+enum EntryKind {
+  ENTRY_KIND_UNSPECIFIED = 0;
+  OBSERVATION = 1;
+  COMPARISON_NOTE = 2;
+  DECISION = 3;
+  ELIMINATION = 4;
+}
+
+message JournalEntry {
+  string id = 1;
+  EntryKind kind = 2;
+  string title = 3;
+  string body_markdown = 4;
+  repeated string pathway_refs = 5;
+  string created_at = 6;     // ISO 8601
+}

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated protobuf output (committed per project convention).
+    "src/lib/gen/**",
   ]),
 ]);
 

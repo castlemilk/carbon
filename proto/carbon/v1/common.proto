@@ -1,0 +1,19 @@
+syntax = "proto3";
+package carbon.v1;
+
+message Citation {
+  string id = 1;
+  string title = 2;
+  repeated string authors = 3;
+  int32 year = 4;
+  string venue = 5;
+  string url = 6;
+}
+
+message MetricRange {
+  double low = 1;
+  double high = 2;
+  string unit = 3;        // validated against UNIT_ALLOWLIST in seed loader
+  int32 year_basis = 4;
+  string source_ref = 5;  // -> Citation.id, required
+}

@@ -1,0 +1,27 @@
+syntax = "proto3";
+package carbon.v1;
+import "carbon/v1/common.proto";
+
+enum Setting {
+  SETTING_UNSPECIFIED = 0;
+  POINT_SOURCE = 1;
+  DAC = 2;
+  OCEAN_DIC = 3;
+  MINERALIZATION = 4;
+  BIOLOGICAL = 5;
+}
+
+message Pathway {
+  string id = 1;
+  string name = 2;
+  Setting setting = 3;
+  bool is_benchmark = 4;
+  string mechanism = 5;              // markdown
+  int32 trl = 6;                     // 1..9
+  repeated string search_terms = 7;  // literature queries
+  map<string, carbon.v1.MetricRange> metrics = 8;
+  repeated string advantages = 9;    // markdown bullets
+  repeated string challenges = 10;
+  repeated string material_ids = 11;
+  repeated string source_refs = 12;
+}

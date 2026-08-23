@@ -1,0 +1,24 @@
+syntax = "proto3";
+package carbon.v1;
+import "carbon/v1/common.proto";
+
+enum MaterialClass {
+  MATERIAL_CLASS_UNSPECIFIED = 0;
+  AMINE_SORBENT = 1;
+  MOF = 2;
+  LIQUID_SOLVENT = 3;
+  ENZYME = 4;
+  ELECTRODE_MATERIAL = 5;
+  MINERAL = 6;
+  OTHER = 7;
+}
+
+message Material {
+  string id = 1;
+  string name = 2;
+  MaterialClass class = 3;
+  string summary = 4;
+  map<string, carbon.v1.MetricRange> properties = 5;
+  string uniprot_id = 6;    // enzymes -> AlphaFold DB
+  string pdb_ids_csv = 7;   // optional experimental structures
+}
