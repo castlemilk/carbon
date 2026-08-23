@@ -1,0 +1,14 @@
+id: mof-dac
+name: MOF DAC
+setting: DAC
+trl: 5
+search_terms: ["mof dac"]
+metrics:
+  cost:
+    low: 80
+    high: 600
+    unit: USD/tCO2
+    year_basis: 2022
+    source_ref: mcqueen2021
+material_ids: [mg2dobpdc]
+source_refs: [mcqueen2021]

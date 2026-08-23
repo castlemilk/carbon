@@ -1,0 +1,6 @@
+# intentionally broken: source_ref resolves to nothing — used to demo check.ts failure mode
+id: ghost-dac
+name: Ghost DAC
+setting: DAC
+trl: 9
+source_refs: [ghost2020]
