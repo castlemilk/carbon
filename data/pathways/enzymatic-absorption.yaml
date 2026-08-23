@@ -10,12 +10,28 @@ mechanism: |
   amino-acid-salt solvents, allowing smaller absorbers and lower-temperature
   regeneration (~60-90 C) than amine scrubbing. CA can also accelerate
   mineralization of captured CO2 as CaCO3.
+
+  Pilot-scale techno-economics exist: CO2 Solutions' enzyme-carbonate process
+  was advanced to large-bench scale with EERC testing and a conservative
+  full-scale estimate of roughly $39/tCO2 on coal flue gas including
+  compression (vs ~$70/t for conventional amine capture in the same study);
+  Akermin's biocatalyst-delivery TEA reported $53/tCO2 captured and $66/tCO2
+  avoided against a $66/t MEA baseline. The cost range here brackets those
+  published estimates with early-stage widening.
+metrics:
+  cost:
+    low: 50
+    high: 70
+    unit: USD/tCO2
+    year_basis: 2014
+    source_ref: reardon2014
 advantages:
   - "High selectivity and fast kinetics under mild, non-corrosive conditions"
   - "Regeneration at lower temperature than amine solvents, cutting heat demand"
+  - "Projected 20-30% capture-cost savings vs amine benchmarks in published TEAs"
 challenges:
   - "Enzyme thermal and pH stability in hot alkaline process streams"
   - "Immobilization lifetime and enzyme production cost"
-  - "Unproven economics; no full-scale demonstration"
+  - "No commercial-scale demonstration; cost estimates are pre-pilot projections"
 material_ids: [carbonic-anhydrase]
-source_refs: [talekar2022]
+source_refs: [talekar2022, reardon2014, csi2017]

@@ -18,12 +18,18 @@ metrics:
     unit: USD/tCO2
     year_basis: 2017
     source_ref: renforth2017
+  permanence:
+    low: 1000
+    high: 100000
+    unit: years
+    year_basis: 2022
+    source_ref: nas2022
 advantages:
   - "Leverages abundant minerals and proven bulk-materials handling"
   - "May locally ameliorate ocean acidification"
 challenges:
   - "Lime production emits CO2 unless kiln capture is added"
   - "Local pH/carbonate-saturation spikes; ecological response uncertain"
-  - "Longevity of stored alkalinity still to be constrained"
+  - "Alkalinity persistence depends on carbonate compensation; empirical validation at deployment scale still lacking"
 material_ids: [cao-lime]
-source_refs: [renforth2017, nas2019]
+source_refs: [renforth2017, nas2022]

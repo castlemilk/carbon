@@ -30,4 +30,4 @@ challenges:
   - "Sorbent capacity decay from oxidation and humidity cycling"
   - "Sorbent replacement cost dominates operating expense"
 material_ids: [solid-amine-silica]
-source_refs: [mcqueen2021]
+source_refs: [mcqueen2021, iea2022ccus]
