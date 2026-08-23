@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "e2e": "playwright test",
-    "gen": "buf generate",
+    "gen": "cd proto && buf generate",
     "seed:check": "tsx src/lib/seed/check.ts"
   },
   "dependencies": {
