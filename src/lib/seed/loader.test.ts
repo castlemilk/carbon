@@ -124,6 +124,21 @@ describe('seedFromDataDir', () => {
     }
   })
 
+  it('prefixes unknown-metric-key warnings with the file', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const tmp = mkdtempSync(join(tmpdir(), 'carbon-seed-typo-'))
+    try {
+      cpSync(fixturesDir, tmp, { recursive: true })
+      writeFileSync(join(tmp, 'pathways', 'typo-dac.yaml'),
+        'id: typo-dac\nname: Typo\nsetting: DAC\ntrl: 3\nmetrics:\n  energy_thermall:\n    low: 1\n    high: 2\n    unit: GJ/tCO2\n    year_basis: 2020\n    source_ref: mcqueen2021\n')
+      expect(() => seedFromDataDir(open(), tmp)).not.toThrow()
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/pathways\/typo-dac\.yaml: typo-dac: unknown metric key 'energy_thermall'/))
+    } finally {
+      rmSync(tmp, { recursive: true, force: true })
+      warn.mockRestore()
+    }
+  })
+
   it('rejects non-mapping YAML docs with a precise message', () => {
     const bad = mkdtempSync(join(tmpdir(), 'carbon-seed-empty-'))
     try {

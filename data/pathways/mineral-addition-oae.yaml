@@ -10,7 +10,9 @@ mechanism: |
   alkalinity for long periods; natural silicate weathering already sequesters
   ~0.5 GtCO2 per year by the same chemistry. Lime production dominates cost and
   embodied CO2 unless calcination is paired with capture or electrochemical
-  routes.
+  routes. Permanence here is bicarbonate persistence governed by carbonate
+  compensation (millennia-plus), a lower floor than electrochemical OAE, which
+  immobilizes carbon as solid carbonate minerals from the outset.
 metrics:
   cost:
     low: 20

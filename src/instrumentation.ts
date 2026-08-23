@@ -6,7 +6,10 @@ export async function register() {
   const { openDb } = await import('@/lib/db')
   const { seedFromDataDir, findSeedDrift } = await import('@/lib/seed/loader')
   const db = openDb(process.env.CARBON_DB)
-  const counts = seedFromDataDir(db, path.join(process.cwd(), 'data'))
+  const dataDir = path.join(process.cwd(), 'data')
+  const counts = seedFromDataDir(db, dataDir)
+  if (counts.pathways === 0)
+    throw new Error(`no pathways loaded from ${dataDir} — check working directory / data dir`)
   console.log('[seed]', counts)
   for (const drift of findSeedDrift(db)) console.warn('[seed] drift:', drift)
 }

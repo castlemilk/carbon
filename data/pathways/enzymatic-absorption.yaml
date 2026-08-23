@@ -16,8 +16,9 @@ mechanism: |
   full-scale estimate of roughly $39/tCO2 on coal flue gas including
   compression (vs ~$70/t for conventional amine capture in the same study);
   Akermin's biocatalyst-delivery TEA reported $53/tCO2 captured and $66/tCO2
-  avoided against a $66/t MEA baseline. The cost range here brackets those
-  published estimates with early-stage widening.
+  avoided against a $66/t MEA baseline. The cost range here deliberately
+  reflects the more conservative peer-reviewed TEA, widened modestly for
+  early-stage uncertainty; the vendor-side $39 figure sits below it.
 metrics:
   cost:
     low: 50

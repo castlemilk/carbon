@@ -14,13 +14,13 @@ metrics:
     low: 40
     high: 90
     unit: USD/tCO2
-    year_basis: 2022
+    year_basis: 2021
     source_ref: iea2022ccus
   energy_thermal:
     low: 3.5
     high: 4.2
     unit: GJ/tCO2
-    year_basis: 2022
+    year_basis: 2021
     source_ref: iea2022ccus
 advantages: ["Proven at scale for decades", "High capture efficiency (>90%)"]
 challenges: ["Large reboiler duty", "Solvent degradation and aerosol emissions"]

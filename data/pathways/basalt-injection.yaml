@@ -7,16 +7,20 @@ mechanism: |
   CO2 is dissolved in water downhole and injected into reactive basaltic
   formations, where Ca/Mg/Fe silicates react with the dissolved carbon to form
   carbonate minerals. The CarbFix pilot at Hellisheidi, Iceland demonstrated >
-  95% mineralization of injected CO2 within two years - orders of magnitude
-  faster than expected - because dissolution (not buoyant free-phase gas)
-  maximizes contact with host rock. Mineralized carbon is permanently stored.
+  95% mineralization of injected CO2 within two years (Matter et al., 2016) -
+  orders of magnitude faster than expected - because dissolution (not buoyant
+  free-phase gas) maximizes contact with host rock. That field result
+  establishes rate, not duration; storage duration rests on carbonate
+  chemistry: once mineralized, CO2 is locked in solid carbonate, which NAS
+  (2019) rates as having very high permanence for basalt/peridotite
+  mineralization. The range below is a conservative floor, not a ceiling.
 metrics:
   permanence:
     low: 10000
     high: 100000
     unit: years
-    year_basis: 2016
-    source_ref: matter2016
+    year_basis: 2019
+    source_ref: nas2019
 advantages:
   - "Rapid in-situ mineralization removes leakage risk entirely"
   - "Vast global basalt provinces, including offshore basalts"
@@ -24,4 +28,4 @@ challenges:
   - "Water demand per tonne of CO2; injection-induced seismicity management"
   - "Requires capture plant co-located with suitable basalt geology"
 material_ids: [basalt]
-source_refs: [matter2016]
+source_refs: [matter2016, nas2019]

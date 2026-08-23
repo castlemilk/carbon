@@ -35,12 +35,12 @@ function requireId(doc: AnyDoc): string {
   return id
 }
 
-function checkRanges(ranges: AnyDoc | undefined, id: string, kind: string, citations: Set<string>, knownKeys: string[]) {
+function checkRanges(ranges: AnyDoc | undefined, id: string, kind: string, citations: Set<string>, knownKeys: string[], ctx?: string) {
   const known = new Set(knownKeys)
   for (const [k, v] of Object.entries(ranges ?? {})) {
     // proto maps are open-ended by spec — unknown keys warn instead of throw so future
     // metric types don't break old loaders, but authoring typos still surface loudly
-    if (!known.has(k)) console.warn(`${id}: ${kind} key '${k}' is not a known ${kind} key (typo?)`)
+    if (!known.has(k)) console.warn(`${ctx ? `${ctx}: ` : ''}${id}: unknown ${kind} key '${k}' (typo?)`)
     const m = v as AnyDoc
     // proto3 defaults absent scalars to 0 — explicitly reject missing low/high/year_basis
     if (typeof m.low !== 'number' || typeof m.high !== 'number')
@@ -64,9 +64,9 @@ export function validateCitationDoc(doc: AnyDoc): Citation {
   return parseStrict(requireId(doc), CitationSchema, doc)
 }
 
-export function validatePathwayDoc(doc: AnyDoc, citations: Set<string>, materials: Set<string>): Pathway {
+export function validatePathwayDoc(doc: AnyDoc, citations: Set<string>, materials: Set<string>, ctx?: string): Pathway {
   const id = requireId(doc)
-  checkRanges(doc.metrics as AnyDoc | undefined, id, 'metric', citations, KNOWN_METRIC_KEYS)
+  checkRanges(doc.metrics as AnyDoc | undefined, id, 'metric', citations, KNOWN_METRIC_KEYS, ctx)
   checkRefs(doc.source_refs as string[], citations, 'source_ref', id)
   checkRefs(doc.material_ids as string[], materials, 'material_id', id)
   const p = parseStrict(id, PathwaySchema, doc)
@@ -76,9 +76,9 @@ export function validatePathwayDoc(doc: AnyDoc, citations: Set<string>, material
   return p
 }
 
-export function validateMaterialDoc(doc: AnyDoc, citations: Set<string>): Material {
+export function validateMaterialDoc(doc: AnyDoc, citations: Set<string>, ctx?: string): Material {
   const id = requireId(doc)
-  checkRanges(doc.properties as AnyDoc | undefined, id, 'property', citations, KNOWN_PROPERTY_KEYS)
+  checkRanges(doc.properties as AnyDoc | undefined, id, 'property', citations, KNOWN_PROPERTY_KEYS, ctx)
   return parseStrict(id, MaterialSchema, doc)
 }
 
@@ -113,20 +113,20 @@ function assertUniqueIds(docs: LoadedDoc[], kind: string) {
     throw new Error(dupes.map(([id, files]) => `duplicate ${kind} id '${id}' (${files.join(', ')})`).join('; '))
 }
 
-function loadBatch<T>(dir: string, kind: string, validate: (d: AnyDoc) => T): T[] {
+function loadBatch<T>(dir: string, kind: string, validate: (d: AnyDoc, file: string) => T): T[] {
   const docs = readYamls(dir)
   assertUniqueIds(docs, kind)
   return docs.map(({ file, doc }) => {
-    try { return validate(doc) } catch (e) { throw new Error(`${file}: ${(e as Error).message}`) }
+    try { return validate(doc, `${path.basename(dir)}/${file}`) } catch (e) { throw new Error(`${file}: ${(e as Error).message}`) }
   })
 }
 
 export function seedFromDataDir(db: Database, dataDir: string): { citations: number; materials: number; pathways: number } {
-  const citations = loadBatch<Citation>(path.join(dataDir, 'sources'), 'citation', d => validateCitationDoc(d))
+  const citations = loadBatch<Citation>(path.join(dataDir, 'sources'), 'citation', (d) => validateCitationDoc(d))
   const citationIds = new Set(citations.map(c => c.id))
-  const materials = loadBatch<Material>(path.join(dataDir, 'materials'), 'material', d => validateMaterialDoc(d, citationIds))
+  const materials = loadBatch<Material>(path.join(dataDir, 'materials'), 'material', (d, file) => validateMaterialDoc(d, citationIds, file))
   const materialIds = new Set(materials.map(m => m.id))
-  const pathways = loadBatch<Pathway>(path.join(dataDir, 'pathways'), 'pathway', d => validatePathwayDoc(d, citationIds, materialIds))
+  const pathways = loadBatch<Pathway>(path.join(dataDir, 'pathways'), 'pathway', (d, file) => validatePathwayDoc(d, citationIds, materialIds, file))
 
   let writtenCitations = 0, writtenMaterials = 0, writtenPathways = 0
   const tx = db.transaction(() => {

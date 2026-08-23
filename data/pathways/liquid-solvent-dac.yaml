@@ -7,9 +7,12 @@ mechanism: |
   Atmospheric CO2 is absorbed into ~1 M KOH in large thin-film air contactors,
   forming K2CO3. The carbonate is causticized with Ca(OH)2 to precipitate
   CaCO3 pellets, which are calcined at ~900 C in an oxy-fired kiln, releasing a
-  pure CO2 stream and regenerating lime and KOH in closed loops. First
-  megatonne-scale plants (Climeworks Mammoth is solid; this design is Carbon
-  Engineering's, now 1PointFive) built on cooling-tower contactor hardware.
+  pure CO2 stream and regenerating lime and KOH in closed loops. Built on
+  cooling-tower-style contactor hardware: 1PointFive's Stratos (Permian Basin,
+  Carbon Engineering design) is the largest single DAC facility to date,
+  designed for up to ~500 kt/yr once fully operational - like all plants built
+  so far (e.g. Climeworks Mammoth, ~36 kt/yr nameplate) still sub-megatonne.
+  Megatonne-scale capture remains a stated 2030s goal, not operating reality.
 metrics:
   cost:
     low: 94

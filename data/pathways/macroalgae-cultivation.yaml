@@ -7,21 +7,29 @@ mechanism: |
   Farmed seaweed fixes CO2 rapidly (global wild seaweed communities take up
   ~1.5 PgC/yr in production); climate benefit accrues only if farmed biomass
   carbon is buried in sediments or exported to the deep sea rather than
-  decomposing on the shelf. Duarte et al. (2017) estimate current aquaculture
-  sequestration upper limits around 2.5 MtCO2/yr (~0.4% of the ~0.63 GtCO2/yr
-  sequestered by wild seaweeds), with per-area removal intensity of roughly
-  1,500 tCO2/km2/yr. Deliberate deep-water sinking remains unproven.
+  decomposing on the shelf. Duarte et al. (2017) put today's aquaculture
+  sequestration upper limit at ~2.5 MtCO2/yr (~0.4% of the ~0.63 GtCO2/yr
+  sequestered by wild seaweeds), with removal intensity of roughly
+  1,500 tCO2/km2/yr.
+
+  NASEM (2022) assesses purposeful seaweed cultivation/sequestration as having
+  medium-confidence scalability above 0.1 and below 1.0 GtCO2/yr at global
+  scale - contingent on farms covering ~73,000 km2 (a square 270 km on a side,
+  or 63% of global coastline as a 100 m belt) for just 0.1 Gt/yr - with
+  durability of deep-sea export still unproven. Deliberate deep-water sinking
+  remains undemonstrated.
 metrics:
   capacity_potential:
     low: 0.1
     high: 1
     unit: Gt/yr
-    year_basis: 2017
-    source_ref: duarte2017
+    year_basis: 2022
+    source_ref: nas2022
 advantages:
   - "No freshwater, fertilizer, or land footprint; established aquaculture industry"
   - "Co-products: food, feed (methane-reducing additives), biofuels"
 challenges:
   - "Fate of exported carbon largely unverified - most decomposes before deep burial"
+  - "Climate-relevant scale needs millions of hectares of offshore farming"
   - "Nutrient and light competition; offshore engineering for rough seas"
-source_refs: [duarte2017]
+source_refs: [duarte2017, nas2022]
