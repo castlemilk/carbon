@@ -26,15 +26,19 @@ export async function getLiterature(db: Database, pathway: Pathway): Promise<Lit
     after(() => refresh(db, pathway))
     return { freshness: 'stale', fetchedAt: cached.fetchedAt, works: JSON.parse(cached.worksJson) }
   }
-  const works = await refresh(db, pathway) // cold: block once so panel fills
-  return { freshness: works ? 'fresh' : 'error', fetchedAt: Date.now(), works: works ?? [] }
+  const refreshed = await refresh(db, pathway) // cold: block once so panel fills
+  return refreshed
+    ? { freshness: 'fresh', fetchedAt: refreshed.fetchedAt, works: refreshed.works }
+    : { freshness: 'error', fetchedAt: Date.now(), works: [] }
 }
 
-async function refresh(db: Database, pathway: Pathway): Promise<Citation[] | null> {
+async function refresh(db: Database, pathway: Pathway): Promise<LiteratureResult | null> {
   try {
     const works = await fetchWorks(pathway.name, pathway.searchTerms)
-    putLitCache(db, pathway.id, Date.now(), JSON.stringify(works))
-    return works
+    // single timestamp shared by the stored row and the cold-path response
+    const now = Date.now()
+    putLitCache(db, pathway.id, now, JSON.stringify(works))
+    return { freshness: 'fresh', fetchedAt: now, works }
   } catch {
     return null
   }
