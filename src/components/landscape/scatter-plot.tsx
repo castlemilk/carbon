@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 
 import { axisLabel, formatRange, type Range } from '@/lib/format'
 import { SETTING_COLORS, SETTING_LABELS } from '@/lib/settings'
-import { makeScales, projectPoint } from '@/lib/scatter'
+import { axisTicks, makeScales, projectPoint } from '@/lib/scatter'
 
 export interface PlotPoint {
   id: string
@@ -33,10 +33,9 @@ const PW = W - M.left - M.right
 const PH = H - M.top - M.bottom
 
 const fmtTick = (v: number) =>
-  new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(v)
-
-const ticks = (d: readonly [number, number], n = 5): number[] =>
-  Array.from({ length: n }, (_, i) => d[0] + ((d[1] - d[0]) * i) / (n - 1))
+  Number.isInteger(v) && Math.abs(v) < 10000
+    ? String(v)
+    : new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(v)
 
 export default function ScatterPlot({ points, xKey, yKey, logX, search }: Props) {
   const router = useRouter()
@@ -46,6 +45,8 @@ export default function ScatterPlot({ points, xKey, yKey, logX, search }: Props)
     () => makeScales(points.map((p) => ({ id: p.id, x: p.x, y: p.y })), { w: PW, h: PH, logX }),
     [points, logX],
   )
+  const xTicks = axisTicks(scales.xDomain, { log: logX, integral: xKey === 'trl' })
+  const yTicks = axisTicks(scales.yDomain, { integral: yKey === 'trl' })
   const projected = points.map((p) => ({ p, ...projectPoint({ id: p.id, x: p.x, y: p.y }, scales) }))
   const legendSettings = [...new Set(points.map((p) => p.setting))]
   const hover = projected.find((e) => e.p.id === hovered)
@@ -65,7 +66,7 @@ export default function ScatterPlot({ points, xKey, yKey, logX, search }: Props)
       <div className="relative w-full">
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`${axisLabel(yKey)} vs ${axisLabel(xKey)} scatter plot`}>
           <g transform={`translate(${M.left},${M.top})`}>
-            {ticks(scales.xDomain).map((t, i) => {
+            {xTicks.map((t, i) => {
               const x = scales.sx(t)
               return (
                 <g key={`xt-${i}`}>
@@ -76,7 +77,7 @@ export default function ScatterPlot({ points, xKey, yKey, logX, search }: Props)
                 </g>
               )
             })}
-            {ticks(scales.yDomain).map((t, i) => {
+            {yTicks.map((t, i) => {
               const y = scales.sy(t)
               return (
                 <g key={`yt-${i}`}>
