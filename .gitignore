@@ -17,6 +17,9 @@ node_modules/
 test-results/
 playwright-report/
 /playwright/.cache/
+src/lib/db/tmp-*
+*.db-wal
+*.db-shm
 
 # next.js
 /out/
