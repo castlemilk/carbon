@@ -23,6 +23,12 @@ lsof -nP -iTCP:3000 -sTCP:LISTEN
 
 If a stale process squats the port, kill it before testing.
 
+## Node version
+
+Pinned in `.nvmrc` (currently v22.20.0) — required because better-sqlite3's
+prebuilt binding segfaults under older v22.x point releases (e.g. v22.9.0);
+use `nvm use` before installing/running.
+
 ## Data & codegen
 
 - Seed/reference data lives in YAML under `data/`.
