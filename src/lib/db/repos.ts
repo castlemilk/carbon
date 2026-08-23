@@ -20,7 +20,7 @@ const store = <D extends DescMessage>(schema: D, msg: MessageShape<D>): string =
   JSON.stringify(toJson(schema, msg, { useProtoFieldName: true }))
 
 export function insertPathway(db: Database, p: Pathway) {
-  db.prepare(`INSERT OR REPLACE INTO pathways (id, setting, trl, is_benchmark, name, doc) VALUES (?,?,?,?,?,?)`)
+  return db.prepare(`INSERT OR REPLACE INTO pathways (id, setting, trl, is_benchmark, name, doc) VALUES (?,?,?,?,?,?)`)
     .run(p.id, enumName(Setting, p.setting), p.trl, p.isBenchmark ? 1 : 0, p.name, store(PathwaySchema, p))
 }
 const hydrate = <D extends DescMessage>(schema: D, row?: Row) =>

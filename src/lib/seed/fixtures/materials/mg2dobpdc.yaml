@@ -3,7 +3,7 @@ name: Mg2(dobpdc)
 class: MOF
 summary: Diamine-appended metal-organic framework for step-shaped isotherm DAC.
 properties:
-  capacity:
+  working_capacity:
     low: 2
     high: 4
     unit: mmol/g
