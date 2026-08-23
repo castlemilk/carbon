@@ -77,7 +77,7 @@ message Citation {
 message MetricRange {
   double low;
   double high;
-  string unit;          // from allowlist: USD/tCO2, GJ/tCO2, Gt/yr, years, ...
+  string unit;          // validated against the unit allowlist
   int32 year_basis;
   string source_ref;    // -> Citation.id; required
 }
@@ -129,7 +129,7 @@ message ShortlistEntry {
   string pathway_id;
   ShortlistStatus status;
   string rationale;      // markdown
-  string updated_at;
+  string updated_at;     // ISO 8601
 }
 
 enum EntryKind { OBSERVATION; COMPARISON_NOTE; DECISION; ELIMINATION; }
@@ -140,7 +140,7 @@ message JournalEntry {
   string title;
   string body_markdown;
   repeated string pathway_refs;
-  string created_at;
+  string created_at;     // ISO 8601
 }
 ```
 
@@ -185,35 +185,37 @@ Loader validation rules (all enforced at boot):
 - Every `source_ref` resolves to an entry in `data/sources/*.yaml`
 - Every `material_id` resolves to a material file
 - TRL within 1–9; range low ≤ high
+- The unit allowlist is a fixed constant in `src/lib/seed/loader.ts` (USD/tCO2, GJ/tCO2, GJ-electric/tCO2, Gt/yr, years, tCO2/t-material); extending it is a code change so units stay deliberate.
 
 ## Live edges
 
 Never block core browsing; detail-page-only enrichment.
 
-- **Literature**: OpenAlex (free, no key). Query = pathway `name` + `search_terms`. Results normalized into `Citation`, cached in SQLite, 7-day TTL, stale-while-revalidate: page renders instantly from cache, background refresh updates, UI shows freshness badge ("literature as of ⟨date⟩"; amber on stale/upstream failure with retry).
+- **Literature**: OpenAlex (free, no key). Query = pathway `name` + `search_terms`. Results normalized into `Citation`, cached in SQLite, 7-day TTL, stale-while-revalidate: page renders instantly from cache, background refresh updates, UI shows freshness badge ("literature as of ⟨date⟩"; amber on stale/upstream failure with retry). Cold cache (first visit): the panel renders a loading placeholder and fills when the fetch resolves — never blocks the rest of the page.
 - **Structures**: Material detail resolves `uniprot_id` → embedded Mol* viewer against AlphaFold DB; `pdb_ids_csv` → PDB structures. External-link fallback if embedding fails.
 
 ## UI surfaces
 
 App shell: shadcn sidebar → **Landscape · Compare · Materials · Decision Space · About**.
 
-1. **Landscape** (home) — chart-first layout (user-selected): large switchable-axis scatter dominates ($/t vs TRL default), filter chips by setting/mechanism/TRL, compact list of all pathways below. Hover dot → tooltip with cited ranges; click → Pathway Detail. Filters persist during drilling.
+1. **Landscape** (home) — chart-first layout (user-selected): large switchable-axis scatter dominates ($/t vs TRL default), filters by setting / TRL range / benchmark-only (mechanism is freeform text, not filterable), compact list of all pathways below. Hover dot → tooltip with cited ranges; click → Pathway Detail. Filters persist during drilling.
 2. **Compare** — pick N pathways → side-by-side table with cited ranges and per-metric bar visualizations.
 3. **Pathway Detail** — mechanism explainer, metrics with inline citations, materials involved, advantages/challenges, live literature panel with freshness badge, shortlist actions (shortlist / eliminate with rationale).
 4. **Materials Index** — filterable by class; enzyme/MOF detail pages embed structure viewers where ids exist.
-5. **Decision Space** — shortlist board (CANDIDATE → UNDER EVALUATION → ELIMINATED / CHOSEN) with rationale editing + decision journal timeline (markdown entries linked to pathways).
+5. **Decision Space** — shortlist board (CANDIDATE → UNDER EVALUATION → ELIMINATED / CHOSEN) with rationale editing + decision journal timeline (markdown entries linked to pathways). Status transitions: shortlisting/eliminating from a Pathway Detail page sets CANDIDATE/ELIMINATED; moves to UNDER_EVALUATION and CHOSEN are made on the Decision Space board itself, each optionally with a rationale note.
 
 Drill path: Landscape → hover tooltips → click → Pathway Detail → Material Detail; breadcrumbs back up; shortlisting from any detail page lands in Decision Space immediately.
 
 About/methodology page documents sourcing conventions and caveats.
 
-Bespoke visualization components are appropriate here (canvas/scatter/radar) per project conventions; forms/dialogs/inputs use shadcn primitives.
+Bespoke visualization components are appropriate here (scatter plots, range-bar comparisons) per project conventions; forms/dialogs/inputs use shadcn primitives.
 
 ## Error handling
 
 - Boot validation failures exit with file+field precision (e.g. `mof-dac.yaml: source_ref 'sinha2025' not found in sources/`). Bad data never silently renders.
 - Live edges always degrade gracefully: cached literature with freshness badge; amber badge + retry button on upstream failure; structure viewer falls back to external links.
 - Empty states: fresh install shows empty shortlist/journal with one-line primers ("Shortlist a pathway from its detail page to begin converging").
+- Seed drift: if a `ShortlistEntry`/`JournalEntry` references a pathway id no longer present in the seed, boot logs a warning and Decision Space shows a "removed from seed" tombstone badge — rationale text is preserved, never deleted.
 
 ## Testing
 
