@@ -1,0 +1,34 @@
+id: mof-dac
+name: "MOF-based DAC (diamine-Mg2(dobpdc) class)"
+setting: DAC
+trl: 5
+search_terms: ["diamine-appended Mg2(dobpdc) direct air capture", "step isotherm MOF temperature vacuum swing adsorption", "mmen-Mg2(dobpdc) cooperative CO2 adsorption"]
+mechanism: |
+  Diamine-appended Mg2(dobpdc) metal-organic frameworks capture CO2 via
+  cooperative insertion into metal-bound diamines, forming ammonium-carbamate
+  chains. This yields a step-shaped isotherm: near-full working capacity at
+  ~400 ppm (ambient air) and a sharp release step at modest heating, enabling
+  temperature-vacuum-swing adsorption (TVSA) with low-temperature steam rather
+  than deep vacuum or high-grade heat. Sorbent films are coated onto structured
+  contactors to keep pressure drop low.
+metrics:
+  cost:
+    low: 80
+    high: 600
+    unit: USD/tCO2
+    year_basis: 2023
+    source_ref: young2023
+  energy_thermal:
+    low: 4.5
+    high: 7.5
+    unit: GJ/tCO2
+    year_basis: 2016
+    source_ref: sanzperez2016
+advantages:
+  - "Step-shaped isotherm gives near-full capacity from ambient-air CO2 levels and sharp regeneration"
+  - "TVSA can run on low-quality steam or waste heat; process models project competitive energy use vs liquid-solvent DAC"
+challenges:
+  - "Humid-air degradation and diamine volatilization cut sorbent lifetime"
+  - "MOF synthesis cost and scale-up of structured contactors"
+material_ids: [mg2dobpdc]
+source_refs: [mcqueen2021, young2023, sinha2017, mcdonald2012, darunte2017]

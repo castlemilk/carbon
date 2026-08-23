@@ -1,0 +1,26 @@
+id: humidity-swing-dac
+name: "Humidity-swing DAC (ion-exchange resin)"
+setting: DAC
+trl: 4
+search_terms: ["humidity swing CO2 capture", "ion exchange resin direct air capture", "moisture swing sorbent"]
+mechanism: |
+  Anionic ion-exchange resins functionalized with carbonate/bicarbonate
+  counterions bind CO2 when dry and release it when exposed to water vapour:
+  humidification shifts the equilibrium back to bicarbonate, releasing CO2 with
+  no thermal or pressure swing. Regeneration energy is dominated by the latent
+  heat of the humidity swing rather than sensible heating of sorbent. Bench and
+  prototype scale; no full-scale plant built.
+metrics:
+  cost:
+    low: 100
+    high: 600
+    unit: USD/tCO2
+    year_basis: 2021
+    source_ref: mcqueen2021
+advantages:
+  - "Regenerates on water vapour alone - no vacuum pumps or high-grade heat"
+  - "Ambient-temperature operation suits passive or low-energy contactors"
+challenges:
+  - "Resin capacity and kinetics degrade over humidity cycles"
+  - "No commercial prototype at meaningful scale; cost estimates speculative"
+source_refs: [mcqueen2021, sanzperez2016]

@@ -1,0 +1,28 @@
+id: mea-scrubbing
+name: "MEA amine scrubbing (benchmark)"
+setting: POINT_SOURCE
+is_benchmark: true
+trl: 9
+search_terms: ["MEA post-combustion capture", "monoethanolamine CO2 scrubbing"]
+mechanism: |
+  30 wt% monoethanolamine aqueous solvent chemisorbs CO2 from flue gas in an
+  absorber column (~40-60 C); the rich solvent is regenerated in a stripper at
+  ~120 C, releasing a pure CO2 stream for compression. Mature incumbent
+  technology.
+metrics:
+  cost:
+    low: 40
+    high: 90
+    unit: USD/tCO2
+    year_basis: 2022
+    source_ref: iea2022ccus
+  energy_thermal:
+    low: 3.5
+    high: 4.2
+    unit: GJ/tCO2
+    year_basis: 2022
+    source_ref: iea2022ccus
+advantages: ["Proven at scale for decades", "High capture efficiency (>90%)"]
+challenges: ["Large reboiler duty", "Solvent degradation and aerosol emissions"]
+material_ids: [mea]
+source_refs: [iea2022ccus, nas2019]

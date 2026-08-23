@@ -1,0 +1,27 @@
+id: macroalgae-cultivation
+name: "Macroalgae cultivation and sinking"
+setting: BIOLOGICAL
+trl: 4
+search_terms: ["macroalgae cultivation carbon sequestration", "seaweed farming blue carbon", "kelp sinking CO2 removal"]
+mechanism: |
+  Farmed seaweed fixes CO2 rapidly (global wild seaweed communities take up
+  ~1.5 PgC/yr in production); climate benefit accrues only if farmed biomass
+  carbon is buried in sediments or exported to the deep sea rather than
+  decomposing on the shelf. Duarte et al. (2017) estimate current aquaculture
+  sequestration upper limits around 2.5 MtCO2/yr (~0.4% of the ~0.63 GtCO2/yr
+  sequestered by wild seaweeds), with per-area removal intensity of roughly
+  1,500 tCO2/km2/yr. Deliberate deep-water sinking remains unproven.
+metrics:
+  capacity_potential:
+    low: 0.1
+    high: 1
+    unit: Gt/yr
+    year_basis: 2017
+    source_ref: duarte2017
+advantages:
+  - "No freshwater, fertilizer, or land footprint; established aquaculture industry"
+  - "Co-products: food, feed (methane-reducing additives), biofuels"
+challenges:
+  - "Fate of exported carbon largely unverified - most decomposes before deep burial"
+  - "Nutrient and light competition; offshore engineering for rough seas"
+source_refs: [duarte2017]

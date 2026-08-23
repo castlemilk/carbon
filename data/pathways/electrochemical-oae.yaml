@@ -1,0 +1,27 @@
+id: electrochemical-oae
+name: "Electrochemical ocean alkalinity enhancement (seawater mineralization)"
+setting: OCEAN_DIC
+trl: 5
+search_terms: ["electrolytic seawater mineralization", "single-step carbon sequestration sCS2", "ocean alkalinity enhancement electrolysis"]
+mechanism: |
+  Flow-through membraneless electrolysis splits seawater, raising catholyte pH
+  so dissolved inorganic carbon and divalent cations precipitate as stable
+  calcium/magnesium carbonates (or as Mg(OH)2 that later draws down atmospheric
+  CO2 as dissolved bicarbonate). The acidic anolyte is neutralized with
+  alkaline rocks before discharge. Mineralized CO2 is immobilized durably -
+  effectively 10,000-100,000 years - without geological storage; the process
+  coproduces H2 (and chlorine unless oxygen-selective anodes are used).
+metrics:
+  permanence:
+    low: 10000
+    high: 100000
+    unit: years
+    year_basis: 2021
+    source_ref: laplante2021
+advantages:
+  - "Solid-carbonate storage with millennial durability, no pipelines or reservoirs"
+  - "Modular electrochemical plant; H2 co-product"
+challenges:
+  - "Chlorine and chlorinated byproduct management at seawater anodes"
+  - "Large low-carbon electricity demand; electrode scaling and carbonate precipitation control"
+source_refs: [laplante2021]

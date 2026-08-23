@@ -1,0 +1,33 @@
+id: electro-sorption-dac
+name: "Electro-sorption DAC (quinone electrodes)"
+setting: DAC
+trl: 4
+search_terms: ["faradaic electro-swing CO2 capture", "quinone carbon nanotube electrode DAC", "electrochemical direct air capture"]
+mechanism: |
+  Solid-state electrochemical cells capture CO2 by reductive addition to
+  quinone units on polyanthraquinone-carbon-nanotube electrodes and release it
+  on discharge (electro-swing adsorption). Capacity is essentially independent
+  of inlet concentration (demonstrated 0.6-10% CO2), so the same hardware works
+  for air and flue gas. Cells stack into parallel-passage contactors needing
+  only a DC power source - no steam, vacuum, or ancillary equipment.
+metrics:
+  cost:
+    low: 50
+    high: 200
+    unit: USD/tCO2
+    year_basis: 2019
+    source_ref: voskian2019
+  energy_electric:
+    low: 0.9
+    high: 2.1
+    unit: GJ-e/tCO2
+    year_basis: 2019
+    source_ref: voskian2019
+advantages:
+  - "All-electric, ambient-pressure operation; simple plug-and-play modules"
+  - "Capacity independent of feed concentration; <30% loss over 7000 cycles"
+challenges:
+  - "Only lab-scale cells built; module scale-up unproven at DAC airflow rates"
+  - "Ionic-liquid electrolyte cost and long-term electrode stability"
+material_ids: [quinone-electrode]
+source_refs: [voskian2019]

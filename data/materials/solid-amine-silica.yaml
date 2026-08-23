@@ -1,0 +1,10 @@
+id: solid-amine-silica
+name: "Amine-functionalized silica sorbent"
+class: AMINE_SORBENT
+summary: >
+  Porous silica supports (or similar high-surface-area scaffolds) grafted or
+  impregnated with amines (PEI, APTES, diamines). Chemisorbent that captures
+  CO2 from dilute streams at 25-60 C and regenerates via TSA/TVSA at roughly
+  80-120 C. Lower regeneration energy than aqueous amines and no water penalty,
+  but capacity decays over cycles through oxidative and thermal amine
+  degradation, especially under humid flue gas.

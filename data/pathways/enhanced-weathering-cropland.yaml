@@ -1,0 +1,40 @@
+id: enhanced-weathering-cropland
+name: "Enhanced rock weathering (croplands)"
+setting: MINERALIZATION
+trl: 6
+search_terms: ["enhanced rock weathering croplands", "basalt dust soil carbon removal", "terrestrial enhanced weathering"]
+mechanism: |
+  Crushed silicate rock (basalt, olivine) is spread on cropland where warm,
+  wet, biologically active soils accelerate dissolution; captured CO2 is
+  converted to bicarbonate that drains to rivers and the ocean, storing it on
+  intergenerational timescales. Co-benefits include nutrient supply and pH
+  amelioration. Field trials in the US Corn Belt and UK quantify in-soil
+  weathering; global techno-economic assessments identify 0.5-2 GtCO2/yr
+  potential at ~US$80-180/tCO2.
+metrics:
+  cost:
+    low: 80
+    high: 180
+    unit: USD/tCO2
+    year_basis: 2020
+    source_ref: beerling2020
+  capacity_potential:
+    low: 0.5
+    high: 2
+    unit: Gt/yr
+    year_basis: 2020
+    source_ref: beerling2020
+  permanence:
+    low: 10000
+    high: 100000
+    unit: years
+    year_basis: 2017
+    source_ref: renforth2017
+advantages:
+  - "Distributed deployment using existing agricultural machinery and supply chains"
+  - "Agronomic co-benefits: nutrients, liming effect, possible N2O suppression"
+challenges:
+  - "MRV of actual weathering rates in soils remains uncertain"
+  - "Grinding and transport emissions erode net removal if sourcing is distant"
+material_ids: [olivine, basalt]
+source_refs: [beerling2020, renforth2017]

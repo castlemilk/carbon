@@ -1,0 +1,33 @@
+id: advanced-amine-point-source
+name: "Advanced amine solvents (point source)"
+setting: POINT_SOURCE
+trl: 8
+search_terms: ["advanced amine solvent post-combustion capture", "CANSOLV DC103 pilot", "low reboiler duty amine"]
+mechanism: |
+  Next-generation amine blends (e.g. CANSOLV DC-103) capture CO2 from flue gas
+  in an absorber-stripper loop like MEA scrubbing, but with lower volatility,
+  lower degradation, and reduced reboiler duty, allowing higher regeneration
+  pressures that cut compression energy too. Demonstrated at pilot scale on
+  waste-to-energy and coal flue gas (Fortum Oslo Varme 2019 campaign; Boundary
+  Dam Unit 3 at commercial scale).
+metrics:
+  cost:
+    low: 36
+    high: 53
+    unit: USD/tCO2
+    year_basis: 2019
+    source_ref: nas2019
+  energy_thermal:
+    low: 2.4
+    high: 3.5
+    unit: GJ/tCO2
+    year_basis: 2021
+    source_ref: fagerlund2021
+advantages:
+  - "Near-commercial with multiple full-scale deployments"
+  - "Lower emissions and regeneration energy than MEA"
+challenges:
+  - "Aerosol-mediated amine slip requires mitigation trains"
+  - "Solvent cost and long-term degradation on real flue gases"
+material_ids: [cansolv-solvent]
+source_refs: [fagerlund2021, nas2019, iea2022ccus]

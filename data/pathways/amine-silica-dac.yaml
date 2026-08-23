@@ -1,0 +1,33 @@
+id: amine-silica-dac
+name: "Amine-silica solid sorbent DAC"
+setting: DAC
+trl: 6
+search_terms: ["amine functionalized silica direct air capture", "solid sorbent DAC temperature vacuum swing", "PEI silica CO2 adsorbent air"]
+mechanism: |
+  Amine-grafted or amine-impregnated mesoporous silica (and similar scaffolds)
+  adsorb CO2 from air at ambient conditions via carbamate/bicarbonate
+  formation, then regenerate at ~80-120 C under vacuum with low-grade steam
+  (TSA/TVSA). Modular filter units with low pressure drop process large air
+  volumes; captured CO2 is concentrated to >95% for storage. Commercialized by
+  Climeworks (amine-functionalized cellulose) and others.
+metrics:
+  cost:
+    low: 80
+    high: 600
+    unit: USD/tCO2
+    year_basis: 2023
+    source_ref: young2023
+  energy_thermal:
+    low: 4.0
+    high: 7.0
+    unit: GJ/tCO2
+    year_basis: 2016
+    source_ref: sanzperez2016
+advantages:
+  - "Runs on low-temperature heat; modular scale-out from small units"
+  - "No water balance penalty unlike liquid solvent loops"
+challenges:
+  - "Sorbent degradation under humid, oxidizing air shortens lifetime"
+  - "Cost dominated by sorbent replacement and contactor capital"
+material_ids: [solid-amine-silica]
+source_refs: [sanzperez2016, young2023, darunte2017]

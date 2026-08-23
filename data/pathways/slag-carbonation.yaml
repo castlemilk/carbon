@@ -1,0 +1,33 @@
+id: slag-carbonation
+name: "Industrial residue carbonation (slag and ash)"
+setting: MINERALIZATION
+trl: 6
+search_terms: ["steel slag carbonation CO2", "industrial alkaline waste mineralization", "ex-situ mineral carbonation residues"]
+mechanism: |
+  Alkaline industrial residues - steel slag, fly ash, cement kiln dust, mine
+  tailings - contain Ca/Mg oxides and silicates that react with CO2 to form
+  stable carbonate minerals, either ex-situ in reactors or passively in stockpiles.
+  Renforth (2019) estimates global alkaline-material production (~7 Gt/yr) could
+  sequester 2.9-8.5 GtCO2 per year by 2100 across all residues, with slags and
+  ashes the highest-reactivity fraction. Products can substitute aggregates or
+  precipitated carbonate fillers.
+metrics:
+  capacity_potential:
+    low: 2.9
+    high: 8.5
+    unit: Gt/yr
+    year_basis: 2019
+    source_ref: renforth2019
+  permanence:
+    low: 10000
+    high: 100000
+    unit: years
+    year_basis: 2019
+    source_ref: renforth2019
+advantages:
+  - "Uses existing waste streams - no mining burden; potential product revenue"
+  - "Carbonates are thermodynamically stable on geological timescales"
+challenges:
+  - "Residue supply is finite and geographically fixed; not scalable beyond ~Gt/yr"
+  - "Trace-metal leaching during processing; slow intrinsic reaction rates"
+source_refs: [renforth2019]

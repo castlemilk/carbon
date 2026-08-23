@@ -1,0 +1,33 @@
+id: solid-amine-point-source
+name: "Solid amine sorbents (point source)"
+setting: POINT_SOURCE
+trl: 8
+search_terms: ["solid amine sorbent flue gas capture", "structured contactor temperature swing adsorption", "amine-functionalized silica post-combustion"]
+mechanism: |
+  Amine-functionalized solid sorbents on structured (monolith/lamella)
+  contactors adsorb CO2 from flue gas at 40-60 C and regenerate with low-grade
+  steam via temperature or temperature-vacuum swing (~80-120 C). Avoids water
+  balance issues and solvent aerosols of liquid amines; heat input is latent
+  steam rather than reboiler duty. Commercialized by vendors for gas turbines
+  and industrial sources.
+metrics:
+  cost:
+    low: 25
+    high: 80
+    unit: USD/tCO2
+    year_basis: 2021
+    source_ref: mcqueen2021
+  energy_thermal:
+    low: 2.0
+    high: 3.5
+    unit: GJ/tCO2
+    year_basis: 2021
+    source_ref: mcqueen2021
+advantages:
+  - "No solvent make-up, wastewater, or aerosol emissions"
+  - "Regeneration with low-quality steam; compact modular contactors"
+challenges:
+  - "Sorbent capacity decay from oxidation and humidity cycling"
+  - "Sorbent replacement cost dominates operating expense"
+material_ids: [solid-amine-silica]
+source_refs: [mcqueen2021]

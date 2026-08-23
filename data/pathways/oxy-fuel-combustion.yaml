@@ -1,0 +1,25 @@
+id: oxy-fuel-combustion
+name: "Oxy-fuel combustion"
+setting: POINT_SOURCE
+trl: 7
+search_terms: ["oxy-fuel combustion carbon capture", "oxygen-fired boiler flue gas CO2", "air separation unit capture"]
+mechanism: |
+  Fuel is burned in near-pure oxygen (from a cryogenic air separation unit)
+  instead of air, with flue-gas recycle to control flame temperature. The
+  resulting flue gas is mostly CO2 and water, so capture reduces to condensing
+  out water and purifying the CO2 stream for compression - no chemical solvent
+  loop. Demonstrated at pilot scale (e.g. Schwarze Pumpe 30 MWth) and Callide.
+metrics:
+  cost:
+    low: 30
+    high: 70
+    unit: USD/tCO2
+    year_basis: 2021
+    source_ref: iea2022ccus
+advantages:
+  - "No solvent consumption or degradation; simple back-end purification"
+  - "Applicable to new-build boilers designed around oxy-firing"
+challenges:
+  - "Large air separation unit energy penalty (~15-20% of gross output)"
+  - "Air ingress dilutes CO2; boiler retrofit complexity"
+source_refs: [iea2022ccus, nas2019]

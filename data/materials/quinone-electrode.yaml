@@ -1,0 +1,11 @@
+id: quinone-electrode
+name: "Polyanthraquinone-carbon nanotube composite electrode"
+class: ELECTRODE_MATERIAL
+summary: >
+  Redox-active negative electrode for faradaic electro-swing CO2 capture:
+  anthraquinone units immobilized on carbon-nanotube substrates carboxylate
+  upon electrochemical reduction (capturing CO2) and release it on discharge.
+  Capacity is nearly independent of inlet CO2 concentration (demonstrated from
+  0.6% to 10%), with >90% faradaic efficiency, a work of 40-90 kJ per mol CO2,
+  and <30% capacity loss over 7000 cycles. Paired with a ferrocene-CNT counter
+  electrode in an ionic-liquid electrolyte.

@@ -1,0 +1,29 @@
+id: mineral-addition-oae
+name: "Mineral addition ocean alkalinity enhancement (ocean liming)"
+setting: OCEAN_DIC
+trl: 5
+search_terms: ["ocean liming CO2 removal", "ocean alkalinity enhancement lime olivine", "accelerated weathering limestone seawater"]
+mechanism: |
+  Processed alkaline minerals - calcined limestone (lime/portlandite), ground
+  olivine, or industrial alkalinity - are distributed at the ocean surface.
+  Dissolution consumes CO2 and converts it to bicarbonate held as ocean
+  alkalinity for long periods; natural silicate weathering already sequesters
+  ~0.5 GtCO2 per year by the same chemistry. Lime production dominates cost and
+  embodied CO2 unless calcination is paired with capture or electrochemical
+  routes.
+metrics:
+  cost:
+    low: 20
+    high: 100
+    unit: USD/tCO2
+    year_basis: 2017
+    source_ref: renforth2017
+advantages:
+  - "Leverages abundant minerals and proven bulk-materials handling"
+  - "May locally ameliorate ocean acidification"
+challenges:
+  - "Lime production emits CO2 unless kiln capture is added"
+  - "Local pH/carbonate-saturation spikes; ecological response uncertain"
+  - "Longevity of stored alkalinity still to be constrained"
+material_ids: [cao-lime]
+source_refs: [renforth2017, nas2019]

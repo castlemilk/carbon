@@ -1,0 +1,27 @@
+id: membranes-point-source
+name: "Membrane separation (point source)"
+setting: POINT_SOURCE
+trl: 6
+search_terms: ["polymeric membrane flue gas CO2 separation", "membrane post-combustion capture pilot", "CO2 selective membrane"]
+mechanism: |
+  CO2-selective polymeric (or facilitated-transport) membranes separate CO2
+  from flue gas by differential permeability under a partial-pressure driving
+  force, typically with multi-stage vacuum or sweep configurations. No solvent
+  or sorbent inventory; capture fraction set by stage cut and selectivity.
+  Pilot-scale trials on gas-fired flue gas and natural-gas processing are
+  operating; power-scale deployment remains limited by economics of dilute
+  streams.
+metrics:
+  cost:
+    low: 40
+    high: 90
+    unit: USD/tCO2
+    year_basis: 2019
+    source_ref: nas2019
+advantages:
+  - "No chemicals, no regeneration steam; simple modular footprint"
+  - "Continuous steady-state operation with no sorbent cycling"
+challenges:
+  - "Selectivity/permeability trade-off raises cost on dilute (~4-15% CO2) streams"
+  - "Multi-stage compression/vacuum energy; membrane aging and fouling"
+source_refs: [nas2019]

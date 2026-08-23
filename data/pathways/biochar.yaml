@@ -1,0 +1,32 @@
+id: biochar
+name: "Biochar soil amendment"
+setting: BIOLOGICAL
+trl: 6
+search_terms: ["biochar carbon sequestration soil", "pyrolysis biochar negative emissions", "biochar mean residence time"]
+mechanism: |
+  Biomass pyrolysed under limited oxygen yields a carbon-rich char whose
+  aromatic structure resists decomposition for centuries when incorporated in
+  soils, storing photosynthetically fixed carbon that would otherwise return
+  rapidly to the atmosphere. Pyrolysis gases/liquids co-produce energy; biochar
+  also improves soil fertility and water retention. Commercial production
+  exists (tens of kt/yr in North America) but removal volumes remain small.
+metrics:
+  cost:
+    low: 37
+    high: 132
+    unit: USD/tCO2
+    year_basis: 2019
+    source_ref: nas2019
+  permanence:
+    low: 100
+    high: 1000
+    unit: years
+    year_basis: 2019
+    source_ref: nas2019
+advantages:
+  - "Negative-cost potential where soil benefits are monetized; distributed deployment"
+  - "More stable than soil organic matter - centennial storage"
+challenges:
+  - "Persistence varies widely with feedstock and pyrolysis temperature"
+  - "MRV of in-soil stability; feedstock logistics limit scale"
+source_refs: [nas2019]

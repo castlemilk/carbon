@@ -1,0 +1,19 @@
+id: mg2dobpdc
+name: "Diamine-appended Mg2(dobpdc) MOF"
+class: MOF
+summary: >
+  Metal-organic framework Mg2(dobpdc) (dobpdc4- = 4,4'-dioxidobiphenyl-3,3'-
+  dicarboxylate) with alkyl diamines appended to open Mg(II) sites. CO2 uptake
+  proceeds via cooperative insertion into the metal-bound diamine, forming
+  ammonium-carbamate chains and producing a step-shaped isotherm: near-full
+  capacity at very low CO2 partial pressures (including ~400 ppm air) and sharp
+  release on mild heating. Enables temperature-vacuum-swing DAC with low steam
+  quality. mmen-Mg2(dobpdc) retains capacity under moderate humidity; diamine
+  volatilization during regeneration remains the key lifetime concern.
+properties:
+  working_capacity:
+    low: 2.3
+    high: 2.9
+    unit: mmol/g
+    year_basis: 2017
+    source_ref: darunte2017

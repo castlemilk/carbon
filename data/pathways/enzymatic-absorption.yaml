@@ -1,0 +1,21 @@
+id: enzymatic-absorption
+name: "Enzymatic CO2 absorption (carbonic anhydrase)"
+setting: BIOLOGICAL
+trl: 4
+search_terms: ["carbonic anhydrase carbon capture", "enzyme accelerated CO2 absorption", "biomimetic post-combustion capture"]
+mechanism: |
+  Carbonic anhydrase (CA) catalyses CO2 + H2O <-> HCO3- + H+ with turnover up
+  to ~10^6 s-1, roughly a million-fold acceleration over the uncatalysed
+  hydration. Immobilized thermostable CAs speed absorber kinetics in water or
+  amino-acid-salt solvents, allowing smaller absorbers and lower-temperature
+  regeneration (~60-90 C) than amine scrubbing. CA can also accelerate
+  mineralization of captured CO2 as CaCO3.
+advantages:
+  - "High selectivity and fast kinetics under mild, non-corrosive conditions"
+  - "Regeneration at lower temperature than amine solvents, cutting heat demand"
+challenges:
+  - "Enzyme thermal and pH stability in hot alkaline process streams"
+  - "Immobilization lifetime and enzyme production cost"
+  - "Unproven economics; no full-scale demonstration"
+material_ids: [carbonic-anhydrase]
+source_refs: [talekar2022]

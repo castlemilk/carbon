@@ -1,0 +1,32 @@
+id: soil-carbon-sequestration
+name: "Soil carbon sequestration"
+setting: BIOLOGICAL
+trl: 7
+search_terms: ["soil organic carbon sequestration cropland", "regenerative agriculture carbon removal", "no-till cover crop soil carbon"]
+mechanism: |
+  Management changes - reduced tillage, cover crops, residue retention, rotational
+  grazing - increase soil organic carbon stocks in agricultural soils,
+  removing CO2 from the atmosphere as humus. Practices are deployable today
+  with existing farm operations and often raise yields; but gains saturate
+  (typically within 10-20 years) and are reversible if practices lapse, so the
+  pathway is best treated as a finite stock build rather than permanent removal.
+metrics:
+  cost:
+    low: 0
+    high: 100
+    unit: USD/tCO2
+    year_basis: 2019
+    source_ref: nas2019
+  capacity_potential:
+    low: 1
+    high: 5
+    unit: Gt/yr
+    year_basis: 2019
+    source_ref: nas2019
+advantages:
+  - "Deployable now with existing agronomy at low or negative cost"
+  - "Co-benefits for yields, water holding, and erosion"
+challenges:
+  - "Saturation and reversibility undermine permanence claims"
+  - "Measurement of stock change is costly and noisy per farm"
+source_refs: [nas2019]

@@ -1,0 +1,27 @@
+id: basalt-injection
+name: "In-situ basalt mineralization (injected CO2)"
+setting: MINERALIZATION
+trl: 7
+search_terms: ["CarbFix basalt injection mineralization", "in-situ CO2 mineralization basalt", "dissolved CO2 geologic storage"]
+mechanism: |
+  CO2 is dissolved in water downhole and injected into reactive basaltic
+  formations, where Ca/Mg/Fe silicates react with the dissolved carbon to form
+  carbonate minerals. The CarbFix pilot at Hellisheidi, Iceland demonstrated >
+  95% mineralization of injected CO2 within two years - orders of magnitude
+  faster than expected - because dissolution (not buoyant free-phase gas)
+  maximizes contact with host rock. Mineralized carbon is permanently stored.
+metrics:
+  permanence:
+    low: 10000
+    high: 100000
+    unit: years
+    year_basis: 2016
+    source_ref: matter2016
+advantages:
+  - "Rapid in-situ mineralization removes leakage risk entirely"
+  - "Vast global basalt provinces, including offshore basalts"
+challenges:
+  - "Water demand per tonne of CO2; injection-induced seismicity management"
+  - "Requires capture plant co-located with suitable basalt geology"
+material_ids: [basalt]
+source_refs: [matter2016]

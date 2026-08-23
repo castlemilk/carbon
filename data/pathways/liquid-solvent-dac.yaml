@@ -1,0 +1,38 @@
+id: liquid-solvent-dac
+name: "Liquid solvent DAC (tropical KOH loop)"
+setting: DAC
+trl: 8
+search_terms: ["liquid solvent direct air capture", "KOH causticization DAC", "calcium pellet reactor air contactor"]
+mechanism: |
+  Atmospheric CO2 is absorbed into ~1 M KOH in large thin-film air contactors,
+  forming K2CO3. The carbonate is causticized with Ca(OH)2 to precipitate
+  CaCO3 pellets, which are calcined at ~900 C in an oxy-fired kiln, releasing a
+  pure CO2 stream and regenerating lime and KOH in closed loops. First
+  megatonne-scale plants (Climeworks Mammoth is solid; this design is Carbon
+  Engineering's, now 1PointFive) built on cooling-tower contactor hardware.
+metrics:
+  cost:
+    low: 94
+    high: 232
+    unit: USD/tCO2
+    year_basis: 2018
+    source_ref: keith2018
+  energy_thermal:
+    low: 5.0
+    high: 9.0
+    unit: GJ/tCO2
+    year_basis: 2018
+    source_ref: keith2018
+  energy_electric:
+    low: 1.0
+    high: 2.0
+    unit: GJ-e/tCO2
+    year_basis: 2018
+    source_ref: keith2018
+advantages:
+  - "Air contactor uses off-the-shelf cooling-tower components; scalable to Mt/yr"
+  - "High-temperature calciner delivers pipeline-ready pure CO2"
+challenges:
+  - "Large natural-gas (or electrified) heat demand drives cost and siting"
+  - "Causticization solids handling at extreme scale; water evaporation losses"
+source_refs: [keith2018, young2023, fasihi2019]

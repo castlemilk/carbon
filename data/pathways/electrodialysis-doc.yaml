@@ -1,0 +1,27 @@
+id: electrodialysis-doc
+name: "Electrodialytic DOC extraction (BPMED)"
+setting: OCEAN_DIC
+trl: 5
+search_terms: ["bipolar membrane electrodialysis seawater CO2", "dissolved inorganic carbon extraction ocean", "electrochemical pH swing seawater"]
+mechanism: |
+  Bipolar membrane electrodialysis (BPMED) splits water to acidify a slipstream
+  of seawater, shifting the carbonate equilibrium so dissolved inorganic carbon
+  degasses as CO2 gas that is vacuum-stripped for storage or utilization; the
+  base stream re-alkalinizes the discharge. A prototype extracted 59% of total
+  DIC with 242 kJ/mol CO2 electrochemical consumption. Because the ocean holds
+  ~150x the atmospheric DIC inventory per unit volume of air processed, feed
+  handling replaces huge air flows.
+metrics:
+  energy_electric:
+    low: 4
+    high: 6
+    unit: GJ-e/tCO2
+    year_basis: 2012
+    source_ref: eisaman2012
+advantages:
+  - "No sorbent inventory; membrane stack is modular and scalable"
+  - "Discharged stream leaves ocean alkalinity enhanced"
+challenges:
+  - "Membrane cost and fouling; electrode scaling at seawater chemistry"
+  - "System-level energy including pumping and stripping exceeds stack-only figures"
+source_refs: [eisaman2012, mcqueen2021]

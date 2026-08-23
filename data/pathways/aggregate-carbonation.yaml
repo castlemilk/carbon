@@ -1,0 +1,27 @@
+id: aggregate-carbonation
+name: "Demolition aggregate carbonation (recycled concrete)"
+setting: MINERALIZATION
+trl: 5
+search_terms: ["recycled concrete aggregate carbonation", "demolition waste CO2 sequestration", "concrete carbonation curing"]
+mechanism: |
+  Crushed demolition concrete and cement fines re-absorb atmospheric CO2 as
+  their exposed calcium silicate hydrate and portlandite carbonates - partially
+  reversing calcination emissions from the original clinker. Accelerated
+  carbonation curing of fresh recycled aggregate can also harden products while
+  storing CO2. Part of the alkaline-materials inventory whose global potential
+  Renforth (2019) quantifies; storage is as solid carbonate within construction
+  material.
+metrics:
+  permanence:
+    low: 10000
+    high: 100000
+    unit: years
+    year_basis: 2019
+    source_ref: renforth2019
+advantages:
+  - "No new feedstock - uses existing demolition flows and urban logistics"
+  - "Carbonate product stays in durable built infrastructure"
+challenges:
+  - "Carbonation front-limited: only fines and crushed surfaces react quickly"
+  - "Modular, distributed removal is hard to measure and credit"
+source_refs: [renforth2019]

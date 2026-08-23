@@ -1,0 +1,9 @@
+id: cansolv-solvent
+name: "Shell CANSOLV DC-103 (advanced amine solvent)"
+class: LIQUID_SOLVENT
+summary: >
+  Proprietary amine blend designed for low volatility and low regeneration
+  energy in post-combustion capture. Demonstrated at the Fortum Oslo Varme
+  waste-to-energy pilot (2019 campaign) and the National Carbon Capture Center;
+  deployed at scale at Boundary Dam Unit 3. Lower amine emissions and reboiler
+  duty than 30 wt% MEA.

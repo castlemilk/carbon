@@ -34,6 +34,10 @@ use `nvm use` before installing/running.
 - Seed/reference data lives in YAML under `data/`.
 - `src/lib/gen/` contains generated protobuf output (`npm run gen`) — never
   edit by hand; the generated files are committed.
+- Seed data loads at boot via `src/instrumentation.ts`: restarting the dev
+  server reloads seed changes from `data/`. Boot logs `[seed] {counts}` and a
+  `[seed] drift:` warning for shortlist/journal rows referencing pathways no
+  longer in `data/`. `npm run seed:check data` validates without booting.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

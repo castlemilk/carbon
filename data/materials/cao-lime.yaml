@@ -1,0 +1,9 @@
+id: cao-lime
+name: "Calcium oxide / limestone (CaO-CaCO3 pair)"
+class: MINERAL
+summary: >
+  Cheap, abundant sorbent pair for high-temperature capture. CaO carbonates at
+  ~650 C and calcines back to CaO at ~900 C; crushed limestone is orders of
+  magnitude cheaper than amine solvents per tonne of CO2 cycled, but natural
+  sorbents sinter and lose reactivity over repeated cycles, requiring continuous
+  make-up. Spent sorbent can integrate with cement manufacture.

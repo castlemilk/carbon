@@ -1,0 +1,13 @@
+id: carbonic-anhydrase
+name: "Carbonic anhydrase (alpha-class)"
+class: ENZYME
+uniprot_id: P00918
+summary: >
+  Zinc metalloenzyme catalysing CO2 + H2O <-> HCO3- + H+ with turnover rates up
+  to ~10^6 s-1, accelerating CO2 hydration by many orders of magnitude over the
+  uncatalysed reaction (k_hyd ~0.037 s-1). Immobilized thermostable variants
+  (from extremophiles such as Sulfurihydrogenibium yellowstonense or Bacillus
+  halodurans) accelerate absorber kinetics in aqueous or amino-acid-salt
+  solvents, enabling lower regeneration temperatures than amine scrubbing.
+  Enzyme lifetime under hot alkaline flue-gas conditions is the central open
+  problem.

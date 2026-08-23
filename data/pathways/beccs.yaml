@@ -1,0 +1,33 @@
+id: beccs
+name: "Bioenergy with carbon capture and storage (benchmark)"
+setting: BIOLOGICAL
+is_benchmark: true
+trl: 8
+search_terms: ["BECCS bioenergy carbon capture", "biomass gasification CCS negative emissions", "bioethanol BECCS Illinois"]
+mechanism: |
+  Biomass grown via photosynthesis is converted to energy (power, ethanol, H2)
+  and the resulting CO2-rich stream is captured and geologically stored,
+  yielding net atmospheric CO2 removal if biomass regrowth and supply-chain
+  emissions balance. Operating examples: Illinois Industrial (ethanol
+  fermentation, >1 MtCO2/yr stored) and Drax pilot (biopower flue gas). IAM
+  scenarios rely on multi-Gt BECCS to meet 1.5-2 C targets.
+metrics:
+  cost:
+    low: 30
+    high: 160
+    unit: USD/tCO2
+    year_basis: 2019
+    source_ref: nas2019
+  capacity_potential:
+    low: 0.5
+    high: 5
+    unit: Gt/yr
+    year_basis: 2019
+    source_ref: nas2019
+advantages:
+  - "Only large-scale pathway pairing energy production with net removal"
+  - "Capture step uses mature amine/physical-solvent technology"
+challenges:
+  - "Land, water, and biodiversity footprint of dedicated biomass at scale"
+  - "Deployment rates in climate scenarios exceed historical analogues; governance of supply critical"
+source_refs: [vaughan2018, nas2019]

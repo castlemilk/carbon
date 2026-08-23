@@ -1,0 +1,34 @@
+id: calcium-looping
+name: "Calcium looping (benchmark)"
+setting: POINT_SOURCE
+is_benchmark: true
+trl: 7
+search_terms: ["calcium looping CO2 capture", "CaO carbonation calcination cycle", "limestone sorbent fluidised bed"]
+mechanism: |
+  Crushed limestone cycles between two fluidised beds: CaO carbonates with flue-
+  gas CO2 at ~650 C (carbonator, exothermic, heat recovered for steam), and
+  CaCO3 is calcined at ~900 C in an oxy-fired calciner releasing a pure CO2
+  stream. Sorbent degrades over cycles so fresh limestone make-up is required;
+  spent sorbent can feed cement manufacture, decarbonising both processes.
+  Pilot plants up to MW scale have operated.
+metrics:
+  cost:
+    low: 20
+    high: 50
+    unit: USD/tCO2
+    year_basis: 2011
+    source_ref: anthony2011
+  energy_thermal:
+    low: 3.0
+    high: 4.5
+    unit: GJ/tCO2
+    year_basis: 2011
+    source_ref: anthony2011
+advantages:
+  - "Extremely cheap sorbent (crushed limestone); reactors use proven circulating fluidised bed technology"
+  - "High-temperature heat recovery offsets efficiency penalty; cement integration synergy"
+challenges:
+  - "Sorbent sintering and capacity fade over carbonation cycles"
+  - "Oxy-fired calciner requires air separation unit; attrition of sorbent"
+material_ids: [cao-lime]
+source_refs: [anthony2011, nas2019]

@@ -1,0 +1,9 @@
+id: mea
+name: "Monoethanolamine (30 wt% aqueous)"
+class: LIQUID_SOLVENT
+summary: >
+  Benchmark post-combustion solvent. MEA chemisorbs CO2 as a carbamate in an
+  absorber at ~40-60 C and is regenerated in a stripper at ~120 C. Well
+  understood chemistry and kinetics, but high reboiler duty and solvent
+  degradation make it the reference point that advanced solvents are judged
+  against.

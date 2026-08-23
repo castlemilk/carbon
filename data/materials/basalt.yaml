@@ -1,0 +1,10 @@
+id: basalt
+name: "Basaltic rock"
+class: MINERAL
+summary: >
+  Reactive Ca/Mg/Fe silicate rock used two ways: as feedstock for cropland
+  enhanced weathering, and as the injection substrate for in-situ CO2
+  mineralization - dissolved CO2 injected into basaltic formations reacts with
+  host rock cations to form carbonate minerals within years (CarbFix trials:
+  >95% of injected CO2 mineralized within two years). Globally abundant,
+  including offshore.
