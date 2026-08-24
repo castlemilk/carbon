@@ -45,6 +45,14 @@ describe('assertTransition', () => {
   it('rejects unknown source statuses', () => {
     expect(() => assertTransition('MADE_UP_SOURCE', 'ELIMINATED')).toThrow()
   })
+
+  it('rejects numeric-string statuses (hydrated enum reverse-mapping trap)', () => {
+    // '2' satisfies `'2' in ShortlistStatus` via the enum's reverse mapping but is not a name
+    expect(() => assertTransition('CANDIDATE', '2')).toThrow(/numeric/)
+    expect(() => assertTransition('3', 'CHOSEN')).toThrow(/numeric/)
+    expect(() => assertTransition('2', '2')).toThrow(/numeric/)
+    expect(() => assertTransition('CANDIDATE', '0')).toThrow(/numeric/)
+  })
 })
 
 describe('normalizeRationale', () => {

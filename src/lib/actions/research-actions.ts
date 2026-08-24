@@ -3,19 +3,20 @@
 import { revalidatePath } from 'next/cache'
 
 import { openDb } from '@/lib/db/instance'
-import { deleteJournal, upsertJournal, upsertShortlist } from '@/lib/db/repos'
-import { EntryKind, ShortlistStatus } from '@/lib/gen/carbon/v1/research_pb'
+import { deleteJournal, getPathway, listPathways, upsertJournal, upsertShortlist } from '@/lib/db/repos'
 
+import { assertEntryKind, assertPathwayRefs, normalizeBody, normalizeTitle } from './journal-guard'
 import { assertTransition, normalizeRationale } from './shortlist-guard'
 
 export async function setShortlistStatus(
   pathwayId: string,
   from: string,
-  to: keyof typeof ShortlistStatus,
+  to: string,
   rationale: string,
 ) {
   assertTransition(from, to)
   const db = openDb()
+  if (!getPathway(db, pathwayId)) throw new Error(`unknown pathway: ${pathwayId}`)
   upsertShortlist(db, {
     pathwayId,
     status: to,
@@ -27,17 +28,21 @@ export async function setShortlistStatus(
 }
 
 export async function addJournalEntry(
-  kind: keyof typeof EntryKind,
+  kind: string,
   title: string,
   body: string,
   refs: string[],
 ) {
+  assertEntryKind(kind)
+  const cleanTitle = normalizeTitle(title)
+  const cleanBody = normalizeBody(body)
   const db = openDb()
+  assertPathwayRefs(refs, new Set(listPathways(db).map((p) => p.id)))
   upsertJournal(db, {
     id: crypto.randomUUID(),
     kind,
-    title,
-    bodyMarkdown: body,
+    title: cleanTitle,
+    bodyMarkdown: cleanBody,
     pathwayRefs: refs,
     createdAt: new Date().toISOString(),
   })
