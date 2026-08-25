@@ -24,6 +24,10 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+        # node user in the alpine image = uid 1000; kubelet can't verify
+        # non-numeric users, so pin the numeric id
+        runAsUser: 1000
+        runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:
