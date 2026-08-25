@@ -1,0 +1,29 @@
+# carbon — seed data + persistence
+version: '3'
+
+tasks:
+  check:
+    desc: Validate data/*.yaml against the schemas without booting the server
+    summary: |
+      Bootless integrity gate for the curated corpus (24 pathways / 10
+      materials / 25 citations). Same validation the server runs at boot:
+      strict protojson, unit allowlist, referential integrity, duplicate ids.
+
+      Exit 0 prints `OK {counts}`; any problem exits 1 with file+field precision.
+      Zero counts warn loudly — that means the data dir path is wrong.
+    aliases: [seed]
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/tsx src/lib/seed/check.ts data"
+
+  drift:
+    desc: Report shortlist/journal rows referencing pathways no longer in data/
+    summary: |
+      Seeds a THROWAWAY in-memory store from data/ and compares it against
+      ./carbon.db's user tables. Read-only on your real database.
+
+      Drifted entries are never deleted — Decision Space shows tombstones
+      ("removed from seed — rationale preserved") until you clean them up.
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/tsx src/lib/seed/drift.ts"

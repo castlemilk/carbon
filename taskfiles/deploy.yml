@@ -1,0 +1,73 @@
+# carbon — deploys
+#
+# Target: a dedicated Vercel project (microfrontend child of benebsworth.com).
+# State lives in Turso (libsql) — Vercel's serverless filesystem is ephemeral,
+# so deploying WITHOUT CARBON_DB_URL gives you an app that forgets your
+# shortlist/journal on every cold start.
+version: '3'
+
+tasks:
+  auth:
+    desc: Verify Vercel CLI authentication
+    cmds:
+      - "{{.BIN}}/vercel whoami"
+
+  link:
+    desc: Link this repo to the carbon Vercel project (one-time, interactive)
+    summary: |
+      Run once per clone: `task deploy:link` walks vercel's project picker.
+      Creates .vercel/ (gitignored). Subsequent deploys reuse it.
+    cmds:
+      - "{{.BIN}}/vercel link"
+
+  staging:
+    desc: Deploy preview to Vercel (never touches production)
+    summary: |
+      `vercel deploy` → unique preview URL. Use for reviewing embed-mode
+      changes inside a real hosted frame before promoting.
+
+      Gotchas:
+      - Requires CARBON_DB_URL + CARBON_DB_TOKEN in .env for durable state;
+        without them the preview boots with throwaway state (fine for visual
+        checks of public surfaces).
+      - First run needs `task deploy:link` and an interactive `vercel login`.
+    preconditions:
+      - sh: test -d .vercel
+        msg: "Not linked — run: task deploy:link"
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/vercel deploy"
+      - |
+        echo "Reminder: verify embed mode on the preview URL (load it inside an"
+        echo "iframe harness with ?embed=1 and listen for carbon:height)."
+
+  prod:
+    desc: Deploy production to Vercel (promotes to the linked domain)
+    summary: |
+      `vercel deploy --prod`. Same requirements as staging plus:
+      - Confirm CARBON_DB_URL/TOKEN are ALSO set in the Vercel project's
+        Environment Variables dashboard — runtime env does not come from
+        local .env.
+      - Domain mapping (carbon.benebsworth.com) is configured in the Vercel
+        project settings; benebsworth.com embeds https://<that-domain>/?embed=1.
+
+      The e2e suite must be green first: task ci
+    preconditions:
+      - sh: test -d .vercel
+        msg: "Not linked — run: task deploy:link"
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/vitest run"
+      - "{{.BIN}}/next build"
+      - "{{.BIN}}/vercel deploy --prod"
+
+  ci:
+    desc: Non-interactive CI-style deploy (needs VERCEL_TOKEN in .env)
+    summary: |
+      Token-based deploy for automation. VERCEL_TOKEN must belong to an account
+      with access to the linked project. Uses --yes so nothing prompts.
+    requires:
+      vars: [VERCEL_TOKEN]
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/vercel deploy --prod --yes --token {{.VERCEL_TOKEN}}"

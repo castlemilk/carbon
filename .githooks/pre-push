@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Push gate (~2-4 min): unit tests + production build.
+# The build is gated on purpose: seed/boot problems explode at runtime, and the
+# build catches route-level breakage that typechecking misses.
+set -euo pipefail
+
+if [ "${SKIP_HOOKS:-}" = "1" ]; then
+  echo "pre-push: skipped (SKIP_HOOKS=1)"
+  exit 0
+fi
+
+if ! command -v task >/dev/null 2>&1; then
+  echo "pre-push: 'task' not found — install it (brew install go-task) or push with --no-verify" >&2
+  exit 1
+fi
+
+exec task git:pre-push

@@ -1,0 +1,118 @@
+# carbon — task runner
+#
+# Every core command (dev, build, test, seed, codegen, deploy) lives here rather
+# than in package.json, so each one can declare its real inputs, its real
+# outputs, and the domain knowledge needed to run it correctly — the gotchas
+# are in the tasks, not in someone's head.
+#
+#   task                  # list every documented task
+#   task <name> --summary # long-form docs for one task, incl. gotchas
+#
+# npm scripts are thin aliases (Next.js/IDE compatibility); `task` is the
+# supported entry point.
+version: '3'
+
+dotenv: ['.env']
+
+vars:
+  # Task ignores PATH special-casing; local binaries are invoked via {{.BIN}}
+  # so the repo's pinned versions run instead of global installs.
+  BIN: '{{.ROOT_DIR}}/node_modules/.bin'
+  # better-sqlite3's prebuilt binding segfaults under older v22.x point
+  # releases (e.g. v22.9.0). .nvmrc pins the minimum known-good runtime;
+  # check:node enforces it before anything touches the db.
+  NODE_MIN: '22.20'
+
+includes:
+  build: ./taskfiles/build.yml
+  test: ./taskfiles/test.yml
+  quality: ./taskfiles/quality.yml
+  data: ./taskfiles/data.yml
+  deploy: ./taskfiles/deploy.yml
+  git: ./taskfiles/git.yml
+
+tasks:
+  default:
+    desc: List all available tasks
+    silent: true
+    cmds:
+      - task --list
+
+  setup:
+    desc: Install dependencies and wire up git hooks (run once per clone)
+    summary: |
+      One-time setup for a fresh clone.
+
+        1. Verifies Node (see check:node — better-sqlite3 makes this a hard gate).
+        2. npm ci (lockfile-exact install).
+        3. Installs git hooks via core.hooksPath (`task git:hooks:install`).
+        4. Prints `task doctor`.
+
+      Does NOT create .env — copy from .env.example by hand. Hosted persistence
+      (CARBON_DB_*) is only needed for deploy:* targets.
+    cmds:
+      - task: check:node
+      - npm ci
+      - task: git:hooks:install
+      - task: doctor
+
+  check:node:
+    internal: true
+    silent: true
+    cmds:
+      - |
+        want="{{.NODE_MIN}}"
+        have="$(node -p 'process.versions.node' 2>/dev/null || echo none)"
+        if ! node -e 'const [a,b]=process.versions.node.split(".").map(Number); const [c,d]=process.argv[1].split(".").map(Number); process.exit(a>c||(a===c&&b>=d)?0:1)' "$want"; then
+          echo "error: Node >= $want required (found $have). better-sqlite3 segfaults on older" >&2
+          echo "       v22.x point releases. Fix: source ~/.nvm/nvm.sh && nvm use   (see .nvmrc)" >&2
+          exit 1
+        fi
+
+  dev:
+    desc: Next dev server on :3000 (seeds SQLite at boot; restart reloads data/)
+    summary: |
+      Boots the app in development mode on http://localhost:3000.
+
+      Gotchas:
+      - Boot seeds ./carbon.db from data/*.yaml and FAILS LOUDLY on invalid
+        seed docs (unknown fields, unresolved refs). Restarting the server
+        re-seeds — YAML edits flow through a restart, not hot-reload.
+      - Verify the LISTEN pid on :3000 is yours before trusting manual checks:
+          lsof -nP -iTCP:3000 -sTCP:LISTEN
+      - Append ?embed=1 to any URL for chrome-less microfrontend mode.
+    aliases: [d]
+    cmds:
+      - task: check:node
+      - "{{.BIN}}/next dev"
+
+  doctor:
+    desc: Report toolchain + credential readiness and what each missing item blocks
+    summary: |
+      Read-only diagnostic. Presence checks only — 'set' does not mean 'valid'.
+    silent: true
+    cmds:
+      - |
+        echo "== toolchain"
+        printf '  %-22s %s\n' node "$(node -v 2>/dev/null || echo MISSING)"
+        printf '  %-22s %s\n' task "$(task --version 2>/dev/null || echo MISSING)"
+        printf '  %-22s %s\n' buf "$(buf --version 2>/dev/null || echo 'missing (brew install bufbuild/buf/buf)')"
+        for t in next vitest playwright tsx eslint; do
+          printf '  %-22s %s\n' "$t" "$(test -x {{.BIN}}/$t && echo 'present (local)' || echo 'missing — run: npm ci')"
+        done
+        echo "== credentials (.env)  [PRESENCE only]"
+        check() {
+          if [ -n "$(printenv "$1")" ]; then printf '  %-26s set\n' "$1"
+          else printf '  %-26s MISSING  -> blocks: %s\n' "$1" "$2"; fi
+        }
+        check VERCEL_TOKEN         "deploy:ci (CI deploys; interactive `vercel login` works without)"
+        check CARBON_DB_URL        "deploy:staging / deploy:prod (hosted Turso persistence)"
+        check CARBON_DB_TOKEN      "deploy:staging / deploy:prod (hosted Turso persistence)"
+        echo "== git hooks"
+        hp="$(git config --get core.hooksPath || true)"
+        if [ "$hp" = ".githooks" ]; then echo "  core.hooksPath = .githooks (installed)"
+        else echo "  core.hooksPath = ${hp:-<unset>}  -> run: task git:hooks:install"; fi
+        echo "== note"
+        echo "  Local dev needs NO credentials: sqlite file + OpenAlex are enough."
+        echo "  Deploys push state to Turso; without CARBON_DB_URL the hosted app"
+        echo "  would boot with throwaway per-instance state."

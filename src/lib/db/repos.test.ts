@@ -6,7 +6,7 @@ import { makeSqliteStore } from './sqlite-store'
 import { fromJson } from '@bufbuild/protobuf'
 import { PathwaySchema } from '@/lib/gen/carbon/v1/pathway_pb'
 import { CitationSchema } from '@/lib/gen/carbon/v1/common_pb'
-import { ShortlistEntrySchema, JournalEntrySchema, ShortlistStatus, EntryKind } from '@/lib/gen/carbon/v1/research_pb'
+import { ShortlistStatus, EntryKind } from '@/lib/gen/carbon/v1/research_pb'
 
 const mkPathway = (id: string) => fromJson(PathwaySchema, { id, name: id.toUpperCase(), setting: 'DAC', trl: 5 })
 

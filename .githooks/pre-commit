@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Fast pre-commit gate (~20s): eslint + typecheck.
+# Bypass: SKIP_HOOKS=1 git commit ...   or   git commit --no-verify
+set -euo pipefail
+
+if [ "${SKIP_HOOKS:-}" = "1" ]; then
+  echo "pre-commit: skipped (SKIP_HOOKS=1)"
+  exit 0
+fi
+
+if ! command -v task >/dev/null 2>&1; then
+  echo "pre-commit: 'task' not found — install it (brew install go-task) or commit with --no-verify" >&2
+  exit 1
+fi
+
+exec task git:pre-commit

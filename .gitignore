@@ -1,48 +1,42 @@
-.superpowers/
-carbon.db
-node_modules/
-.next/
 
-# dependencies
-/.pnp
-.pnp.*
-.yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
-# testing
-/coverage
-test-results/
-playwright-report/
-/playwright/.cache/
-src/lib/db/tmp-*
-*.db-wal
-*.db-shm
-
-# next.js
-/out/
-
-# production
-/build
-
-# misc
 .DS_Store
+.env
+.env*
+.next/
+.pnp.*
+.pnpm-debug.log*
+.superpowers/
+.vercel
+.vercel/
+.yarn/*
+*.db-shm
+*.db-wal
 *.pem
-
+*.tsbuildinfo
+/.pnp
+/build
+/coverage
+/out/
+/playwright/.cache/
 # debug
+# dependencies
+# env files (can opt-in for committing if needed)
+# misc
+# next.js
+# production
+# testing
+# typescript
+# vercel
+carbon.db
+next-env.d.ts
+node_modules/
 npm-debug.log*
+playwright-report/
+src/lib/db/tmp-*
+test-results/
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts

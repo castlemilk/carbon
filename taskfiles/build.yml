@@ -1,0 +1,25 @@
+# carbon — build
+version: '3'
+
+tasks:
+  app:
+    desc: Production build (next build)
+    summary: |
+      Full production build. Fails if any route fails to compile or typecheck.
+
+      Gotchas:
+      - `next build` skips instrumentation (NEXT_PHASE guard), so seed problems
+        will NOT surface here — run `task data:check` for that.
+      - Turso deploys need CARBON_DB_URL/TOKEN at RUNTIME (set in the Vercel
+        project), not at build time. A local build needs neither.
+      - better-sqlite3 must not be bundled: `serverExternalPackages` in
+        next.config.ts handles it; don't remove that line.
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/next build"
+
+  clean:
+    desc: From-scratch build (clears .next first)
+    cmds:
+      - rm -rf .next
+      - task: build

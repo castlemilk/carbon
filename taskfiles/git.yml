@@ -1,0 +1,39 @@
+# carbon — git hooks
+#
+# Hooks are version-controlled in .githooks/ (thin wrappers that exec these
+# tasks) and activated per clone with `task git:hooks:install`.
+version: '3'
+
+tasks:
+  hooks:install:
+    desc: Point core.hooksPath at .githooks/
+    cmds:
+      - git config core.hooksPath .githooks
+      - echo "git hooks installed (.githooks)"
+
+  pre-commit:
+    desc: Hook body — eslint + typecheck (~20s)
+    summary: |
+      Fast gate before a commit lands. Bypass with SKIP_HOOKS=1 or --no-verify.
+      Run by hand: task git:pre-commit
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/eslint ."
+      - "{{.BIN}}/tsc --noEmit"
+
+  pre-push:
+    desc: Hook body — unit tests + production build (~2-4 min)
+    summary: |
+      The build is in the push gate on purpose: seed/boot problems only
+      explode at runtime, and the build catches route-level breakage.
+      Run by hand: task git:pre-push
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/vitest run"
+      - "{{.BIN}}/next build"
+
+  hooks:test:
+    desc: Exercise both hooks by hand
+    cmds:
+      - task: pre-commit
+      - task: pre-push

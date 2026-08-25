@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3'
 import { fromJson } from '@bufbuild/protobuf'
-import { PathwaySchema, Setting, type Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
-import { MaterialSchema, MaterialClass, type Material } from '@/lib/gen/carbon/v1/material_pb'
-import { CitationSchema, type Citation } from '@/lib/gen/carbon/v1/common_pb'
+import { PathwaySchema, Setting } from '@/lib/gen/carbon/v1/pathway_pb'
+import { MaterialSchema, MaterialClass } from '@/lib/gen/carbon/v1/material_pb'
+import { CitationSchema } from '@/lib/gen/carbon/v1/common_pb'
 import { JournalEntrySchema, ShortlistEntrySchema, ShortlistStatus, EntryKind, type JournalEntry } from '@/lib/gen/carbon/v1/research_pb'
 import {
   type CarbonStore, type CachedLiterature, type JournalUpsert, type SeedCounts,

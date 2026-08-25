@@ -1,0 +1,42 @@
+# carbon — code quality
+version: '3'
+
+tasks:
+  lint:
+    desc: ESLint + typecheck
+    aliases: [l]
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/eslint ."
+      - "{{.BIN}}/tsc --noEmit"
+
+  typecheck:
+    desc: TypeScript only (tsc --noEmit)
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/tsc --noEmit"
+
+  verify:
+    desc: Full local verification — lint, typecheck, unit tests (no build)
+    summary: |
+      The commit gate. Everything except the production build and e2e.
+      Run before pushing; `task git:pre-push` adds build coverage on top.
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/eslint ."
+      - "{{.BIN}}/tsc --noEmit"
+      - "{{.BIN}}/vitest run"
+
+  gen:
+    desc: Regenerate protobuf TS from proto/ into src/lib/gen (committed)
+    summary: |
+      buf generate over proto/carbon/v1/*.proto → src/lib/gen/**_pb.ts.
+
+      Gotchas:
+      - Generated files ARE committed and NEVER hand-edited.
+      - `buf breaking` is not wired to a remote yet; changing field numbers or
+        types is a manual review concern (docs are snake_case protojson on disk).
+      - After editing protos, restart any running dev server (types are
+        imported at boot).
+    cmds:
+      - cd proto && buf lint && buf generate

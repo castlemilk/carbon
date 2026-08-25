@@ -1,0 +1,43 @@
+# carbon — tests
+version: '3'
+
+vars:
+  PORT: '3000'
+
+tasks:
+  unit:
+    desc: Vitest unit/integration suite (~80 tests, hermetic)
+    summary: |
+      Runs the whole vitest suite: seed loader validation, store adapters
+      (conformance suite), protojson round-trips, format/scatter math,
+      literature orchestration (mocked OpenAlex), guards.
+
+      Hermetic — no network, no real Turso. The Turso leg of the conformance
+      suite is skipped unless CARBON_TEST_TURSO_URL/TOKEN are set; run it once
+      manually before pointing a deployment at a fresh Turso database.
+    aliases: [t]
+    cmds:
+      - task: ':check:node'
+      - "{{.BIN}}/vitest run"
+
+  e2e:
+    desc: Playwright smoke against a freshly booted dev server (:3000)
+    summary: |
+      Two specs covering the convergence loop (landscape → filter → detail →
+      eliminate w/ rationale → Decision Space) and journal persistence to SQLite.
+
+      Gotchas:
+      - playwright.config boots its OWN dev server with reuseExistingServer:false;
+        anything squatting :3000 must be killed first or this fails port-in-use.
+        Check the listener is yours: lsof -nP -iTCP:3000 -sTCP:LISTEN
+      - MUTATES ./carbon.db transiently (creates + deletes rows). Safe to run on
+        your working copy; it cleans up after itself.
+    cmds:
+      - task: ':check:node'
+      - cmd: |
+          if lsof -tiTCP:{{.PORT}} -sTCP:LISTEN >/dev/null 2>&1; then
+            echo "error: something is listening on :{{.PORT}} — kill it first:" >&2
+            lsof -nP -iTCP:{{.PORT}} -sTCP:LISTEN >&2
+            exit 1
+          fi
+      - "{{.BIN}}/playwright test"

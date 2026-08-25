@@ -3,6 +3,7 @@ import { seedFromDataDir } from './loader'
 
 const store = makeSqliteStore(':memory:')
 try {
+  await store.initSchema()
   const counts = await seedFromDataDir(store, process.argv[2] ?? 'data')
   console.log('OK', counts)
   if (!counts.citations && !counts.materials && !counts.pathways)
