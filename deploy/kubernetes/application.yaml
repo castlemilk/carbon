@@ -31,7 +31,7 @@ spec:
       httpProbe:
         method: GET
         timeout: 5
-        url: http://carbon-carbon.paprika-e2e.svc.cluster.local:3000/api/health
+        url: http://carbon-release-carbon.paprika-e2e.svc.cluster.local:3000/api/health
       interval: 30s
   stages:
     - name: vke-prod
