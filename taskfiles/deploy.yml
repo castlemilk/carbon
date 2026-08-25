@@ -1,73 +1,78 @@
 # carbon — deploys
 #
-# Target: a dedicated Vercel project (microfrontend child of benebsworth.com).
-# State lives in Turso (libsql) — Vercel's serverless filesystem is ephemeral,
-# so deploying WITHOUT CARBON_DB_URL gives you an app that forgets your
-# shortlist/journal on every cold start.
+# Target: the omega VKE cluster (Vultr Kubernetes Engine), managed by Paprika —
+# same pattern as cuttlefish/telesis/brandbrain/flaggr. Paprika watches this
+# repo's chart (deploy/kubernetes/chart, path of the Application CR) and
+# canary-promotes rendered releases in namespace paprika-e2e.
+#
+#   code change  → merge to master → GHA builds ghcr.io/castlemilk/carbon:latest
+#   first deploy → task deploy:cr   (apply the Application CR once)
+#   image update → task deploy:restart  (bump running pods to :latest)
 version: '3'
 
+vars:
+  KUBECONFIG_PATH: ~/projects/paprika/omega-oidc.kubeconfig
+  IMAGE: ghcr.io/castlemilk/carbon
+  NAMESPACE: paprika-e2e
+  RELEASE_PREFIX: carbon
+
 tasks:
-  auth:
-    desc: Verify Vercel CLI authentication
+  image:
+    desc: Build + push linux/amd64 image locally (ttl.sh fallback; GHA does ghcr)
+    summary: |
+      Local emergency path when you can't wait for GHA. VKE nodes are amd64 and
+      this Mac is arm64 — the --platform flag is NOT optional (QEMU emulated).
+
+      ttl.sh is anonymous + ephemeral: tag IS the retention (4h here). If you
+      use it, override the chart's image.repository/tag via the Application CR
+      stage parameters or a values bump, then revert once GHA catches up.
+    cmds:
+      - task: ../check:node
+      - docker buildx build --platform linux/amd64 -t {{.IMAGE}}:local -t ttl.sh/carbon-amd64:4h --push .
+      - echo "pushed ttl.sh/carbon-amd64:4h (expires) and {{.IMAGE}}:local"
+
+  cr:
+    desc: Apply/update the Paprika Application CR on omega (one-time bootstrap)
+    summary: |
+      Creates Application `carbon` in ns {{.NAMESPACE}}. Paprika then polls
+      github.com/castlemilk/carbon @ master every 60s and renders
+      deploy/kubernetes/chart autonomously — after this, chart changes deploy
+      themselves.
+    preconditions:
+      - sh: test -f {{printf "%s" .KUBECONFIG_PATH | expandenv}}
+        msg: "kubeconfig not found at {{.KUBECONFIG_PATH}}"
+    cmds:
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl apply -f deploy/kubernetes/application.yaml
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl get application carbon -n {{.NAMESPACE}}
+
+  status:
+    desc: Rollout + pods + HTTPRoute state on omega
+    cmds:
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl get application carbon -n {{.NAMESPACE}}
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl get deploy,pods,svc,pvc,httproute -l app.kubernetes.io/name=carbon -n {{.NAMESPACE}}
+
+  restart:
+    desc: Bump running pods to :latest (image-only updates)
+    summary: |
+      Paprika re-renders on CHART changes; a new :latest image alone doesn't
+      move the rollout. This annotates the pod template to force a rolling
+      recreate. (Deployment uses Recreate strategy because of the RWO PVC.)
+    cmds:
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl annotate deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}} kubectl.kubernetes.io/restartedAt="$(date -u +%FT%TZ)" --overwrite
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl rollout status deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}} --timeout=180s
+
+  logs:
+    desc: Tail app logs from the cluster
+    cmds:
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl logs -l app.kubernetes.io/name=carbon -n {{.NAMESPACE}} -f --tail=100
+
+  health:
+    desc: Hit /api/health through the public hostname
+    cmds:
+      - curl -s https://carbon.benebsworth.com/api/health | head -c 400; echo
+
+  # ---- legacy target kept for reference -------------------------------------
+  vercel-auth:
+    desc: (legacy) whoami against Vercel
     cmds:
       - "{{.BIN}}/vercel whoami"
-
-  link:
-    desc: Link this repo to the carbon Vercel project (one-time, interactive)
-    summary: |
-      Run once per clone: `task deploy:link` walks vercel's project picker.
-      Creates .vercel/ (gitignored). Subsequent deploys reuse it.
-    cmds:
-      - "{{.BIN}}/vercel link"
-
-  staging:
-    desc: Deploy preview to Vercel (never touches production)
-    summary: |
-      `vercel deploy` → unique preview URL. Use for reviewing embed-mode
-      changes inside a real hosted frame before promoting.
-
-      Gotchas:
-      - Requires CARBON_DB_URL + CARBON_DB_TOKEN in .env for durable state;
-        without them the preview boots with throwaway state (fine for visual
-        checks of public surfaces).
-      - First run needs `task deploy:link` and an interactive `vercel login`.
-    preconditions:
-      - sh: test -d .vercel
-        msg: "Not linked — run: task deploy:link"
-    cmds:
-      - task: ':check:node'
-      - "{{.BIN}}/vercel deploy"
-      - |
-        echo "Reminder: verify embed mode on the preview URL (load it inside an"
-        echo "iframe harness with ?embed=1 and listen for carbon:height)."
-
-  prod:
-    desc: Deploy production to Vercel (promotes to the linked domain)
-    summary: |
-      `vercel deploy --prod`. Same requirements as staging plus:
-      - Confirm CARBON_DB_URL/TOKEN are ALSO set in the Vercel project's
-        Environment Variables dashboard — runtime env does not come from
-        local .env.
-      - Domain mapping (carbon.benebsworth.com) is configured in the Vercel
-        project settings; benebsworth.com embeds https://<that-domain>/?embed=1.
-
-      The e2e suite must be green first: task ci
-    preconditions:
-      - sh: test -d .vercel
-        msg: "Not linked — run: task deploy:link"
-    cmds:
-      - task: ':check:node'
-      - "{{.BIN}}/vitest run"
-      - "{{.BIN}}/next build"
-      - "{{.BIN}}/vercel deploy --prod"
-
-  ci:
-    desc: Non-interactive CI-style deploy (needs VERCEL_TOKEN in .env)
-    summary: |
-      Token-based deploy for automation. VERCEL_TOKEN must belong to an account
-      with access to the linked project. Uses --yes so nothing prompts.
-    requires:
-      vars: [VERCEL_TOKEN]
-    cmds:
-      - task: ':check:node'
-      - "{{.BIN}}/vercel deploy --prod --yes --token {{.VERCEL_TOKEN}}"

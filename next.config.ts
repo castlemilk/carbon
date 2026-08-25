@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // self-contained server bundle for the container image (cluster deploys)
+  output: "standalone",
   serverExternalPackages: ['better-sqlite3'], // native module - must not be bundled
   async headers() {
     return [

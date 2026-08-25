@@ -1,0 +1,43 @@
+# carbon — chart values
+# Deployed on the omega VKE cluster via a Paprika Application CR watching this
+# repo (path deploy/kubernetes/chart). Release name in-cluster: `carbon`.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/castlemilk/carbon
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 3000
+
+persistence:
+  enabled: true
+  # SQLite + WAL live here; RWO is fine at replicaCount 1
+  size: 1Gi
+  storageClass: ""
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  readinessPath: /api/health
+  livenessPath: /api/health
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 4
+
+gateway:
+  # Envoy Gateway HTTPRoute; hosts are Cloudflare-fronted
+  enabled: true
+  className: eg
+  hostnames:
+    - carbon.benebsworth.com

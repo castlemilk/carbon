@@ -10,7 +10,9 @@ aliases that delegate to task. Use `task --list` / `task <name> --summary`.
 - `task test:e2e` — Playwright; boots its own server on :3000, kills squatters
   first (`reuseExistingServer: false`)
 - `task data:check` — bootless seed-corpus validation
-- `task deploy:staging` / `deploy:prod` — Vercel (see below)
+- `task deploy:cr` — bootstrap the Paprika Application CR on omega (once)
+- `task deploy:restart` — bump pods to :latest after GHA builds (image-only)
+- `task deploy:status` / `deploy:logs` / `deploy:health` — cluster visibility
 
 ## Verification before every commit
 
@@ -41,13 +43,22 @@ Pinned in `.nvmrc` (currently v22.20.0) — required because better-sqlite3's
 prebuilt binding segfaults under older v22.x point releases (e.g. v22.9.0).
 `task check:node` enforces this before any db-touching command.
 
+## Deployment (omega VKE via Paprika)
+
+Same pattern as cuttlefish/telesis/brandbrain: a Paprika Application CR in ns
+`paprika-e2e` polls this repo's chart at `deploy/kubernetes/chart`; GHA builds
+`ghcr.io/castlemilk/carbon:{latest,sha-*}` on push to master. SQLite lives on
+a 1Gi PVC mounted at /data (Deployment strategy Recreate because RWO).
+Public URL: https://carbon.benebsworth.com (Envoy Gateway + Cloudflare).
+
 ## Storage selection
 
 `src/lib/db/instance.ts` picks the adapter:
 
-- default → **SqliteStore** (better-sqlite3) on `CARBON_DB` (default ./carbon.db)
-- `CARBON_DB_URL=libsql://…` (+ `CARBON_DB_TOKEN`) → **TursoStore** for hosted
-  deploys — required on Vercel where the filesystem is ephemeral.
+- default → **SqliteStore** (better-sqlite3) on `CARBON_DB` (default ./carbon.db;
+  /data/carbon.db in-cluster via PVC)
+- `CARBON_DB_URL=libsql://…` (+ `CARBON_DB_TOKEN`) → **TursoStore** (optional
+  hosted path; not used by the cluster deployment)
 
 Both adapters implement the `CarbonStore` port and are held to the same
 behavior by `src/lib/db/store.conformance.test.ts` (Turso leg runs when

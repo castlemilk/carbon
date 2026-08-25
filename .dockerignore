@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+carbon.db
+carbon.db-*
+.env
+.env.*
+.superpowers
+test-results
+playwright-report
+.git
+.github
+*.md
+!README.md

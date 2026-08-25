@@ -1,0 +1,44 @@
+# carbon — Paprika Application CR (omega VKE cluster, ns paprika-e2e)
+#
+# Paprika polls this repo's chart (deploy/kubernetes/chart), renders it, and
+# canary-promotes. Deploying a change = merge to master; GHA builds the image,
+# Paprika re-renders on the next chart revision... image-only updates need a
+# rollout restart (see `task deploy:restart`).
+#
+# Apply once by hand:
+#   KUBECONFIG=~/projects/paprika/omega-oidc.kubeconfig \
+#     kubectl apply -f deploy/kubernetes/application.yaml
+apiVersion: pipelines.paprika.io/v1alpha1
+kind: Application
+metadata:
+  name: carbon
+  namespace: paprika-e2e
+  labels:
+    app.kubernetes.io/name: carbon
+spec:
+  project: default
+  source:
+    type: git
+    repoUrl: https://github.com/castlemilk/carbon.git
+    path: deploy/kubernetes/chart
+    revision: master
+    pollInterval: 60s
+  strategy: Canary
+  syncPolicy: Auto
+  healthChecks:
+    - name: app-health
+      expression: "http.statusCode == 200 && http.bodyJson.status == \"ok\" && http.bodyJson.components.database.status == \"healthy\""
+      httpProbe:
+        method: GET
+        timeout: 5
+        url: http://carbon-carbon.paprika-e2e.svc.cluster.local:3000/api/health
+      interval: 30s
+  stages:
+    - name: vke-prod
+      ring: 1
+      autoPromote: true
+      canary:
+        intervalSeconds: 30
+        steps: [50, 100]
+      parameters:
+        replicaCount: "1"
