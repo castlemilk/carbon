@@ -2,19 +2,21 @@
 # Build host may be Apple Silicon; the cluster is linux/amd64 — always pass
 # --platform linux/amd64 locally, or build via GHA (amd64 runners, no emulation).
 
-FROM node:22-alpine AS deps
+FROM node:22.20-alpine AS deps
 WORKDIR /app
+# toolchain for native modules (better-sqlite3 compiles when no musl prebuilt exists)
+RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:22-alpine AS builder
+FROM node:22.20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-FROM node:22-alpine AS runner
+FROM node:22.20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
