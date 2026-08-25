@@ -55,10 +55,10 @@ export default function MetricTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50 text-left text-xs text-muted-foreground">
-            <th className="w-[22%] px-3 py-2 font-medium">{keyLabel}</th>
-            <th className="w-[22%] px-3 py-2 font-medium">Range</th>
-            <th className="w-[12%] px-3 py-2 font-medium">Year basis</th>
-            <th className="px-3 py-2 font-medium">Source</th>
+            <th scope="col" className="w-[22%] px-3 py-2 font-medium">{keyLabel}</th>
+            <th scope="col" className="w-[22%] px-3 py-2 font-medium">Range</th>
+            <th scope="col" className="w-[12%] px-3 py-2 font-medium">Year basis</th>
+            <th scope="col" className="px-3 py-2 font-medium">Source</th>
           </tr>
         </thead>
         <tbody>

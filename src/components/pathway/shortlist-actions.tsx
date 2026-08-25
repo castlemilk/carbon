@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
 export interface ShortlistEntryProps {
@@ -106,12 +107,16 @@ export default function ShortlistActions({
               Record why this pathway was eliminated from consideration.
             </DialogDescription>
           </DialogHeader>
-          <Textarea
-            data-testid="eliminate-rationale"
-            value={rationale}
-            onChange={(e) => setRationale(e.target.value)}
-            placeholder="Why eliminated? e.g. mature baseline, not next-gen; energy penalty too high at scale…"
-          />
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="eliminate-rationale">Rationale</Label>
+            <Textarea
+              id="eliminate-rationale"
+              data-testid="eliminate-rationale"
+              value={rationale}
+              onChange={(e) => setRationale(e.target.value)}
+              placeholder="Why eliminated? e.g. mature baseline, not next-gen; energy penalty too high at scale…"
+            />
+          </div>
           {error && (
             <p data-testid="shortlist-error" className="text-sm text-destructive">
               {error}

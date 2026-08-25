@@ -7,6 +7,8 @@ import { AXIS_KEYS, axisLabel, mid, type Range } from '@/lib/format'
 import { Setting, type Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
 import { SETTING_ORDER } from '@/lib/settings'
 
+export const metadata = { title: 'Landscape' }
+
 type SearchParams = Record<string, string | string[] | undefined>
 
 const first = (sp: SearchParams, key: string): string | undefined => {

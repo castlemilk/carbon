@@ -12,6 +12,8 @@ import {
   parseMaterialClassFilter,
 } from '@/lib/material-class'
 
+export const metadata = { title: 'Materials' }
+
 const first = (sp: Record<string, string | string[] | undefined>, key: string): string | undefined => {
   const v = sp[key]
   return Array.isArray(v) ? v[0] : v

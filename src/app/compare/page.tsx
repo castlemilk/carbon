@@ -5,6 +5,8 @@ import { openDb } from '@/lib/db/instance'
 import { listPathways, listShortlist } from '@/lib/db/repos'
 import { Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 
+export const metadata = { title: 'Compare' }
+
 type SearchParams = Record<string, string | string[] | undefined>
 
 const first = (sp: SearchParams, key: string): string | undefined => {

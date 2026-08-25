@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { SHORTLIST_STATUSES, STATUS_LABELS } from '@/lib/settings'
 
@@ -155,12 +156,16 @@ export default function Board({
             </DialogTitle>
             <DialogDescription>Record an optional rationale for this decision.</DialogDescription>
           </DialogHeader>
-          <Textarea
-            data-testid="move-rationale"
-            value={rationale}
-            onChange={(e) => setRationale(e.target.value)}
-            placeholder="Why this move? e.g. sorbent lifetime unproven at scale…"
-          />
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="move-rationale">Rationale</Label>
+            <Textarea
+              id="move-rationale"
+              data-testid="move-rationale"
+              value={rationale}
+              onChange={(e) => setRationale(e.target.value)}
+              placeholder="Why this move? e.g. sorbent lifetime unproven at scale…"
+            />
+          </div>
           {dialogError && (
             <p data-testid="board-error" className="text-sm text-destructive">
               {dialogError}

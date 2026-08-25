@@ -48,6 +48,7 @@ export default function Journal({
   pathwayNames: Record<string, string>
 }) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [kind, setKind] = useState('')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
@@ -79,7 +80,13 @@ export default function Journal({
     })
   }
 
+  // two-click confirm: first click arms, second click (on the same entry) deletes
   const remove = (id: string) => {
+    if (confirmDeleteId !== id) {
+      setConfirmDeleteId(id)
+      return
+    }
+    setConfirmDeleteId(null)
     setError(null)
     startTransition(async () => {
       try {
@@ -127,15 +134,20 @@ export default function Journal({
                   {formatDate(entry.createdAt)}
                 </time>
                 <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`Delete ${entry.title}`}
-                  title="Delete entry"
+                  variant={confirmDeleteId === entry.id ? 'destructive' : 'ghost'}
+                  size={confirmDeleteId === entry.id ? 'sm' : 'icon-sm'}
+                  aria-label={
+                    confirmDeleteId === entry.id
+                      ? `Confirm delete ${entry.title}`
+                      : `Delete ${entry.title}`
+                  }
+                  title={confirmDeleteId === entry.id ? 'Click again to confirm' : 'Delete entry'}
                   data-testid="journal-delete"
+                  data-armed={confirmDeleteId === entry.id || undefined}
                   disabled={pending}
                   onClick={() => remove(entry.id)}
                 >
-                  <Trash2Icon />
+                  {confirmDeleteId === entry.id ? 'Confirm delete' : <Trash2Icon />}
                 </Button>
               </div>
 

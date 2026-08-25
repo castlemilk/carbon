@@ -4,6 +4,8 @@ import { openDb } from '@/lib/db/instance'
 import { listJournal, listPathways, listShortlist } from '@/lib/db/repos'
 import { EntryKind, ShortlistStatus } from '@/lib/gen/carbon/v1/research_pb'
 
+export const metadata = { title: 'Decision Space' }
+
 export default async function DecisionPage() {
   const db = openDb()
   const nameMap: Record<string, string> = Object.fromEntries(

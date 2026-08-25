@@ -21,7 +21,7 @@ export function AppSidebar() {
       <div className="flex h-14 items-center border-b px-4">
         <span className="text-sm font-semibold tracking-tight">Carbon</span>
       </div>
-      <nav className="flex flex-col gap-1 p-3">
+      <nav aria-label="Primary" className="flex flex-col gap-1 p-3">
         {NAV_ITEMS.map((item) => {
           const active =
             item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)

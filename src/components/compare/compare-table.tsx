@@ -62,13 +62,13 @@ export default function CompareTable({ rows }: Props) {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50 text-left text-xs text-muted-foreground">
-            <th className="w-[22%] px-3 py-2 font-medium">Metric</th>
+            <th scope="col" className="w-[22%] px-3 py-2 font-medium">Metric</th>
             {rows.map((r) => (
-              <th key={r.id} data-testid={`col-${r.id}`} className="px-3 py-2 font-medium">
+              <th key={r.id} scope="col" data-testid={`col-${r.id}`} className="px-3 py-2 font-medium">
                 <Link href={`/pathways/${r.id}`} className="underline-offset-4 hover:text-foreground hover:underline">
                   {r.name}
                   {r.isBenchmark && (
-                    <span title="Benchmark" className="ml-1.5 text-xs">
+                    <span role="img" aria-label="Benchmark" title="Benchmark" className="ml-1.5 text-xs">
                       ★
                     </span>
                   )}
