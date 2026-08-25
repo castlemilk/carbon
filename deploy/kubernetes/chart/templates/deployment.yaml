@@ -28,6 +28,9 @@ spec:
         # non-numeric users, so pin the numeric id
         runAsUser: 1000
         runAsGroup: 1000
+        # take group ownership of the PVC so sqlite can create its file
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
       containers:
