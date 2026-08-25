@@ -1,5 +1,17 @@
 # Carbon — agent notes
 
+## Task is the entry point
+
+Every core command lives in `Taskfile.yml` + `taskfiles/*.yml` (same convention
+as benebsworth.com). `npm run dev/build/test/e2e/gen/seed:check` are thin
+aliases that delegate to task. Use `task --list` / `task <name> --summary`.
+
+- `task verify` — lint + typecheck + unit tests (the commit gate)
+- `task test:e2e` — Playwright; boots its own server on :3000, kills squatters
+  first (`reuseExistingServer: false`)
+- `task data:check` — bootless seed-corpus validation
+- `task deploy:staging` / `deploy:prod` — Vercel (see below)
+
 ## Verification before every commit
 
 ```bash
@@ -26,8 +38,29 @@ If a stale process squats the port, kill it before testing.
 ## Node version
 
 Pinned in `.nvmrc` (currently v22.20.0) — required because better-sqlite3's
-prebuilt binding segfaults under older v22.x point releases (e.g. v22.9.0);
-use `nvm use` before installing/running.
+prebuilt binding segfaults under older v22.x point releases (e.g. v22.9.0).
+`task check:node` enforces this before any db-touching command.
+
+## Storage selection
+
+`src/lib/db/instance.ts` picks the adapter:
+
+- default → **SqliteStore** (better-sqlite3) on `CARBON_DB` (default ./carbon.db)
+- `CARBON_DB_URL=libsql://…` (+ `CARBON_DB_TOKEN`) → **TursoStore** for hosted
+  deploys — required on Vercel where the filesystem is ephemeral.
+
+Both adapters implement the `CarbonStore` port and are held to the same
+behavior by `src/lib/db/store.conformance.test.ts` (Turso leg runs when
+`CARBON_TEST_TURSO_URL`/`TOKEN` are set). Repos in `src/lib/db/repos.ts` are
+async wrappers over the singleton.
+
+## Embed mode (microfrontend)
+
+Any URL with `?embed=1` (persisted via cookie through middleware) renders
+chrome-less — no sidebar — plus a postMessage height handshake
+(`carbon:height`) consumed by the hosting page. CSP `frame-ancestors` in
+next.config.ts permits benebsworth.com. Lock the handshake target with
+`NEXT_PUBLIC_EMBED_PARENT_ORIGIN`.
 
 ## Data & codegen
 
@@ -37,7 +70,8 @@ use `nvm use` before installing/running.
 - Seed data loads at boot via `src/instrumentation.ts`: restarting the dev
   server reloads seed changes from `data/`. Boot logs `[seed] {counts}` and a
   `[seed] drift:` warning for shortlist/journal rows referencing pathways no
-  longer in `data/`. `npm run seed:check data` validates without booting.
+  longer in `data/`. `npm run seed:check data` validates without booting;
+  `task data:drift` diffs data/ against the local database read-only.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
