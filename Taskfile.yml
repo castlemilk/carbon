@@ -69,6 +69,11 @@ tasks:
           exit 1
         fi
 
+  build:
+    desc: Production build (next build)
+    cmds:
+      - task: build:app
+
   dev:
     desc: Next dev server on :3000 (seeds SQLite at boot; restart reloads data/)
     summary: |
