@@ -2,13 +2,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { parse } from 'yaml'
 import { fromJson, type DescMessage, type MessageShape } from '@bufbuild/protobuf'
-import type { Database } from 'better-sqlite3'
 import { PathwaySchema, Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 import { MaterialSchema } from '@/lib/gen/carbon/v1/material_pb'
 import { CitationSchema, type Citation } from '@/lib/gen/carbon/v1/common_pb'
 import type { Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
 import type { Material } from '@/lib/gen/carbon/v1/material_pb'
-import { insertCitation, insertMaterial, insertPathway } from '@/lib/db/repos'
+import type { CarbonStore } from '@/lib/db/store'
 
 const UNIT_VALUES = [
   'USD/tCO2', 'GJ/tCO2', 'GJ-e/tCO2', 'Gt/yr', 'Mt/yr', 'years', 'mmol/g', 'kJ/mol', 'USD/kg',
@@ -121,35 +120,15 @@ function loadBatch<T>(dir: string, kind: string, validate: (d: AnyDoc, file: str
   })
 }
 
-export function seedFromDataDir(db: Database, dataDir: string): { citations: number; materials: number; pathways: number } {
+export async function seedFromDataDir(store: CarbonStore, dataDir: string): Promise<{ citations: number; materials: number; pathways: number }> {
   const citations = loadBatch<Citation>(path.join(dataDir, 'sources'), 'citation', (d) => validateCitationDoc(d))
   const citationIds = new Set(citations.map(c => c.id))
   const materials = loadBatch<Material>(path.join(dataDir, 'materials'), 'material', (d, file) => validateMaterialDoc(d, citationIds, file))
   const materialIds = new Set(materials.map(m => m.id))
   const pathways = loadBatch<Pathway>(path.join(dataDir, 'pathways'), 'pathway', (d, file) => validatePathwayDoc(d, citationIds, materialIds, file))
 
-  let writtenCitations = 0, writtenMaterials = 0, writtenPathways = 0
-  const tx = db.transaction(() => {
-    // full git-truth resync: tables mirror data/ exactly; shortlist/journal are runtime
-    // state and untouched here (drift there is findSeedDrift's job)
-    db.prepare('DELETE FROM citations').run()
-    db.prepare('DELETE FROM materials').run()
-    db.prepare('DELETE FROM pathways').run()
-    for (const c of citations) writtenCitations += insertCitation(db, c).changes
-    for (const m of materials) writtenMaterials += insertMaterial(db, m).changes
-    for (const p of pathways) writtenPathways += insertPathway(db, p).changes
-  })
-  tx()
-  return { citations: writtenCitations, materials: writtenMaterials, pathways: writtenPathways }
-}
-
-export function findSeedDrift(db: Database): string[] {
-  const pathwayIds = new Set((db.prepare('SELECT id FROM pathways').all() as { id: string }[]).map(r => r.id))
-  const drifted: string[] = []
-  for (const r of db.prepare('SELECT pathway_id FROM shortlist').all() as { pathway_id: string }[])
-    if (!pathwayIds.has(r.pathway_id)) drifted.push(`shortlist:${r.pathway_id}`)
-  for (const r of db.prepare('SELECT pathway_refs FROM journal_entries').all() as { pathway_refs: string }[])
-    for (const ref of JSON.parse(r.pathway_refs) as string[])
-      if (!pathwayIds.has(ref)) drifted.push(`journal:${ref}`)
-  return [...new Set(drifted)]
+  // full git-truth resync inside the store's transaction: seed tables mirror data/
+  // exactly; shortlist/journal are runtime state and untouched (drift there is
+  // store.seedDrift's job)
+  return store.replaceSeed({ citations, materials, pathways })
 }

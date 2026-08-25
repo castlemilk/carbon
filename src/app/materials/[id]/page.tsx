@@ -13,22 +13,19 @@ import MetricTable, {
 } from '@/components/pathway/metric-table'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { openDb } from '@/lib/db/instance'
 import { getCitation, getMaterial, listPathways } from '@/lib/db/repos'
 import { materialClassLabel } from '@/lib/material-class'
 
 export default async function MaterialDetail(props: PageProps<'/materials/[id]'>) {
   const { id } = await props.params
-
-  const db = openDb()
-  const material = getMaterial(db, id)
+  const material = await getMaterial(id)
   if (!material) notFound()
 
   // citations referenced by each property's source_ref
   const citationsById: Record<string, CitationSummary> = {}
   for (const ref of Object.values(material.properties).map((p) => p.sourceRef)) {
     if (!ref || citationsById[ref]) continue
-    const c = getCitation(db, ref)
+    const c = await getCitation(ref)
     if (c) {
       citationsById[ref] = { id: c.id, title: c.title, authors: [...c.authors], year: c.year, venue: c.venue, url: c.url }
     }
@@ -41,7 +38,7 @@ export default async function MaterialDetail(props: PageProps<'/materials/[id]'>
     ]),
   )
 
-  const usedBy = listPathways(db)
+  const usedBy = (await listPathways())
     .filter((p) => p.materialIds.includes(id))
 
   const uniprot = material.uniprotId.trim()

@@ -2,7 +2,6 @@ import Link from 'next/link'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { openDb } from '@/lib/db/instance'
 import { listMaterials, listPathways } from '@/lib/db/repos'
 import { MaterialClass } from '@/lib/gen/carbon/v1/material_pb'
 import {
@@ -26,16 +25,15 @@ export default async function MaterialsIndex(props: PageProps<'/materials'>) {
   const isActive = (name: (typeof MATERIAL_CLASS_FILTERS)[number]) =>
     activeClass !== undefined && MaterialClass[name] === activeClass
 
-  const db = openDb()
-  // used-by counts come from scanning pathways' material ids
+    // used-by counts come from scanning pathways' material ids
   const usedBy: Record<string, number> = {}
-  for (const p of listPathways(db)) {
+  for (const p of await listPathways()) {
     for (const mid of p.materialIds) {
       usedBy[mid] = (usedBy[mid] ?? 0) + 1
     }
   }
 
-  const materials = listMaterials(db)
+  const materials = await listMaterials()
   const filtered = activeClass === undefined ? materials : materials.filter((m) => m.class === activeClass)
 
   return (

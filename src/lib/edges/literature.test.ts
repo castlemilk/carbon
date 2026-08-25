@@ -2,16 +2,19 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { Database } from 'better-sqlite3'
 
-const { afterMock, fetchWorksMock } = vi.hoisted(() => ({
+const { afterMock, fetchWorksMock, storeRef } = vi.hoisted(() => ({
   afterMock: vi.fn<(callback: () => unknown) => void>(),
   fetchWorksMock: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+  storeRef: { current: null as { raw: { close(): void } } | null },
 }))
 vi.mock('next/server', () => ({ after: afterMock }))
 vi.mock('./openalex', () => ({ fetchWorks: fetchWorksMock }))
+// getLiterature resolves its cache through the repos -> getStore() chain;
+// point the singleton at the per-test temp sqlite store
+vi.mock('@/lib/db/instance', () => ({ getStore: () => storeRef.current }))
 
-import { openDb } from '@/lib/db/index'
+import { makeSqliteStore } from '@/lib/db/sqlite-store'
 import { getLitCache, putLitCache } from '@/lib/db/repos'
 import { CitationSchema } from '@/lib/gen/carbon/v1/common_pb'
 import { PathwaySchema } from '@/lib/gen/carbon/v1/pathway_pb'
@@ -28,7 +31,7 @@ const mkWork = (id: string) =>
 
 describe('getLiterature', () => {
   let dir: string
-  let db: Database
+  let store: ReturnType<typeof makeSqliteStore>
   let nowMs: number
   let dateSpy: ReturnType<typeof vi.spyOn>
 
@@ -37,23 +40,25 @@ describe('getLiterature', () => {
     dateSpy.mockReturnValue(nowMs)
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dir = mkdtempSync(join(tmpdir(), 'carbon-lit-'))
-    db = openDb(join(dir, 'lit.db'))
+    store = makeSqliteStore(join(dir, 'lit.db'))
+    await store.initSchema()
+    storeRef.current = store
     nowMs = 1_700_000_000_000
     dateSpy = vi.spyOn(Date, 'now').mockReturnValue(nowMs)
     afterMock.mockClear()
     fetchWorksMock.mockClear()
   })
   afterEach(() => {
-    db.close()
+    store.raw.close()
     rmSync(dir, { recursive: true, force: true })
     dateSpy.mockRestore()
   })
 
   it('serves a row younger than TTL as fresh without calling fetchWorks', async () => {
-    putLitCache(db, 'mof-dac', nowMs - 1000, JSON.stringify([mkWork('openalex:w1')]))
-    const result = await getLiterature(db, mkPathway())
+    await putLitCache('mof-dac', nowMs - 1000, JSON.stringify([mkWork('openalex:w1')]))
+    const result = await getLiterature(mkPathway())
     expect(result.freshness).toBe('fresh')
     expect(result.fetchedAt).toBe(nowMs - 1000)
     expect(result.works[0]).toMatchObject({ id: 'openalex:w1', title: 'Work openalex:w1' })
@@ -62,20 +67,20 @@ describe('getLiterature', () => {
   })
 
   it('treats age exactly equal to TTL_MS as stale (fresh window is strict age < TTL)', async () => {
-    putLitCache(db, 'mof-dac', nowMs, JSON.stringify([mkWork('openalex:w1')]))
+    await putLitCache('mof-dac', nowMs, JSON.stringify([mkWork('openalex:w1')]))
     tickTo(nowMs + TTL_MS)
     fetchWorksMock.mockResolvedValue([mkWork('openalex:w2')])
-    const result = await getLiterature(db, mkPathway())
+    const result = await getLiterature(mkPathway())
     expect(result.freshness).toBe('stale')
     expect(result.works[0]).toMatchObject({ id: 'openalex:w1' }) // cached works served
     expect(afterMock).toHaveBeenCalledTimes(1)
   })
 
   it('serves an old row as stale with cached works and schedules a refresh that rewrites the cache', async () => {
-    putLitCache(db, 'mof-dac', nowMs - TTL_MS - 5000, JSON.stringify([mkWork('openalex:w-old')]))
+    await putLitCache('mof-dac', nowMs - TTL_MS - 5000, JSON.stringify([mkWork('openalex:w-old')]))
     fetchWorksMock.mockResolvedValue([mkWork('openalex:w-new')])
 
-    const result = await getLiterature(db, mkPathway())
+    const result = await getLiterature(mkPathway())
     expect(result.freshness).toBe('stale')
     expect(result.works[0]).toMatchObject({ id: 'openalex:w-old' }) // stale payload, not refetched one
     expect(fetchWorksMock).not.toHaveBeenCalled()
@@ -85,29 +90,29 @@ describe('getLiterature', () => {
     await afterMock.mock.calls[0][0]()
     expect(fetchWorksMock).toHaveBeenCalledOnce()
     expect(fetchWorksMock.mock.calls[0]).toEqual(['MOF DAC', ['mof dac']])
-    expect(getLitCache(db, 'mof-dac')?.fetchedAt).toBe(nowMs) // row rewritten with fresh timestamp
+    expect((await getLitCache('mof-dac'))?.fetchedAt).toBe(nowMs) // row rewritten with fresh timestamp
   })
 
   it('blocks on cold cache success: returns fresh works and writes the row', async () => {
     fetchWorksMock.mockResolvedValue([mkWork('openalex:w1')])
-    const result = await getLiterature(db, mkPathway())
+    const result = await getLiterature(mkPathway())
     expect(result.freshness).toBe('fresh')
     expect(result.fetchedAt).toBe(nowMs)
     expect(result.works[0]).toMatchObject({ id: 'openalex:w1' })
     expect(fetchWorksMock).toHaveBeenCalledOnce()
 
-    const stored = getLitCache(db, 'mof-dac')
+    const stored = (await getLitCache('mof-dac'))!
     expect(stored?.fetchedAt).toBe(result.fetchedAt) // stored timestamp == response timestamp
     expect(JSON.parse(stored!.worksJson)[0]).toMatchObject({ id: 'openalex:w1' })
   })
 
   it('returns error on cold-cache failure without writing a row', async () => {
     fetchWorksMock.mockRejectedValue(new Error('simulated outage'))
-    const result = await getLiterature(db, mkPathway())
+    const result = await getLiterature(mkPathway())
     expect(result.freshness).toBe('error')
     expect(result.works).toEqual([])
     expect(result.fetchedAt).toBe(nowMs)
-    expect(getLitCache(db, 'mof-dac')).toBeNull()
+    expect(await getLitCache('mof-dac')).toBeNull()
     expect(afterMock).not.toHaveBeenCalled()
   })
 })

@@ -12,7 +12,6 @@ import MetricTable, {
 import ShortlistActions from '@/components/pathway/shortlist-actions'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { openDb } from '@/lib/db/instance'
 import { getCitation, getMaterial, getPathway, listShortlist } from '@/lib/db/repos'
 import { type Material } from '@/lib/gen/carbon/v1/material_pb'
 import { Setting } from '@/lib/gen/carbon/v1/pathway_pb'
@@ -33,15 +32,14 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
   const sp = await props.searchParams
   const backRaw = typeof sp.back === 'string' ? sp.back : undefined
 
-  const db = openDb()
-  const pathway = getPathway(db, id)
+  const pathway = await getPathway(id)
   if (!pathway) notFound()
 
   // citations referenced by the pathway itself AND by each metric's source_ref
   const citationsById: Record<string, CitationSummary> = {}
   for (const ref of [...pathway.sourceRefs, ...Object.values(pathway.metrics).map((m) => m.sourceRef)]) {
     if (!ref || citationsById[ref]) continue
-    const c = getCitation(db, ref)
+    const c = await getCitation(ref)
     if (c) {
       citationsById[ref] = {
         id: c.id,
@@ -63,13 +61,11 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
   )
 
   // keep dangling ids visible as links even when the material row is absent
-  const materials: { id: string; material: Material | undefined }[] = pathway.materialIds.map((mid) => ({
-    id: mid,
-    material: getMaterial(db, mid),
-  }))
+  const materials: { id: string; material: Material | undefined }[] = []
+  for (const mid of pathway.materialIds) materials.push({ id: mid, material: await getMaterial(mid) })
 
   // plain-object shortlist entry (enum name, not hydrated number) for the client action bar
-  const shortlistEntry = listShortlist(db).find((s) => s.entry.pathwayId === id)
+  const shortlistEntry = (await listShortlist()).find((s) => s.entry.pathwayId === id)
   const shortlist = shortlistEntry
     ? {
         status: ShortlistStatus[shortlistEntry.entry.status] ?? '',

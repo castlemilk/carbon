@@ -2,8 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { openDb } from '@/lib/db/instance'
-import { deleteJournal, getPathway, listPathways, upsertJournal, upsertShortlist } from '@/lib/db/repos'
+import { deleteJournal, getPathway, listPathways, putJournal, putShortlist } from '@/lib/db/repos'
 
 import { assertEntryKind, assertPathwayRefs, normalizeBody, normalizeTitle } from './journal-guard'
 import { assertTransition, normalizeRationale } from './shortlist-guard'
@@ -15,9 +14,8 @@ export async function setShortlistStatus(
   rationale: string,
 ) {
   assertTransition(from, to)
-  const db = openDb()
-  if (!getPathway(db, pathwayId)) throw new Error(`unknown pathway: ${pathwayId}`)
-  upsertShortlist(db, {
+  if (!(await getPathway(pathwayId))) throw new Error(`unknown pathway: ${pathwayId}`)
+  await putShortlist({
     pathwayId,
     status: to,
     rationale: normalizeRationale(rationale),
@@ -36,9 +34,8 @@ export async function addJournalEntry(
   assertEntryKind(kind)
   const cleanTitle = normalizeTitle(title)
   const cleanBody = normalizeBody(body)
-  const db = openDb()
-  assertPathwayRefs(refs, new Set(listPathways(db).map((p) => p.id)))
-  upsertJournal(db, {
+  assertPathwayRefs(refs, new Set((await listPathways()).map((p) => p.id)))
+  await putJournal({
     id: crypto.randomUUID(),
     kind,
     title: cleanTitle,
@@ -50,7 +47,6 @@ export async function addJournalEntry(
 }
 
 export async function deleteJournalEntry(id: string) {
-  const db = openDb()
-  deleteJournal(db, id)
+  await deleteJournal(id)
   revalidatePath('/decision')
 }

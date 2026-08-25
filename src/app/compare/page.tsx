@@ -1,7 +1,6 @@
 import Link from 'next/link'
 
 import CompareTable, { type CompareRow } from '@/components/compare/compare-table'
-import { openDb } from '@/lib/db/instance'
 import { listPathways, listShortlist } from '@/lib/db/repos'
 import { Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 
@@ -16,9 +15,8 @@ const first = (sp: SearchParams, key: string): string | undefined => {
 
 export default async function ComparePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams
-  const db = openDb()
-
-  const byId = new Map(listPathways(db).map((p) => [p.id, p]))
+  
+  const byId = new Map((await listPathways()).map((p) => [p.id, p]))
   const requested = [...new Set(
     (first(sp, 'ids') ?? '').split(',').map((s) => s.trim()).filter(Boolean),
   )]
@@ -27,10 +25,10 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const selected =
     requested.length > 0
       ? requested.flatMap((id) => byId.get(id) ?? [])
-      : (() => {
+      : await (async () => {
           const ids = new Set<string>()
           for (const p of byId.values()) if (p.isBenchmark) ids.add(p.id)
-          for (const s of listShortlist(db)) if (byId.has(s.entry.pathwayId)) ids.add(s.entry.pathwayId)
+          for (const s of await listShortlist()) if (byId.has(s.entry.pathwayId)) ids.add(s.entry.pathwayId)
           return [...ids].map((id) => byId.get(id)!)
         })()
 

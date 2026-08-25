@@ -1,26 +1,24 @@
 import Board, { type ShortlistRow } from '@/components/decision/board'
 import Journal, { type JournalRow } from '@/components/decision/journal'
-import { openDb } from '@/lib/db/instance'
 import { listJournal, listPathways, listShortlist } from '@/lib/db/repos'
 import { EntryKind, ShortlistStatus } from '@/lib/gen/carbon/v1/research_pb'
 
 export const metadata = { title: 'Decision Space' }
 
 export default async function DecisionPage() {
-  const db = openDb()
-  const nameMap: Record<string, string> = Object.fromEntries(
-    listPathways(db).map((p) => [p.id, p.name]),
+    const nameMap: Record<string, string> = Object.fromEntries(
+    (await listPathways()).map((p) => [p.id, p.name]),
   )
 
   // hydrated enums are numeric — convert to names before handing plain rows to clients
-  const shortlistRows: ShortlistRow[] = listShortlist(db).map((s) => ({
+  const shortlistRows: ShortlistRow[] = (await listShortlist()).map((s) => ({
     pathwayId: s.entry.pathwayId,
     status: ShortlistStatus[s.entry.status] ?? 'SHORTLIST_STATUS_UNSPECIFIED',
     rationale: s.entry.rationale,
     updatedAt: s.entry.updatedAt,
     existsInSeed: s.existsInSeed,
   }))
-  const journalRows: JournalRow[] = listJournal(db).map((j) => ({
+  const journalRows: JournalRow[] = (await listJournal()).map((j) => ({
     id: j.id,
     kind: EntryKind[j.kind] ?? 'ENTRY_KIND_UNSPECIFIED',
     title: j.title,

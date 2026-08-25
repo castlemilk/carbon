@@ -1,7 +1,6 @@
 import ScatterPlot, { type PlotPoint } from '@/components/landscape/scatter-plot'
 import LandscapeFilters from '@/components/landscape/landscape-filters'
 import PathwayList, { type ListRow } from '@/components/landscape/pathway-list'
-import { openDb } from '@/lib/db/instance'
 import { listPathways } from '@/lib/db/repos'
 import { AXIS_KEYS, axisLabel, mid, type Range } from '@/lib/format'
 import { Setting, type Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
@@ -60,7 +59,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
   const search = q.toString()
 
   const settingName = (p: Pathway) => Setting[p.setting] ?? 'SETTING_UNSPECIFIED'
-  const filtered = listPathways(openDb())
+  const filtered = (await listPathways())
     .filter((p) => p.trl >= minTrl)
     .filter((p) => !benchmarkOnly || p.isBenchmark)
     .filter((p) => settingsFilter.length === 0 || settingsFilter.includes(settingName(p)))
