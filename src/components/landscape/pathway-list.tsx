@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { CitationBadge } from '@/components/citation/citation-badge'
 import { formatRange, type Range } from '@/lib/format'
 import { SETTING_COLORS, SETTING_LABELS } from '@/lib/settings'
+import type { Citation } from '@/lib/gen/carbon/v1/common_pb'
 
 export interface ListRow {
   id: string
@@ -16,6 +18,7 @@ export interface ListRow {
   trl: number
   isBenchmark: boolean
   costRange?: Range | undefined
+  sources?: Citation[]
 }
 
 interface Props {
@@ -48,11 +51,12 @@ export default function PathwayList({ rows, search, ids }: Props) {
             <th className="px-3 py-2 font-medium">Setting</th>
             <th className="px-3 py-2 font-medium">TRL</th>
             <th className="px-3 py-2 font-medium">Cost</th>
+            <th className="px-3 py-2 font-medium">Sources</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.id} data-testid="pathway-row" data-id={r.id} className="border-b last:border-b-0 hover:bg-muted/40">
+            <tr key={r.id} data-testid="pathway-row" data-id={r.id} className="border-b last:border-b-0 align-top hover:bg-muted/40">
               <td className="px-3 py-2">
                 <Label className="cursor-pointer justify-center font-normal">
                   <Checkbox
@@ -80,11 +84,22 @@ export default function PathwayList({ rows, search, ids }: Props) {
               </td>
               <td className="px-3 py-2 tabular-nums">{r.trl}</td>
               <td className="px-3 py-2 tabular-nums">{r.costRange ? formatRange(r.costRange) : '—'}</td>
+              <td className="px-3 py-2">
+                {r.sources && r.sources.length > 0 ? (
+                  <div className="flex max-w-[260px] flex-wrap gap-1">
+                    {r.sources.map((c) => (
+                      <CitationBadge key={c.id} citation={c} />
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </td>
             </tr>
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">
+              <td colSpan={6} className="px-3 py-8 text-center text-sm text-muted-foreground">
                 No pathways match the current filters.
               </td>
             </tr>

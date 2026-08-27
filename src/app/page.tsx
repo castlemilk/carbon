@@ -5,6 +5,7 @@ import { listPathways } from '@/lib/db/repos'
 import { AXIS_KEYS, axisLabel, mid, type Range } from '@/lib/format'
 import { Setting, type Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
 import { SETTING_ORDER } from '@/lib/settings'
+import type { Citation } from '@/lib/gen/carbon/v1/common_pb'
 
 export const metadata = { title: 'Landscape' }
 
@@ -64,6 +65,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
     .filter((p) => !benchmarkOnly || p.isBenchmark)
     .filter((p) => settingsFilter.length === 0 || settingsFilter.includes(settingName(p)))
 
+  // Resolve every citation referenced by any visible pathway in one pass so
+  // each landscape row can render citation badges without N round trips.
+  const { getCitation } = await import('@/lib/db/repos')
+  const citationIdSet = new Set<string>()
+  for (const p of filtered) {
+    for (const ref of p.sourceRefs) if (ref) citationIdSet.add(ref)
+    for (const m of Object.values(p.metrics)) if (m.sourceRef) citationIdSet.add(m.sourceRef)
+  }
+  const citationsById = new Map<string, Citation>()
+  await Promise.all(
+    [...citationIdSet].map(async (id) => {
+      const c = await getCitation(id)
+      if (c) citationsById.set(id, c)
+    }),
+  )
+
   const missingX: Pathway[] = []
   const missingY: Pathway[] = []
   const points: PlotPoint[] = []
@@ -84,14 +101,23 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
     })
   }
 
-  const rows: ListRow[] = filtered.map((p) => ({
-    id: p.id,
-    name: p.name,
-    setting: settingName(p),
-    trl: p.trl,
-    isBenchmark: p.isBenchmark,
-    costRange: rangeOf(p, 'cost'),
-  }))
+  const rows: ListRow[] = filtered.map((p) => {
+    const refIds = new Set<string>()
+    for (const ref of p.sourceRefs) if (ref) refIds.add(ref)
+    for (const m of Object.values(p.metrics)) if (m.sourceRef) refIds.add(m.sourceRef)
+    const sources = [...refIds]
+      .map((id) => citationsById.get(id))
+      .filter((c): c is Citation => !!c)
+    return {
+      id: p.id,
+      name: p.name,
+      setting: settingName(p),
+      trl: p.trl,
+      isBenchmark: p.isBenchmark,
+      costRange: rangeOf(p, 'cost'),
+      sources,
+    }
+  })
 
   const note = (paths: Pathway[], axis: string) =>
     paths.length > 0 && (

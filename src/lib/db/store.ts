@@ -64,6 +64,7 @@ export interface CarbonStore {
   getMaterial(id: string): Promise<Material | undefined>
   listMaterials(): Promise<Material[]>
   getCitation(id: string): Promise<Citation | undefined>
+  listCitations(): Promise<Citation[]>
 
   putShortlist(e: ShortlistUpsert): Promise<void>
   listShortlist(): Promise<ShortlistRow[]>

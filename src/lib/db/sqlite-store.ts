@@ -2,7 +2,7 @@ import Database from 'better-sqlite3'
 import { fromJson } from '@bufbuild/protobuf'
 import { PathwaySchema, Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 import { MaterialSchema, MaterialClass } from '@/lib/gen/carbon/v1/material_pb'
-import { CitationSchema } from '@/lib/gen/carbon/v1/common_pb'
+import { CitationSchema, type Citation } from '@/lib/gen/carbon/v1/common_pb'
 import { JournalEntrySchema, ShortlistEntrySchema, ShortlistStatus, EntryKind, type JournalEntry } from '@/lib/gen/carbon/v1/research_pb'
 import {
   type CarbonStore, type CachedLiterature, type JournalUpsert, type SeedCounts,
@@ -62,6 +62,15 @@ export function makeSqliteStore(file = process.env.CARBON_DB ?? 'carbon.db'): Ca
         .map(r => fromJson(MaterialSchema, JSON.parse(r.doc as string)))
     },
     async getCitation(id) { return decodeDoc(CitationSchema, db.prepare('SELECT doc FROM citations WHERE id=?').get(id) as Row | undefined) },
+    async listCitations(): Promise<Citation[]> {
+      // Citations are stored as protojson blobs in `doc`; sort client-side by year DESC.
+      const rows = (db.prepare('SELECT doc FROM citations').all() as Row[])
+        .map(r => fromJson(CitationSchema, JSON.parse(r.doc as string)))
+      return rows.sort((a, b) => {
+        if (b.year !== a.year) return b.year - a.year
+        return a.title.localeCompare(b.title)
+      })
+    },
     async putShortlist(e: ShortlistUpsert) {
       db.prepare(`INSERT OR REPLACE INTO shortlist (pathway_id,status,rationale,updated_at) VALUES (?,?,?,?)`)
         .run(e.pathwayId, enumName(ShortlistStatus, e.status), e.rationale, e.updatedAt)

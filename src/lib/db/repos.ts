@@ -15,6 +15,7 @@ export const listPathways = (): Promise<Pathway[]> => getStore().listPathways()
 export const getMaterial = (id: string): Promise<Material | undefined> => getStore().getMaterial(id)
 export const listMaterials = (): Promise<Material[]> => getStore().listMaterials()
 export const getCitation = (id: string): Promise<Citation | undefined> => getStore().getCitation(id)
+export const listCitations = (): Promise<Citation[]> => getStore().listCitations()
 
 export const putShortlist = (e: ShortlistUpsert): Promise<void> => getStore().putShortlist(e)
 export const listShortlist = (): Promise<ShortlistRow[]> => getStore().listShortlist()

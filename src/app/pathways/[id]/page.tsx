@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 
 import ReactMarkdown from 'react-markdown'
 
+import { CitationList } from '@/components/citation/citation-badge'
 import LiteratureErrorBoundary from '@/components/pathway/literature-error-boundary'
 import LiteraturePanel from '@/components/pathway/literature-panel'
 import MetricTable, {
@@ -35,10 +36,19 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
   const pathway = await getPathway(id)
   if (!pathway) notFound()
 
-  // citations referenced by the pathway itself AND by each metric's source_ref
+  // Split citations into "pathway-level" refs (declared on the pathway itself)
+  // and "metric-level" refs (each metric's source_ref). Both render in different
+  // places on the detail page — pathway-level refs are aggregated here, metric-
+  // level refs show inline in the MetricTable.
+  const pathwayLevelRefIds = pathway.sourceRefs.filter(Boolean)
+  const metricLevelRefIds = Object.values(pathway.metrics)
+    .map((m) => m.sourceRef)
+    .filter(Boolean)
+  const allRefIds = [...new Set([...pathwayLevelRefIds, ...metricLevelRefIds])]
+
   const citationsById: Record<string, CitationSummary> = {}
-  for (const ref of [...pathway.sourceRefs, ...Object.values(pathway.metrics).map((m) => m.sourceRef)]) {
-    if (!ref || citationsById[ref]) continue
+  for (const ref of allRefIds) {
+    if (citationsById[ref]) continue
     const c = await getCitation(ref)
     if (c) {
       citationsById[ref] = {
@@ -176,6 +186,42 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
             </Card>
           )}
         </div>
+      )}
+
+      {pathwayLevelRefIds.length > 0 && (
+        <Card data-testid="pathway-references">
+          <CardHeader>
+            <CardTitle>References</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 text-sm">
+            <p className="text-muted-foreground">
+              Curated sources for this pathway:
+            </p>
+            <ul className="flex flex-col gap-2">
+              {pathwayLevelRefIds.map((id) => {
+                const c = citationsById[id]
+                if (!c) return null
+                return (
+                  <li key={id} className="flex flex-col gap-0.5">
+                    <a
+                      href={c.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium underline-offset-4 hover:underline"
+                    >
+                      {c.title}
+                    </a>
+                    <span className="text-xs text-muted-foreground">
+                      <CitationList citations={[c]} />
+                      {' · '}
+                      {c.venue}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </CardContent>
+        </Card>
       )}
 
       <LiteratureErrorBoundary>

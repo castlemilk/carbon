@@ -2,7 +2,7 @@ import { createClient, type Client, type InStatement } from '@libsql/client'
 import { fromJson } from '@bufbuild/protobuf'
 import { PathwaySchema, Setting, type Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
 import { MaterialSchema, MaterialClass, type Material } from '@/lib/gen/carbon/v1/material_pb'
-import { CitationSchema } from '@/lib/gen/carbon/v1/common_pb'
+import { CitationSchema, type Citation } from '@/lib/gen/carbon/v1/common_pb'
 import { JournalEntrySchema, ShortlistEntrySchema, ShortlistStatus, EntryKind, type JournalEntry } from '@/lib/gen/carbon/v1/research_pb'
 import {
   type CarbonStore, type CachedLiterature, type JournalUpsert, type SeedCounts,
@@ -73,6 +73,14 @@ export function createTursoStore(config: TursoConfig): CarbonStore {
         .map(r => fromJson(MaterialSchema, JSON.parse(r.doc as string)))
     },
     async getCitation(id: string) { return decodeDoc(CitationSchema, rowify(await exec('SELECT doc FROM citations WHERE id=?', [id]))) },
+    async listCitations(): Promise<Citation[]> {
+      const rows = (await queryRows('SELECT doc FROM citations'))
+        .map(r => fromJson(CitationSchema, JSON.parse(r.doc as string)))
+      return rows.sort((a, b) => {
+        if (b.year !== a.year) return b.year - a.year
+        return a.title.localeCompare(b.title)
+      })
+    },
     async putShortlist(e: ShortlistUpsert) {
       await exec(`INSERT OR REPLACE INTO shortlist (pathway_id,status,rationale,updated_at) VALUES (?,?,?,?)`,
         [e.pathwayId, enumName(ShortlistStatus, e.status), e.rationale, e.updatedAt])

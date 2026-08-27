@@ -1,8 +1,10 @@
 import Link from 'next/link'
 
+import { CitationBadge } from '@/components/citation/citation-badge'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { listMaterials, listPathways } from '@/lib/db/repos'
+import { getCitation, listMaterials, listPathways } from '@/lib/db/repos'
+import { type Citation } from '@/lib/gen/carbon/v1/common_pb'
 import { MaterialClass } from '@/lib/gen/carbon/v1/material_pb'
 import {
   MATERIAL_CLASS_FILTERS,
@@ -33,8 +35,22 @@ export default async function MaterialsIndex(props: PageProps<'/materials'>) {
     }
   }
 
+  // Resolve every source_ref any material property points at, batched once.
   const materials = await listMaterials()
   const filtered = activeClass === undefined ? materials : materials.filter((m) => m.class === activeClass)
+  const citationIdSet = new Set<string>()
+  for (const m of filtered) {
+    for (const prop of Object.values(m.properties)) {
+      if (prop.sourceRef) citationIdSet.add(prop.sourceRef)
+    }
+  }
+  const citationById = new Map<string, Citation>()
+  await Promise.all(
+    [...citationIdSet].map(async (id) => {
+      const c = await getCitation(id)
+      if (c) citationById.set(id, c)
+    }),
+  )
 
   return (
     <div className="flex min-h-screen flex-col gap-6 p-8">
@@ -62,9 +78,17 @@ export default async function MaterialsIndex(props: PageProps<'/materials'>) {
           {filtered.map((m) => {
             const propertyCount = Object.keys(m.properties).length
             const usedByCount = usedBy[m.id] ?? 0
+            // collect unique source refs across this material's properties
+            const sourceIds = new Set<string>()
+            for (const prop of Object.values(m.properties)) {
+              if (prop.sourceRef) sourceIds.add(prop.sourceRef)
+            }
+            const sources = [...sourceIds]
+              .map((id) => citationById.get(id))
+              .filter((c): c is Citation => !!c)
             return (
               <Link key={m.id} href={`/materials/${m.id}`} data-testid="material-card" className="group">
-                <Card size="sm" className="transition-colors group-hover:bg-muted/40">
+                <Card size="sm" className="h-full transition-colors group-hover:bg-muted/40">
                   <CardContent className="flex flex-col gap-1.5">
                     <span className="font-medium underline-offset-4 group-hover:underline">{m.name}</span>
                     <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
@@ -74,6 +98,13 @@ export default async function MaterialsIndex(props: PageProps<'/materials'>) {
                       </span>
                       <span>· used by {usedByCount} pathway{usedByCount === 1 ? '' : 's'}</span>
                     </div>
+                    {sources.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1" data-testid="material-sources">
+                        {sources.map((c) => (
+                          <CitationBadge key={c.id} citation={c} />
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </Link>

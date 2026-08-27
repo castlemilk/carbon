@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fromJson } from '@bufbuild/protobuf'
+import { CitationSchema } from '@/lib/gen/carbon/v1/common_pb'
 import { PathwaySchema, Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 import type { CarbonStore } from './store'
 import { makeSqliteStore } from './sqlite-store'
@@ -73,5 +74,22 @@ describe.each([
 
     await ctx.store.deleteJournal('j1')
     expect(await ctx.store.seedDrift()).toEqual(['shortlist:ghost'])
+  })
+
+  it('listCitations returns all citations ordered by year DESC, title ASC', async () => {
+    const mkCitation = (id: string, year: number, title: string) =>
+      fromJson(CitationSchema, { id, title, authors: [], year, venue: '', url: '' })
+    await ctx.store.replaceSeed({
+      citations: [
+        mkCitation('old', 2010, 'B paper'),
+        mkCitation('new', 2024, 'A paper'),
+        mkCitation('mid', 2018, 'Z paper'),
+      ],
+      materials: [],
+      pathways: [mkPathway('p')],
+    })
+    const all = await ctx.store.listCitations()
+    expect(all.map(c => c.id)).toEqual(['new', 'mid', 'old'])
+    expect((await ctx.store.getCitation('new'))?.year).toBe(2024)
   })
 })

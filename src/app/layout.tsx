@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { EmbedNav } from "@/components/embed-nav";
 import EmbedFrame from "@/components/embed-frame";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 
 import "./globals.css";
 
@@ -36,22 +37,24 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${mono.variable} ${display.variable} ${sans.variable} h-full antialiased`}
     >
       <body className={`min-h-full font-sans antialiased ${embed ? "bg-transparent" : ""}`}>
-        {embed ? (
-          <>
-            <div className="mx-auto max-w-6xl px-6 py-6 sm:px-8 sm:py-8">
-              <Suspense fallback={null}>
-                <EmbedNav />
-              </Suspense>
-              <main className="mt-8">{children}</main>
-            </div>
-            <EmbedFrame />
-          </>
-        ) : (
-          <>
-            <AppSidebar />
-            <main className="pl-[220px]">{children}</main>
-          </>
-        )}
+        <ThemeProvider>
+          {embed ? (
+            <>
+              <div className="mx-auto max-w-6xl px-6 py-6 sm:px-8 sm:py-8">
+                <Suspense fallback={null}>
+                  <EmbedNav />
+                </Suspense>
+                <main className="mt-8">{children}</main>
+              </div>
+              <EmbedFrame />
+            </>
+          ) : (
+            <>
+              <AppSidebar />
+              <main className="pl-[220px]">{children}</main>
+            </>
+          )}
+        </ThemeProvider>
       </body>
     </html>
   );
