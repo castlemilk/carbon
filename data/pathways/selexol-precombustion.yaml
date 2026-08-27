@@ -25,3 +25,50 @@ challenges:
   - "Deep chilling or refrigeration needed for cold-solvent operation"
 material_ids: [selexol-solvent]
 source_refs: [iea2022ccus]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Feed as Fuel feedstock
+      participant Shift as Gasifier and shift reactor
+      participant Abs as Selexol absorber
+      participant Flash as Pressure-letdown flashes
+      participant H2 as H₂ user
+      participant Store as Storage
+      Feed->>Shift: Gasify and shift to H₂ + CO₂ syngas
+      Shift->>Abs: Deliver high-pressure syngas
+      Abs->>Abs: Physically dissolve CO₂ in Selexol
+      Abs-->>H2: Send H₂-rich treated fuel
+      Abs->>Flash: Transfer loaded solvent
+      Flash->>Store: Release, compress, and store CO₂
+      Flash-->>Abs: Return lean Selexol by pump
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#93c5fd,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef h2 fill:#22d3ee,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef fuel fill:#fde68a,stroke:#16161a,color:#16161a
+
+      FUEL["Coal / NG /<br/>biomass feedstock"]:::fuel
+      GAS[/"Gasifier<br/>(O₂-blown)"/]:::equip
+      WGS[/"Water-gas-shift<br/>reactor<br/>CO + H₂O → CO₂ + H₂"/]:::equip
+      SELX[/"Selexol absorber<br/>(dimethyl ethers<br/>of PEG)<br/>~20-70 bar"/]:::equip
+      SOLV[("Loaded Selexol<br/>(physical,<br/>no reaction)")]:::sorb
+      FLASH[/"Pressure-letdown<br/>flash drums<br/>(H₂S first, then CO₂)"/]:::equip
+      H2{{"H₂-rich fuel<br/>(→ turbine /<br/>fuel cell)"}}:::h2
+      CO2{{"Pure CO₂<br/>(sequestered)"}}:::seq
+      COMP[/"Compressor"/]:::equip
+      LEAN["Lean Selexol<br/>(CO₂ stripped)"]:::stream
+
+      FUEL --> GAS
+      GAS -->|"raw syngas<br/>CO + H₂ + CO₂ + H₂S"| WGS
+      WGS -->|"~60% H₂<br/>~35% CO₂<br/>(high pCO₂)"| SELX
+      SELX <-->|"physical absorption<br/>(no chemistry)"| SOLV
+      SELX --> H2
+      SOLV --> FLASH
+      FLASH --> CO2
+      CO2 --> COMP
+      COMP -->|"dense-phase"| SEQ(("Geological<br/>storage"))
+      FLASH -->|"Lean solvent<br/>(recycle)"| LEAN
+      LEAN -->|"recompress<br/>(pump)"| SELX

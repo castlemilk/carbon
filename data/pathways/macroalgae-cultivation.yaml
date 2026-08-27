@@ -33,3 +33,46 @@ challenges:
   - "Climate-relevant scale needs millions of hectares of offshore farming"
   - "Nutrient and light competition; offshore engineering for rough seas"
 source_refs: [duarte2017, nas2022]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Atmos as Atmosphere
+      participant Farm as Offshore seaweed farm
+      participant Harvest as Harvest operation
+      participant Shelf as Continental shelf
+      participant Deep as Deep sea / sediments
+      Atmos->>Farm: Supply CO₂ through air-sea equilibrium
+      Farm->>Farm: Fix carbon into growing macroalgae
+      Farm->>Harvest: Harvest mature biomass
+      Harvest->>Shelf: Route non-sequestered fraction
+      Shelf-->>Atmos: Decompose and return carbon to cycle
+      Harvest->>Deep: Export selected biomass to deep water
+      Deep-->>Deep: Bury carbon if export remains durable
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef bio fill:#a3e635,stroke:#16161a,color:#16161a
+      classDef ocean fill:#67e8f9,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      DIC["Seawater DIC<br/>(dissolved CO₂ /<br/>HCO₃⁻)"]:::ocean
+      ATM["Atmospheric<br/>CO₂"]:::stream
+      FARM[/"Offshore macroalgae<br/>farm (kelp lines<br/>~1,500 tCO₂/km²/yr)"/]:::bio
+      HARV["Harvested<br/>seaweed biomass"]:::bio
+      SINK[/"Deliberate sinking<br/>(deep-water export<br/>— undemonstrated)"/]:::equip
+      SHELF[/"Decomposition on<br/>continental shelf<br/>(C returns to cycle)"/]:::waste
+      DEEP["Deep sea /<br/>sediment burial"]:::ocean
+      SEQ{{"Buried biomass C<br/>(durability<br/>unproven)"}}:::seq
+      CO["Co-products:<br/>food, feed, biofuel<br/>(asparagopsis →<br/>methane cut)"]:::bio
+      RISK["Most exported C<br/>decomposes before<br/>deep burial<br/>(verification gap)"]:::waste
+
+      ATM -.->|"air-sea<br/>equilibration"| DIC
+      DIC -->|"rapid photosynthesis<br/>(wild ~1.5 PgC/yr) "| FARM
+      FARM -->|"harvest"| HARV
+      HARV -->|"climate-relevant<br/>fraction"| SINK
+      HARV -->|"majority"| CO
+      SINK --> DEEP
+      SINK -.->|"large fraction<br/>breaks down"| SHELF
+      SHELF -.-> RISK
+      DEEP -->|"if recalcitrant"| SEQ

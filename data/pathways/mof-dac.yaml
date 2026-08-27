@@ -32,3 +32,47 @@ challenges:
   - "MOF synthesis cost and scale-up of structured contactors"
 material_ids: [mg2dobpdc]
 source_refs: [mcqueen2021, young2023, sinha2017, mcdonald2012, darunte2017]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Air as Ambient air
+      participant Cont as Structured MOF contactor
+      participant MOF as Diamine-Mg₂(dobpdc)
+      participant Steam as Low-grade steam
+      participant Vacuum as Mild vacuum
+      participant Store as Storage
+      Air->>Cont: Pass dilute air through coated contactor
+      MOF->>MOF: Cooperative CO₂ insertion at ~400 ppm
+      Cont->>Steam: Isolate saturated contactor
+      Steam->>MOF: Cross sharp release step at modest heat
+      Vacuum->>MOF: Pull concentrated CO₂ product
+      MOF-->>Cont: Return regenerated sorbent to service
+      Vacuum->>Store: Compress and store CO₂
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#5eead4,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef air fill:#bae6fd,stroke:#0284c7,color:#16161a
+
+      AIR["Ambient air<br/>~420 ppm"]:::air
+      CONT[/"Structured<br/>contactor<br/>(MOF-coated<br/>lamellae)"/]:::equip
+      MOF[("Diamine-appended<br/>Mg₂(dobpdc)<br/>step isotherm")]:::sorb
+      ADS[/"Adsorption<br/>40-60 °C<br/>CO₂ cooperative<br/>insertion →<br/>ammonium-<br/>carbamate chains"/]:::equip
+      REG[/"TVSA regeneration<br/>~120 °C steam<br/>+ mild vacuum"/]:::equip
+      STEAM["Low-temperature<br/>steam / waste heat<br/>4.5-7.5 GJ/tCO₂"]:::heat
+      PUMP[/"Vacuum pump +<br/>compression"/]:::equip
+      CO2{{"Pure CO₂"}}:::seq
+
+      AIR -->|"low ΔP"| CONT
+      CONT --> ADS
+      ADS <-->|"full capacity<br/>at 400 ppm"| MOF
+      ADS -->|"CO₂-lean air"| WASTE(["to atmosphere"])
+      MOF -->|"sharp release<br/>step"| REG
+      REG -->|"regenerated MOF"| MOF
+      STEAM -.-> REG
+      REG -->|"CO₂ (dry)"| PUMP
+      PUMP --> CO2
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))

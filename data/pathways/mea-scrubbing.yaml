@@ -26,3 +26,52 @@ advantages: ["Proven at scale for decades", "High capture efficiency (>90%)"]
 challenges: ["Large reboiler duty", "Solvent degradation and aerosol emissions"]
 material_ids: [mea]
 source_refs: [iea2022ccus, nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Flue as Flue gas source
+      participant Abs as MEA absorber
+      participant Rich as Rich-solvent loop
+      participant Strip as Stripper and reboiler
+      participant Comp as CO₂ compressor
+      participant Store as Geological storage
+      Flue->>Abs: Send dilute flue gas
+      Abs->>Abs: Form MEA carbamate / bicarbonate
+      Abs->>Rich: Pump CO₂-loaded solvent
+      Rich->>Strip: Exchange heat and strip at ~120 °C
+      Strip-->>Abs: Return lean MEA to absorber
+      Strip->>Comp: Release pure CO₂ and water vapour
+      Comp->>Store: Compress and inject CO₂
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#93c5fd,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      FLUE["Flue gas<br/>(power/steel/cement)"]:::stream
+      ABS[/"Absorber<br/>40-60 °C"/]:::equip
+      MEA[("30 wt% MEA<br/>aqueous solvent")]:::sorb
+      STR[/"Stripper<br/>~120 °C"/]:::equip
+      RB["Reboiler<br/>(steam)"]:::heat
+      COND[/"Condenser"/]:::equip
+      COMP[/"Compressor<br/>~100 bar"/]:::equip
+      CO2{{"Pure CO₂<br/>(sequestered)"}}:::seq
+      LEAN["Lean solvent<br/>(CO₂-lean MEA)"]:::stream
+      RICH["Rich solvent<br/>(CO₂-loaded MEA)"]:::stream
+      WASTE["Solvent<br/>degradation<br/>+ aerosols"]:::waste
+
+      FLUE -->|"CO₂ ~3-15%"| ABS
+      ABS <-->|"absorbs<br/>CO₂ + 2MEA → MEACOO⁻ + HMEA⁺"| MEA
+      ABS -->|"depleted<br/>flue gas"| WASTE
+      ABS -->|"Rich solvent<br/>(CO₂-loaded)"| RICH
+      RICH --> STR
+      STR -->|"CO₂ + H₂O vapour"| COND
+      COND --> CO2
+      CO2 --> COMP
+      COMP -->|"dense-phase<br/>CO₂"| SEQ(("Geological<br/>storage"))
+      STR -->|"Lean solvent<br/>(regenerated)"| LEAN
+      LEAN -->|"recycle to<br/>absorber"| ABS
+      RB -.->|"heat duty<br/>3.5-4.2 GJ/tCO₂"| STR

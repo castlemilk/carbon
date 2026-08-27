@@ -103,7 +103,18 @@ export default function ScatterPlot({ points, xKey, yKey, logX, search }: Props)
                 onMouseEnter={() => setHovered(p.id)} onMouseLeave={() => setHovered(null)}>
                 <title>{p.name}</title>
                 {p.isBenchmark && <circle r={11} fill="none" stroke="currentColor" className="text-foreground/50" strokeWidth={1.5} />}
-                <circle data-testid="dot" data-id={p.id} r={7} fill={SETTING_COLORS[p.setting] ?? '#a1a1aa'}>
+                <circle
+                  data-testid="dot"
+                  data-id={p.id}
+                  r={7}
+                  fill={SETTING_COLORS[p.setting] ?? '#a1a1aa'}
+                  // Keep the actual hit target interactive; SVG group bubbling is
+                  // unreliable in some browser automation and touch contexts.
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    router.push(`/pathways/${p.id}?back=${encodeURIComponent(search)}`, { scroll: false })
+                  }}
+                >
                   <title>{p.name}</title>
                 </circle>
               </g>

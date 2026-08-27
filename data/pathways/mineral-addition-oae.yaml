@@ -35,3 +35,47 @@ challenges:
   - "Alkalinity persistence depends on carbonate compensation; empirical validation at deployment scale still lacking"
 material_ids: [cao-lime]
 source_refs: [renforth2017, nas2022]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Feed as Limestone or olivine supply
+      participant Kiln as Calcination and processing
+      participant Vessel as Transport and dispersal
+      participant Ocean as Surface ocean
+      participant Atmos as Atmosphere
+      Feed->>Kiln: Process mineral alkalinity
+      Kiln->>Vessel: Load lime or ground silicate
+      Vessel->>Ocean: Disperse material at surface
+      Ocean->>Ocean: Dissolve and consume CO₂ to bicarbonate
+      Atmos->>Ocean: Draw down CO₂ through equilibration
+      Ocean-->>Ocean: Retain alkalinity over millennia
+      Note over Kiln,Ocean: Kiln emissions require capture to preserve net removal
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef ocean fill:#67e8f9,stroke:#16161a,color:#16161a
+      classDef solid fill:#fde68a,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      LS["Limestone<br/>(or olivine /<br/>industrial alkali)"]:::solid
+      KILN[/"Calciner<br/>~900 °C<br/>(paired with<br/>CCS on kiln)"/]:::equip
+      LIME[("CaO / Ca(OH)₂<br/>processed<br/>alkalinity")]:::solid
+      DISP[/"Ocean surface<br/>dispersal<br/>(vessel / outfall)"/]:::equip
+      SW["Surface ocean<br/>seawater<br/>CO₂(aq) + H₂O"]:::ocean
+      DISS[/"Dissolution<br/>Ca(OH)₂ + 2CO₂<br/>→ Ca²⁺ + 2HCO₃⁻"/]:::equip
+      SEQ{{"Ocean alkalinity<br/>(bicarbonate)<br/>1-100 kyr"}}:::seq
+      KEMIT["Kiln CO₂<br/>(must be<br/>captured)"]:::waste
+      ATM["Atmospheric<br/>CO₂"]:::stream
+      HEAT["Kiln fuel /<br/>electricity"]:::heat
+
+      LS -->|"feed"| KILN
+      HEAT -.->|"calcination<br/>emissions"| KILN
+      KILN -->|"quicklime"| LIME
+      KILN -.->|"CO₂ (captured<br/>elsewhere)"| KEMIT
+      LIME -->|"bulk transport"| DISP
+      DISP --> SW
+      SW --> DISS
+      ATM -.->|"equilibrating<br/>drawdown"| DISS
+      DISS -->|"alkalinity as<br/>HCO₃⁻ (storage)"| SEQ

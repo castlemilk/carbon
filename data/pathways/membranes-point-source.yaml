@@ -25,3 +25,47 @@ challenges:
   - "Selectivity/permeability trade-off raises cost on dilute (~4-15% CO2) streams"
   - "Multi-stage compression/vacuum energy; membrane aging and fouling"
 source_refs: [nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Flue as Flue gas
+      participant Pretreat as Pre-treatment
+      participant M1 as Membrane stage 1
+      participant M2 as Membrane stage 2
+      participant Vacuum as Vacuum and compression
+      participant Store as Storage
+      Flue->>Pretreat: Remove particulates, NOx, and SOx
+      Pretreat->>M1: Present conditioned dilute gas
+      M1-->>M2: Pass CO₂-enriched permeate
+      M1-->>Flue: Return CO₂-depleted retentate to stack
+      M2->>Vacuum: Enrich permeate above 90% CO₂
+      M2-->>M1: Recycle retentate to first stage
+      Vacuum->>Store: Compress and inject CO₂
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef perm fill:#fef3c7,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      FLUE["Flue gas<br/>(coal/NG combined cycle)"]:::stream
+      PRE[/"Pre-treatment<br/>(de-NOx, desulfur,<br/>heat recovery)"/]:::equip
+      S1[/"Stage 1 membrane<br/>(hollow-fibre<br/>polyimide)"/]:::perm
+      S2[/"Stage 2 membrane<br/>(sweep + recompression)"/]:::perm
+      VAC[/"Vacuum /<br/>recompression train"/]:::equip
+      CO2{{"Pure CO₂"}}:::seq
+      PERM["Permeate<br/>(CO₂-enriched)"]:::stream
+      RET["Retentate<br/>(CO₂-depleted,<br/>to stack)"]:::waste
+      COMP[/"Compressor"/]:::equip
+
+      FLUE --> PRE
+      PRE -->|"~6-12% CO₂<br/>~1 bar"| S1
+      S1 -->|"retentate<br/>CO₂ < 2%"| RET
+      S1 -->|"permeate<br/>CO₂ 30-60%"| PERM
+      PERM --> S2
+      S2 -->|"retentate<br/>(recycle to S1 inlet)"| S1
+      S2 -->|"permeate<br/>CO₂ >90%"| VAC
+      VAC --> CO2
+      CO2 --> COMP
+      COMP -->|"dense-phase"| SEQ(("Geological<br/>storage"))

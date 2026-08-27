@@ -29,3 +29,38 @@ challenges:
   - "Requires capture plant co-located with suitable basalt geology"
 material_ids: [basalt]
 source_refs: [matter2016, nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Capture as Capture plant
+      participant Water as Water supply
+      participant Well as Injection well
+      participant Rock as Basalt formation
+      participant Monitor as Monitoring wells
+      Capture->>Water: Dissolve captured CO₂ downhole
+      Water->>Well: Deliver carbonated water
+      Well->>Rock: Inject below formation pressure limit
+      Rock->>Rock: Dissolve silicates and precipitate carbonates
+      Rock-->>Monitor: Track tracers and pressure
+      Monitor-->>Capture: Verify mineralisation progress
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef geol fill:#fcd34d,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef water fill:#67e8f9,stroke:#16161a,color:#16161a
+
+      CO2IN["Captured CO₂<br/>(dense phase)"]:::stream
+      H2O["Water<br/>(~25 t per t CO₂)"]:::water
+      INJ[/"Downhole<br/>dissolution<br/>+ injection well<br/>(CO₂ fully dissolved,<br/>no gas phase)"/]:::equip
+      BAS[("Basaltic<br/>host rock<br/>(Ca/Mg/Fe<br/>silicates)")]:::geol
+      RXN[/"In-situ<br/>mineralization<br/>silicates + CO₂<br/>→ carbonates"/]:::geol
+      SEQ{{"Solid carbonate<br/>minerals<br/>CaCO₃, MgCO₃, FeCO₃<br/>>10 kyr"}}:::seq
+      MON[/"Monitoring wells<br/>(tracers: SF₆)"/]:::equip
+
+      CO2IN -->|"dissolution<br/>at depth"| INJ
+      H2O --> INJ
+      INJ -->|"carbonated<br/>water (no buoyant<br/>gas phase)"| BAS
+      BAS --> RXN
+      RXN -->|">95% mineralized<br/>in 2 yr<br/>(CarbFix field data)"| SEQ
+      MON -.->|"verification"| RXN

@@ -23,3 +23,50 @@ challenges:
   - "Large air separation unit energy penalty (~15-20% of gross output)"
   - "Air ingress dilutes CO2; boiler retrofit complexity"
 source_refs: [iea2022ccus, nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Air as Atmospheric air
+      participant ASU as Air separation unit
+      participant Boiler as Oxy-fired boiler
+      participant Cooler as Cooler and water knockout
+      participant Purify as CO₂ purification
+      participant Store as Storage
+      Air->>ASU: Separate near-pure oxygen
+      ASU->>Boiler: Feed O₂ with recycled CO₂
+      Boiler->>Cooler: Produce hot CO₂ and water flue gas
+      Cooler->>Purify: Condense water and remove impurities
+      Purify->>Store: Compress high-purity CO₂
+      Store-->>Boiler: Accept dense-phase storage stream
+      Boiler-->>Boiler: Recycle CO₂ to control flame temperature
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+      classDef air fill:#bae6fd,stroke:#0284c7,color:#16161a
+      classDef fuel fill:#fde68a,stroke:#16161a,color:#16161a
+
+      AIR["Atmospheric air"]:::air
+      ASU[/"Cryogenic<br/>air separation<br/>(ASU)"/]:::air
+      FUEL["Fuel<br/>(coal / NG / biomass)"]:::fuel
+      BOILER[/"Oxy-fired boiler<br/>(recycled CO₂<br/>for T control)"/]:::equip
+      HRSG[/"Heat recovery<br/>(steam cycle)"/]:::heat
+      COOL[/"Recycle cooler +<br/>water knockout"/]:::equip
+      PUR[/"CO₂ compression<br/>+ purification"/]:::equip
+      CO2{{"Pure CO₂<br/>>95% vol"}}:::seq
+      N2["N₂ to<br/>atmosphere"]:::waste
+      RECYCLE["CO₂ recycle<br/>(flame temp control)"]:::stream
+
+      AIR --> ASU
+      ASU -->|"~95% O₂"| BOILER
+      ASU --> N2
+      FUEL --> BOILER
+      BOILER -->|"hot<br/>CO₂ + H₂O"| HRSG
+      HRSG --> COOL
+      RECYCLE -->|"~70%"| BOILER
+      COOL -->|"wet CO₂"| PUR
+      PUR --> CO2
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))

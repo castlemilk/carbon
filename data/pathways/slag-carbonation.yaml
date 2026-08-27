@@ -31,3 +31,45 @@ challenges:
   - "Residue supply is finite and geographically fixed; not scalable beyond ~Gt/yr"
   - "Trace-metal leaching during processing; slow intrinsic reaction rates"
 source_refs: [renforth2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Industry as Steel, cement, or mining plant
+      participant Residue as Alkaline residue stream
+      participant Prep as Comminution and preparation
+      participant Reactor as Carbonation reactor
+      participant CO2 as Captured CO₂ source
+      participant Product as Carbonate product
+      Industry->>Residue: Collect slag, ash, or tailings
+      Residue->>Prep: Crush and expose reactive minerals
+      Prep->>Reactor: Feed fine residue and water
+      CO2->>Reactor: Supply concentrated CO₂
+      Reactor->>Reactor: React Ca/Mg oxides and silicates
+      Reactor->>Product: Form stable carbonate aggregate or filler
+      Product-->>Industry: Substitute virgin construction material
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef geol fill:#fcd34d,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      SLAG["Alkaline residues:<br/>steel slag, fly ash,<br/>cement kiln dust,<br/>mine tailings<br/>(~7 Gt/yr global)"]:::waste
+      PREP[/"Comminution<br/>(milling to<br/>increase surface)"/]:::equip
+      RXN[/"Ex-situ reactor<br/>Ca/Mg silicate + CO₂<br/>→ CaCO₃/MgCO₃<br/>50-200 °C<br/>optimized water"/]:::geol
+      PASS[/"Passive stockpile<br/>carbonation<br/>(atmospheric<br/>CO₂, slow)"/]:::geol
+      CO2IN["CO₂ source<br/>(captured flue gas<br/>or DAC)"]:::stream
+      SEQ{{"Carbonate<br/>minerals<br/>>10 kyr"}}:::seq
+      PROD["Products:<br/>aggregates,<br/>precipitated CaCO₃<br/>fillers (revenue)"]:::stream
+      LEACH["Trace-metal<br/>leaching<br/>management"]:::waste
+
+      SLAG -->|"residue<br/>stream"| PREP
+      PREP -->|"fine feed"| RXN
+      PREP -->|"coarse fraction"| PASS
+      CO2IN -->|"concentrated<br/>CO₂"| RXN
+      ATM["Atmospheric CO₂"]:::stream
+      ATM -.-> PASS
+      RXN -->|"carbonated<br/>product"| SEQ
+      PASS -->|"slowly<br/>carbonated"| SEQ
+      RXN -.->|"water + metals"| LEACH
+      SEQ -.->|"product<br/>substitution"| PROD

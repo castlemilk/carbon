@@ -31,3 +31,45 @@ challenges:
   - "Ionic-liquid electrolyte cost and long-term electrode stability"
 material_ids: [quinone-electrode]
 source_refs: [voskian2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Air as Air or flue gas
+      participant Cell as Electro-swing cell
+      participant Electrode as Quinone electrode
+      participant Power as DC power supply
+      participant Store as Storage
+      Air->>Cell: Flow feed through parallel passages
+      Power->>Electrode: Apply reducing potential
+      Electrode->>Electrode: Add CO₂ at reduced quinone sites
+      Power->>Electrode: Reverse potential to discharge
+      Electrode-->>Cell: Release concentrated CO₂
+      Cell->>Store: Send CO₂ to compression and storage
+      Cell-->>Air: Vent CO₂-depleted feed
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#5eead4,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef air fill:#bae6fd,stroke:#0284c7,color:#16161a
+      classDef elec fill:#ff7a59,stroke:#16161a,color:#ffffff
+
+      AIR["Feed gas<br/>0.6-10% CO₂<br/>(air or flue)"]:::air
+      CELL[/"Electro-swing cell<br/>(stacked parallel-<br/>passage contactors)"/]:::equip
+      QT[("Polyanthraquinone-<br/>CNT electrode<br/>(quinone redox)")]:::sorb
+      CHARGE[/"Charge<br/>(reductive<br/>addition)"/]:::elec
+      DISCHARGE[/"Discharge<br/>(CO₂ release)"/]:::elec
+      DC["DC power<br/>0.9-2.1 GJ-e/tCO₂"]:::elec
+      CO2{{"Pure CO₂<br/>released on<br/>discharge"}}:::seq
+
+      AIR -->|"gas flows<br/>through cell"| CELL
+      CELL <-->|"Q + 2e⁻ + 2CO₂ ⇌ Q(CO₂)₂²⁻"| QT
+      CELL -->|"CO₂-depleted<br/>outlet"| WASTE(["vent"])
+      DC -.-> CHARGE
+      DC -.-> DISCHARGE
+      QT -->|"charged"| CHARGE
+      QT -->|"discharged"| DISCHARGE
+      CHARGE -.->|"swing cycle"| DISCHARGE
+      DISCHARGE --> CO2
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))

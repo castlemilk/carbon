@@ -26,6 +26,13 @@ tasks:
       - "{{.BIN}}/eslint ."
       - "{{.BIN}}/tsc --noEmit"
       - "{{.BIN}}/vitest run"
+      - task: ':quality:mermaid'
+
+  mermaid:
+    desc: Validate all pathway Mermaid diagrams with mermaid-cli
+    cmds:
+      - task: ':check:node'
+      - node scripts/check-mermaid.mjs
 
   gen:
     desc: Regenerate protobuf TS from proto/ into src/lib/gen (committed)

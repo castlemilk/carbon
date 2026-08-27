@@ -30,3 +30,44 @@ challenges:
   - "Persistence varies widely with feedstock and pyrolysis temperature"
   - "MRV of in-soil stability; feedstock logistics limit scale"
 source_refs: [nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Atmos as Atmosphere
+      participant Biomass as Biomass feedstock
+      participant Pyro as Pyrolysis unit
+      participant Farm as Farm soil
+      participant MRV as Soil MRV
+      Atmos->>Biomass: Fix CO₂ through plant growth
+      Biomass->>Pyro: Deliver dried, sized feed
+      Pyro->>Pyro: Pyrolyse with limited oxygen
+      Pyro-->>Farm: Apply stable carbon-rich char
+      Farm->>Farm: Retain aromatic carbon and improve water holding
+      MRV-->>Farm: Measure persistence and stock change
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef bio fill:#a3e635,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef energy fill:#ff7a59,stroke:#16161a,color:#ffffff
+
+      ATM["Atmospheric CO₂"]:::stream
+      BIO["Biomass<br/>(residue or<br/>dedicated crop)"]:::bio
+      DRY[/"Drying +<br/>sizing"/]:::equip
+      PYRO[/"Pyrolyzer<br/>350-700 °C<br/>limited O₂"/]:::equip
+      CHAR[("Biochar<br/>aromatic C<br/>structure")]:::seq
+      GAS["Syngas + bio-oil<br/>(co-products)"]:::energy
+      ENERGY{{"Energy<br/>co-generation"}}:::energy
+      INC[/"Soil incorporation<br/>(agriculture)"/]:::bio
+      SEQ{{"Stable soil carbon<br/>100-1000 yr<br/>(persistence varies<br/>w/ feedstock + temp)"}}:::seq
+      COBEN["Soil co-benefits:<br/>fertility, water<br/>retention, pH"]:::bio
+
+      ATM -.->|"photosynthesis"| BIO
+      BIO --> DRY
+      DRY -->|"dry feed"| PYRO
+      PYRO -->|"~30-50% of C<br/>as char"| CHAR
+      PYRO -->|"~50-70% of C<br/>as volatiles"| GAS
+      GAS -->|"heat recovery<br/>(can fuel pyrolysis)"| ENERGY
+      CHAR -->|"mix / spread"| INC
+      INC --> SEQ
+      INC -.-> COBEN

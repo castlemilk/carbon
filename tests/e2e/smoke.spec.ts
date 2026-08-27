@@ -99,4 +99,21 @@ test.describe('smoke', () => {
     expect(row.kind).toBe('OBSERVATION')
     expect(row.title).toBe(title)
   })
+
+  test('pathway diagrams render in both views and theme toggle updates the document', async ({ page }) => {
+    await page.goto('/pathways/mof-dac')
+
+    await expect(page.getByTestId('pathway-diagrams')).toBeVisible()
+    await expect(page.getByTestId('mermaid-viewer').first()).toHaveAttribute('data-status', 'ready')
+    await expect(page.locator('[data-testid="mermaid-viewer"]').first().locator('svg')).toBeVisible()
+
+    await page.getByRole('tab', { name: 'Operational sequence' }).click()
+    await expect(page.getByTestId('mermaid-viewer').last()).toHaveAttribute('data-status', 'ready')
+    await expect(page.locator('[data-testid="mermaid-viewer"]').last().locator('svg')).toBeVisible()
+
+    const html = page.locator('html')
+    const before = await html.getAttribute('class')
+    await page.getByRole('switch', { name: 'Toggle dark mode' }).click()
+    await expect.poll(() => html.getAttribute('class')).not.toBe(before)
+  })
 })

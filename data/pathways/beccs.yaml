@@ -31,3 +31,48 @@ challenges:
   - "Land, water, and biodiversity footprint of dedicated biomass at scale"
   - "Deployment rates in climate scenarios exceed historical analogues; governance of supply critical"
 source_refs: [vaughan2018, nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Atmos as Atmosphere
+      participant Crop as Biomass system
+      participant Plant as Energy conversion plant
+      participant Capture as CO₂ capture unit
+      participant Store as Storage site
+      Atmos->>Crop: Supply CO₂ for photosynthesis
+      Crop->>Plant: Deliver harvested biomass
+      Plant->>Plant: Generate power, ethanol, or H₂
+      Plant->>Capture: Send biogenic CO₂-rich stream
+      Capture->>Store: Compress and inject captured CO₂
+      Store-->>Atmos: Prevent return of biogenic carbon
+      Note over Crop,Store: Net removal depends on regrowth and supply-chain balance
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef bio fill:#a3e635,stroke:#16161a,color:#16161a
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef energy fill:#ff7a59,stroke:#16161a,color:#ffffff
+
+      ATM["Atmospheric<br/>CO₂"]:::stream
+      PHOT[/"Biomass growth<br/>photosynthesis<br/>(dedicated or residue)"/]:::bio
+      BIO["Harvested<br/>biomass"]:::bio
+      CONV[/"Energy conversion<br/>combustion / gasification /<br/>fermentation"/]:::equip
+      FLUE["CO₂-rich<br/>flue gas /<br/>fermentation off-gas"]:::co2
+      CAP[/"Capture<br/>(amine or<br/>physical solvent)"/]:::equip
+      CO2{{"Pure CO₂<br/>(biogenic)"}}:::co2
+      COMP[/"Compression +<br/>transport"/]:::equip
+      SEQ{{"Geological<br/>storage<br/>(net removal if<br/>regrowth balances)"}}:::seq
+      ENERGY{{"Energy co-product<br/>power / ethanol / H₂"}}:::energy
+      SUPPLY["Supply chain<br/>emissions +<br/>land footprint<br/>(governance critical)"]:::stream
+
+      ATM -.->|"photosynthetic<br/>drawdown"| PHOT
+      PHOT -->|"harvest"| BIO
+      BIO -->|"logistics"| CONV
+      SUPPLY -.->|"must be counted"| BIO
+      CONV -->|"~90-99% CO₂<br/>(fermentation) or<br/>4-15% (flue)"| FLUE
+      CONV --> ENERGY
+      FLUE --> CAP
+      CAP --> CO2
+      CO2 --> COMP
+      COMP -->|"dense-phase"| SEQ

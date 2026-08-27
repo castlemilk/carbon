@@ -31,3 +31,48 @@ challenges:
   - "Sorbent replacement cost dominates operating expense"
 material_ids: [solid-amine-silica]
 source_refs: [mcqueen2021, iea2022ccus]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Flue as Flue gas source
+      participant Ads as Structured sorbent bed
+      participant Sorb as Solid amine sorbent
+      participant Steam as Low-grade steam
+      participant Vacuum as Vacuum pump
+      participant Store as Storage
+      Flue->>Ads: Pass flue gas through contactor
+      Sorb->>Sorb: Bind CO₂ as carbamate / bicarbonate
+      Steam->>Ads: Heat saturated bed for TVSA regeneration
+      Vacuum->>Sorb: Pull released CO₂ and water vapour
+      Sorb-->>Ads: Return regenerated sorbent to service
+      Vacuum->>Store: Compress and inject CO₂
+      Ads-->>Flue: Vent treated gas after capture
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#93c5fd,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      FLUE["Flue gas<br/>(gas turbine /<br/>industrial boiler)"]:::stream
+      ADS[/"Adsorber bed<br/>structured monolith<br/>40-60 °C"/]:::equip
+      SORB[("Amine-functionalized<br/>silica sorbent<br/>(mesoporous)")]:::sorb
+      REG[/"Desorber bed<br/>(TVSA)<br/>80-120 °C<br/>+ vacuum"/]:::equip
+      STEAM["Low-grade<br/>steam (slip<br/>from host)"]:::heat
+      COMP[/"Vacuum pump +<br/>compressor"/]:::equip
+      CO2{{"Pure CO₂"}}:::seq
+      RICH[("Loaded sorbent<br/>R-NH₃⁺·HCO₃⁻")]:::sorb
+      LEAN[("Regenerated<br/>sorbent<br/>(2R-NH₂ + CO₂)")]:::sorb
+
+      FLUE -->|"CO₂ ~4-8%"| ADS
+      ADS <-->|"carbamate/<br/>bicarbonate<br/>formation"| SORB
+      ADS -->|"treated flue"| WASTE(["to stack"])
+      SORB -->|"swing<br/>(automated)"| REG
+      REG -->|"regenerated<br/>sorbent"| LEAN
+      LEAN -->|"swing<br/>(back)"| ADS
+      REG -->|"CO₂ + H₂O"| COMP
+      STEAM -.->|"latent heat"| REG
+      COMP --> CO2
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))

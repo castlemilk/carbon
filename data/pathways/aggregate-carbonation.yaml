@@ -25,3 +25,43 @@ challenges:
   - "Carbonation front-limited: only fines and crushed surfaces react quickly"
   - "Modular, distributed removal is hard to measure and credit"
 source_refs: [renforth2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant City as Demolition site
+      participant Crush as Crushing and sorting
+      participant Cure as Carbonation chamber
+      participant Air as CO₂ source
+      participant Product as Construction product
+      City->>Crush: Deliver demolition concrete
+      Crush->>Cure: Separate fines and exposed aggregate
+      Air->>Cure: Supply atmospheric or captured CO₂
+      Cure->>Cure: Carbonate portlandite and C-S-H surfaces
+      Cure-->>Product: Return hardened, carbonated aggregate
+      Product->>Product: Retain carbonate in built infrastructure
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef geol fill:#fcd34d,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+      classDef build fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      DEMO["Demolition<br/>concrete flow<br/>(urban stock)"]:::waste
+      CRUSH[/"Crushing +<br/>sorting<br/>(RCA fines +<br/>aggregate)"/]:::equip
+      CURE[/"Accelerated<br/>carbonation curing<br/>(CO₂-rich chamber<br/>on fines / fresh RCA)"/]:::geol
+      STOCK[/"Passive stockpile<br/>carbonation<br/>Ca(OH)₂ + CO₂ →<br/>CaCO₃ + H₂O"/]:::geol
+      ATM["Atmospheric CO₂<br/>(or captured<br/>CO₂ for curing)"]:::stream
+      SEQ{{"Solid carbonate<br/>in construction<br/>material<br/>>10 kyr"}}:::seq
+      REUSE["Recycled aggregate<br/>(new construction<br/>products)"]:::build
+      LIMIT["Carbonation front<br/>limited to fines +<br/>crushed surfaces<br/>(MRV challenge)"]:::waste
+
+      DEMO -->|"recycled<br/>concrete"| CRUSH
+      CRUSH -->|"fines / fresh<br/>RCA"| CURE
+      CRUSH -->|"coarse RCA<br/>stockpile"| STOCK
+      ATM -->|"enriched CO₂<br/>stream"| CURE
+      ATM -.->|"passive<br/>uptake"| STOCK
+      CURE -->|"hardened<br/>carbonated product"| SEQ
+      STOCK -->|"slowly<br/>carbonated"| SEQ
+      SEQ -->|"re-enters<br/>built environment"| REUSE
+      CRUSH -.->|"unreacted<br/>cores"| LIMIT

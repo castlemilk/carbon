@@ -31,3 +31,50 @@ challenges:
   - "Solvent cost and long-term degradation on real flue gases"
 material_ids: [cansolv-solvent]
 source_refs: [fagerlund2021, nas2019, iea2022ccus]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Flue as Flue gas source
+      participant Wash as Aerosol mitigation
+      participant Abs as Advanced-amine absorber
+      participant Strip as Pressurised stripper
+      participant Comp as Compression train
+      participant Store as Geological storage
+      Flue->>Wash: Send conditioned flue gas
+      Wash->>Abs: Remove aerosols and contaminants
+      Abs->>Abs: Form carbamate / bicarbonate in solvent
+      Abs->>Strip: Pump rich solvent
+      Strip->>Comp: Release concentrated CO₂ at higher pressure
+      Strip-->>Abs: Return lean, low-degradation solvent
+      Comp->>Store: Dehydrate, compress, and inject CO₂
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#93c5fd,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      FLUE["Flue gas<br/>(coal / WtE)"]:::stream
+      AEROSOL[/"Aerosol<br/>mitigation<br/>(water wash + demister)"/]:::equip
+      ABS[/"Structured packing<br/>absorber 40-60 °C"/]:::equip
+      SOLV[("Sterically hindered /<br/>tertiary amine blend<br/>(CANSOLV-class)")]:::sorb
+      STR[/"Stripper<br/>elevated pressure<br/>2.4-3.5 GJ/tCO₂"/]:::equip
+      COMP[/"Multi-stage<br/>compressor"/]:::equip
+      CO2{{"Pure CO₂<br/>(sequestered)"}}:::seq
+      LEAN["Lean solvent<br/>(CO₂-lean)"]:::stream
+      RICH["Rich solvent<br/>(CO₂-loaded)"]:::stream
+      SLIP["Amine slip<br/>(treated)"]:::waste
+
+      FLUE -->|"CO₂ 4-14%"| AEROSOL
+      AEROSOL -->|"to atmosphere<br/>(depleted CO₂)"| SLIP
+      AEROSOL -->|"dry flue gas"| ABS
+      ABS <-->|"R-NH₂ + CO₂ + H₂O<br/>⇌ R-NH₃⁺ + HCO₃⁻"| SOLV
+      ABS --> RICH
+      RICH --> STR
+      STR --> CO2
+      CO2 --> COMP
+      COMP -->|"dense-phase<br/>CO₂"| SEQ(("Geological<br/>storage"))
+      STR -->|"Lean solvent"| LEAN
+      LEAN -->|"recycle"| ABS

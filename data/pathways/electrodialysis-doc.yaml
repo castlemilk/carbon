@@ -25,3 +25,46 @@ challenges:
   - "Membrane cost and fouling; electrode scaling at seawater chemistry"
   - "System-level energy including pumping and stripping exceeds stack-only figures"
 source_refs: [eisaman2012, mcqueen2021]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Sea as Seawater slipstream
+      participant BPM as Bipolar membrane stack
+      participant Acid as Acid channel
+      participant Base as Base channel
+      participant Strip as Vacuum stripper
+      participant Store as Storage or use
+      Sea->>BPM: Pump dissolved inorganic carbon feed
+      BPM->>Acid: Generate H⁺ and shift carbonate equilibrium
+      Acid->>Strip: Convert bicarbonate to CO₂ gas
+      Strip->>Store: Dry and compress recovered CO₂
+      BPM->>Base: Generate OH⁻ and restore alkalinity
+      Base-->>Sea: Return alkalinity-enhanced discharge
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef ocean fill:#67e8f9,stroke:#16161a,color:#16161a
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef elec fill:#ff7a59,stroke:#16161a,color:#ffffff
+
+      SW["Seawater<br/>slipstream<br/>(DIC ~2.3 mM)"]:::ocean
+      BPM[/"Bipolar membrane<br/>electrodialysis stack<br/>(H₂O → H⁺ + OH⁻)"/]:::equip
+      ACID[/"Acidified stream<br/>pH ~4<br/>(HCO₃⁻ → CO₂)"/]:::equip
+      BASE[/"Basified stream<br/>pH > 9"/]:::equip
+      STRIP[/"Vacuum stripper<br/>(CO₂ degassing)"/]:::equip
+      COMP[/"Compressor"/]:::equip
+      CO2{{"CO₂ gas<br/>(storage or<br/>utilization)"}}:::seq
+      OUT["Alkalinity-enhanced<br/>discharge<br/>(OAE co-benefit)"]:::ocean
+      PWR["Electricity<br/>~242 kJ/mol CO₂<br/>stack only"]:::elec
+
+      SW -->|"ocean holds ~150×<br/>atmospheric DIC"| BPM
+      PWR -.-> BPM
+      BPM --> ACID
+      BPM --> BASE
+      ACID -->|"carbonate<br/>equilibrium shift"| STRIP
+      STRIP -->|"59% DIC<br/>extraction"| CO2
+      CO2 --> COMP
+      COMP --> SEQ(("Geological<br/>storage /<br/>utilization"))
+      STRIP -->|"degassed<br/>acid stream"| BASE
+      BASE -->|"re-alkalinized"| OUT

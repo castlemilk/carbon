@@ -30,3 +30,44 @@ challenges:
   - "Saturation and reversibility undermine permanence claims"
   - "Measurement of stock change is costly and noisy per farm"
 source_refs: [nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Atmos as Atmosphere
+      participant Crop as Crop and pasture system
+      participant Farmer as Farm management
+      participant Soil as Soil carbon pool
+      participant MRV as Measurement and verification
+      Atmos->>Crop: Supply CO₂ for photosynthesis
+      Farmer->>Crop: Apply cover crops, rotations, and residue retention
+      Crop->>Soil: Add roots and residues
+      Soil->>Soil: Stabilise organic carbon as humus
+      MRV->>Soil: Measure stock change and saturation
+      Soil-->>Atmos: Re-emit carbon if practices lapse
+      Note over Farmer,Soil: Removal is a maintained, finite stock build
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef bio fill:#a3e635,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef warn fill:#fde68a,stroke:#16161a,color:#16161a
+
+      ATM["Atmospheric CO₂"]:::stream
+      PHOTO[/"Photosynthesis<br/>(cover crops, residues,<br/>diverse rotations)"/]:::bio
+      SOIL["Agricultural<br/>soil (managed<br/>cropland / pasture)"]:::bio
+      PRAC["Practice changes:<br/>reduced tillage,<br/>cover cropping,<br/>residue retention,<br/>rotational grazing"]:::bio
+      HUMUS[("Soil organic<br/>carbon (humus)<br/>stock build")]:::seq
+      SAT["Saturation:<br/>stocks plateau in<br/>10-20 yr<br/>(finite stock build)"]:::warn
+      REV["Reversibility:<br/>tillage / practice lapse<br/>re-emits stored C"]:::warn
+      SEQ{{"Soil carbon<br/>stocks<br/>(impermanent —<br/>must maintain<br/>practices)"}}:::seq
+      COBEN["Co-benefits:<br/>yields, water holding,<br/>erosion control"]:::bio
+
+      ATM -->|"CO₂ uptake"| PHOTO
+      PRAC -.->|"enable"| PHOTO
+      PRAC -.->|"reduce<br/>decomposition"| SOIL
+      PHOTO -->|"residue / root<br/>inputs"| SOIL
+      SOIL -->|"humification"| HUMUS
+      HUMUS -->|"stock grows<br/>until"| SAT
+      HUMUS -.->|"if practices<br/>lapse"| REV
+      REV -.->|"re-emission"| ATM
+      HUMUS --> SEQ
+      SOIL -.-> COBEN

@@ -31,3 +31,47 @@ challenges:
   - "Cost dominated by sorbent replacement and contactor capital"
 material_ids: [solid-amine-silica]
 source_refs: [sanzperez2016, young2023, darunte2017]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Air as Ambient air
+      participant Fan as Air handler
+      participant Bed as Amine-silica contactor
+      participant Heat as Low-grade heat
+      participant Vacuum as Vacuum pump
+      participant Store as Storage site
+      Air->>Fan: Move high-volume air through module
+      Fan->>Bed: Present dilute CO₂ to sorbent
+      Bed->>Bed: Bind CO₂ as carbamate / bicarbonate
+      Heat->>Bed: Heat and isolate saturated bed
+      Vacuum->>Bed: Pull released CO₂ and water vapour
+      Bed-->>Fan: Return regenerated sorbent to service
+      Vacuum->>Store: Send concentrated CO₂ for storage
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#5eead4,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef air fill:#bae6fd,stroke:#0284c7,color:#16161a
+
+      AIR["Ambient air<br/>~420 ppm CO₂"]:::air
+      FAN[/"Air handler<br/>(modular filter<br/>units)"/]:::equip
+      SORB[("Amine-grafted<br/>mesoporous silica<br/>(PEI/APS)")]:::sorb
+      ADS[/"Adsorption<br/>ambient T, 1 atm<br/>(carbamate/<br/>bicarbonate)"/]:::equip
+      REG[/"Desorption<br/>TVSA 80-120 °C<br/>+ vacuum"/]:::equip
+      STEAM["Low-grade<br/>steam / electric<br/>heat 4-7 GJ/tCO₂"]:::heat
+      PUMP[/"Vacuum pump +<br/>compression"/]:::equip
+      CO2{{"CO₂ >95%<br/>concentrated"}}:::seq
+
+      AIR -->|"large volumes<br/>low ΔP"| FAN
+      FAN --> ADS
+      ADS <--> SORB
+      ADS -->|"CO₂-depleted<br/>air"| WASTE(["to atmosphere"])
+      SORB -->|"rotary/valve<br/>swing"| REG
+      REG -->|"regenerated<br/>sorbent"| SORB
+      STEAM -.->|"low-grade<br/>heat duty"| REG
+      REG -->|"CO₂ + H₂O"| PUMP
+      PUMP --> CO2
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))

@@ -38,3 +38,48 @@ challenges:
   - "Grinding and transport emissions erode net removal if sourcing is distant"
 material_ids: [olivine, basalt]
 source_refs: [beerling2020, renforth2017]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Quarry as Rock quarry
+      participant Mill as Grinding plant
+      participant Farm as Cropland
+      participant Soil as Soil water
+      participant River as River and ocean
+      Quarry->>Mill: Deliver basalt or olivine
+      Mill->>Farm: Ship and spread reactive fines
+      Farm->>Soil: Add rock to warm, wet soil
+      Soil->>Soil: Dissolve silicate and consume CO₂
+      Soil->>River: Drain bicarbonate and cations
+      River-->>River: Retain alkalinity in aquatic reservoir
+      Note over Quarry,River: Grinding and transport emissions must be deducted
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef geol fill:#fcd34d,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef water fill:#67e8f9,stroke:#16161a,color:#16161a
+      classDef crop fill:#a3e635,stroke:#16161a,color:#16161a
+
+      ROCK["Silicate rock<br/>(basalt, olivine)"]:::geol
+      MINE[/"Quarry +<br/>crushing / grinding<br/>(to fines)"/]:::equip
+      TRANS[/"Transport<br/>(rail / ship / truck)"/]:::equip
+      SPREAD[/"Field spreading<br/>(existing ag<br/>machinery)"/]:::equip
+      SOIL["Warm, wet,<br/>biologically active<br/>cropland soil"]:::crop
+      RXN[/"Dissolution<br/>(Ca,Mg)SiO₃ + 2CO₂<br/>+ 2H₂O →<br/>(Ca,Mg)²⁺<br/>+ 2HCO₃⁻ + SiO₂"/]:::geol
+      DRAIN[/"Soil drainage<br/>→ rivers"/]:::water
+      OCEAN["Ocean<br/>(bicarbonate<br/>reservoir)"]:::water
+      SEQ{{"Dissolved<br/>bicarbonate<br/>>10 kyr"}}:::seq
+      COBEN["Co-benefits:<br/>nutrients (P, K),<br/>pH amelioration,<br/>N₂O suppression"]:::crop
+
+      ROCK --> MINE
+      MINE --> TRANS
+      TRANS -->|"spread at<br/>~10-50 t/ha"| SPREAD
+      SPREAD --> SOIL
+      SOIL -->|"soil CO₂<br/>(root + microbial)"| RXN
+      ATM["Atmospheric CO₂"]:::stream
+      ATM -.->|"soil-air<br/>exchange"| SOIL
+      RXN -->|"alkalinity<br/>in soil water"| DRAIN
+      DRAIN --> OCEAN
+      OCEAN --> SEQ
+      SOIL -.->|"crop uptake"| COBEN

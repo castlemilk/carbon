@@ -15,6 +15,8 @@ const good = {
   metrics: { cost: { low: 80, high: 600, unit: 'USD/tCO2', year_basis: 2022, source_ref: 'mcqueen2021' } },
   material_ids: ['mg2dobpdc'],
   source_refs: ['mcqueen2021'],
+  mermaid_source: 'flowchart LR\n  A[Air] --> B[Capture]',
+  mermaid_sequence_source: 'sequenceDiagram\n  participant A as Air\n  participant B as Capture\n  A->>B: Feed',
 }
 
 describe('seed loader validation', () => {

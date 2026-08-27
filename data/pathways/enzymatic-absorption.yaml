@@ -36,3 +36,45 @@ challenges:
   - "No commercial-scale demonstration; cost estimates are pre-pilot projections"
 material_ids: [carbonic-anhydrase]
 source_refs: [talekar2022, reardon2014, csi2017]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Flue as Flue gas
+      participant Abs as Absorber
+      participant Enzyme as Immobilized carbonic anhydrase
+      participant Solvent as Aqueous solvent
+      participant Regen as Regenerator
+      participant Store as Storage
+      Flue->>Abs: Contact dilute CO₂ with solvent
+      Enzyme->>Solvent: Accelerate CO₂ + H₂O ⇌ HCO₃⁻ + H⁺
+      Solvent->>Regen: Transfer loaded bicarbonate
+      Regen->>Solvent: Release CO₂ at 60-90 °C
+      Solvent-->>Abs: Return regenerated solvent
+      Regen->>Store: Compress recovered CO₂
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef bio fill:#a3e635,stroke:#16161a,color:#16161a
+      classDef sorb fill:#ffffff,stroke:#93c5fd,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+
+      FLUE["Flue gas<br/>(coal / NG /<br/>industrial)"]:::stream
+      ABS[/"Absorber column<br/>40-60 °C<br/>(smaller than<br/>amine units)"/]:::equip
+      SOLV[("Aqueous carbonate /<br/>amino-acid-salt<br/>solvent (benign)")]:::sorb
+      ENZ[("Immobilized<br/>carbonic anhydrase<br/>(thermostable)<br/>turnover ~10⁶ s⁻¹")]:::bio
+      REG[/"Low-temperature<br/>regeneration<br/>60-90 °C"/]:::equip
+      CO2{{"Pure CO₂<br/>(sequestered)"}}:::seq
+      MIN[/"Mineralization<br/>route: enzyme →<br/>CaCO₃ precipitation"/]:::equip
+      SEQ2{{"CaCO₃ solid<br/>(alternative<br/>storage)"}}:::seq
+
+      FLUE -->|"CO₂ 4-14%"| ABS
+      ABS <-->|"CO₂ + H₂O ⇌ HCO₃⁻ + H⁺<br/>(10⁶× faster<br/>than uncatalysed)"| SOLV
+      ENZ -.->|"biocatalyst<br/>immobilized in<br/>contactor"| ABS
+      ABS -->|"CO₂-lean<br/>flue gas"| WASTE(["to stack"])
+      SOLV -->|"loaded<br/>bicarbonate"| REG
+      REG -->|"gentle heating<br/>reverses equilibrium"| CO2
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))
+      CO2 -.->|"alternative route"| MIN
+      MIN --> SEQ2

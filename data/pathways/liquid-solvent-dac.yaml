@@ -39,3 +39,55 @@ challenges:
   - "Large natural-gas (or electrified) heat demand drives cost and siting"
   - "Causticization solids handling at extreme scale; water evaporation losses"
 source_refs: [keith2018, young2023, fasihi2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Air as Ambient air
+      participant Cont as KOH air contactor
+      participant Caust as Causticizer
+      participant Kiln as Oxy-fired calciner
+      participant Lime as Lime and KOH loops
+      participant Store as Storage
+      Air->>Cont: Supply high-volume air
+      Cont->>Lime: Convert KOH and CO₂ to K₂CO₃
+      Lime->>Caust: Send carbonate solution and Ca(OH)₂
+      Caust->>Kiln: Form and filter CaCO₃ pellets
+      Kiln->>Store: Calcine pellets and compress pure CO₂
+      Kiln-->>Lime: Return CaO for slaking and KOH loop
+      Store-->>Air: Permanently remove atmospheric CO₂
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#5eead4,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef air fill:#bae6fd,stroke:#0284c7,color:#16161a
+      classDef solid fill:#fde68a,stroke:#16161a,color:#16161a
+
+      AIR["Ambient air<br/>~420 ppm CO₂"]:::air
+      CONT[/"Air contactor<br/>(cooling-tower-style<br/>thin-film packing)"/]:::equip
+      KOH[("~1 M KOH<br/>aqueous<br/>loop A")]:::sorb
+      CAUST[/"Causticizer<br/>(pellet reactor)<br/>~70 °C"/]:::equip
+      CAOH[("Ca(OH)₂<br/>slurry<br/>(slake lime)")]:::solid
+      PELL["CaCO₃ pellets<br/>(filter cake)"]:::solid
+      CALC[/"Calciner<br/>oxy-fired<br/>~900 °C"/]:::equip
+      ASU[/"Air separation<br/>(O₂ fuel)"/]:::air
+      COOL[/"CO₂ cooler +<br/>compressor"/]:::equip
+      CO2{{"Pure CO₂<br/>(sequestered)"}}:::seq
+      LIME[("CaO<br/>(regenerated lime)<br/>→ slaker")]:::solid
+
+      AIR -->|"forced-draft<br/>fan"| CONT
+      CONT <-->|"CO₂ + 2KOH → K₂CO₃<br/>+ H₂O"| KOH
+      CONT -->|"CO₂-lean air"| WASTE(["to atmosphere"])
+      KOH -->|"K₂CO₃<br/>solution"| CAUST
+      CAOH --> CAUST
+      CAUST --> PELL
+      PELL -->|"calciner feed"| CALC
+      ASU -.->|"O₂ fuel"| CALC
+      CALC -->|"high-purity CO₂"| COOL
+      COOL --> CO2
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage /<br/>sequestration"))
+      CALC -->|"regenerated CaO"| LIME
+      LIME -->|"slake to<br/>Ca(OH)₂"| CAOH
+      KOH -.->|"regenerated<br/>KOH loop"| CONT

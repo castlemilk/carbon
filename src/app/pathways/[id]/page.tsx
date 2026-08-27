@@ -10,6 +10,7 @@ import MetricTable, {
   type CitationSummary,
   type MetricRow,
 } from '@/components/pathway/metric-table'
+import PathwayDiagrams from '@/components/pathway/pathway-diagrams'
 import ShortlistActions from '@/components/pathway/shortlist-actions'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -127,6 +128,13 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
           </div>
         </CardContent>
       </Card>
+
+      {(pathway.mermaidSource || pathway.mermaidSequenceSource) && (
+        <PathwayDiagrams
+          flowSource={pathway.mermaidSource}
+          sequenceSource={pathway.mermaidSequenceSource}
+        />
+      )}
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold tracking-tight">Cited metrics</h2>

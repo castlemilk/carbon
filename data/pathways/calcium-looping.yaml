@@ -32,3 +32,51 @@ challenges:
   - "Oxy-fired calciner requires air separation unit; attrition of sorbent"
 material_ids: [cao-lime]
 source_refs: [anthony2011, nas2019]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Flue as Flue gas
+      participant Carb as Carbonator
+      participant Sorb as CaO sorbent
+      participant Calc as Oxy-calciner
+      participant Comp as Compression
+      participant Store as Storage
+      Flue->>Carb: Feed CO₂-containing gas
+      Sorb->>Carb: Present regenerated CaO
+      Carb->>Sorb: Carbonate CaO to CaCO₃
+      Sorb->>Calc: Transfer loaded sorbent
+      Calc->>Sorb: Calcine CaCO₃ back to CaO
+      Calc->>Comp: Release concentrated CO₂
+      Comp->>Store: Dehydrate and inject CO₂
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#93c5fd,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef heat fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+      classDef air fill:#bae6fd,stroke:#0284c7,color:#16161a
+
+      FLUE["Flue gas<br/>(cement, power)"]:::stream
+      CARB[/"Carbonator<br/>CFB, ~650 °C<br/>exothermic"/]:::equip
+      LIME[("CaO / CaCO₃<br/>limestone<br/>sorbent")]:::sorb
+      CALC[/"Calciner<br/>oxy-fired, ~900 °C<br/>endothermic"/]:::equip
+      ASU[/"Air separation<br/>unit (ASU)<br/>>95% O₂"/]:::air
+      COMP[/"Compressor +<br/>CO₂ purification"/]:::equip
+      CO2{{"Pure CO₂<br/>(sequestered)"}}:::seq
+      HX["High-grade<br/>heat recovery<br/>(steam cycle)"]:::heat
+      FRESH["Fresh<br/>limestone<br/>make-up"]:::stream
+      SPENT["Spent sorbent<br/>(to cement kiln)"]:::waste
+
+      FLUE -->|"CO₂ 4-30%"| CARB
+      CARB <-->|"CaO + CO₂ ⇌ CaCO₃"| LIME
+      CARB -->|"lean flue gas<br/>(CO₂ < 5%)"| HX
+      LIME -->|"CaCO₃ to calciner"| CALC
+      ASU -.->|"O₂ fuel"| CALC
+      CALC --> CO2
+      CO2 --> COMP
+      COMP -->|"dense-phase CO₂"| SEQ(("Geological<br/>storage"))
+      CALC -->|"CaO recycle<br/>(fresh + regenerated)"| LIME
+      LIME -->|"attrition +<br/>fade"| SPENT
+      FRESH -->|"make-up"| LIME

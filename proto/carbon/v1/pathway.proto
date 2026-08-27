@@ -24,4 +24,6 @@ message Pathway {
   repeated string challenges = 10;
   repeated string material_ids = 11;
   repeated string source_refs = 12;
+  string mermaid_source = 13;   // optional Mermaid flowchart source
+  string mermaid_sequence_source = 14;   // optional Mermaid sequence diagram source
 }

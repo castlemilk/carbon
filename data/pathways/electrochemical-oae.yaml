@@ -25,3 +25,52 @@ challenges:
   - "Chlorine and chlorinated byproduct management at seawater anodes"
   - "Large low-carbon electricity demand; electrode scaling and carbonate precipitation control"
 source_refs: [laplante2021]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Sea as Seawater intake
+      participant Cell as Membraneless electrolyzer
+      participant Cath as Catholyte reactor
+      participant Anode as Anolyte reactor
+      participant Solid as Carbonate precipitate
+      participant Ocean as Ocean discharge
+      Sea->>Cell: Feed seawater DIC and cations
+      Cell->>Cath: Raise pH with electrochemical alkalinity
+      Cath->>Solid: Precipitate CaCO₃, MgCO₃, or Mg(OH)₂
+      Cell->>Anode: Produce acidic stream
+      Anode->>Ocean: Neutralise before discharge
+      Solid-->>Ocean: Retain carbon as mineral or alkalinity
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef ocean fill:#67e8f9,stroke:#16161a,color:#16161a
+      classDef solid fill:#fde68a,stroke:#16161a,color:#16161a
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef elec fill:#ff7a59,stroke:#16161a,color:#ffffff
+      classDef h2 fill:#22d3ee,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef waste fill:#94a3b8,stroke:#16161a,color:#ffffff
+
+      SW["Seawater<br/>intake<br/>(DIC + Ca²⁺/Mg²⁺)"]:::ocean
+      CELL[/"Flow-through<br/>membraneless<br/>electrolyzer"/]:::equip
+      CATH[/"Catholyte<br/>pH ↑ to ~10-11<br/>(local alkali)"/]:::equip
+      ANODE[/"Anolyte<br/>pH ↓ (acidic)"/]:::equip
+      PPT[/"Precipitation<br/>vessel<br/>Ca/Mg carbonate<br/>or Mg(OH)₂"/]:::equip
+      NEUT[/"Neutralization<br/>(alkaline rock<br/>contact)"/]:::equip
+      ATM["Atmospheric CO₂<br/>(if Mg(OH)₂ route)"]:::stream
+      SEQ{{"Stable Ca/Mg<br/>carbonate minerals<br/>10-100 kyr"}}:::seq
+      H2{{"H₂<br/>co-product"}}:::h2
+      CL2["Cl₂ / O₂<br/>management"]:::waste
+      PWR["Low-carbon<br/>electricity"]:::elec
+
+      SW -->|"feed"| CELL
+      PWR -.->|"electrolysis"| CELL
+      CELL --> CATH
+      CELL --> ANODE
+      CELL --> H2
+      ANODE -.-> CL2
+      CATH -->|"supersaturated<br/>DIC + cations"| PPT
+      PPT -->|"solid carbonate"| SEQ
+      PPT -.->|"Mg(OH)₂ route:<br/>slow drawdown"| ATM
+      ATM -.->|"bicarbonate<br/>in seawater"| SW
+      ANODE -->|"acid stream<br/>pre-discharge"| NEUT
+      NEUT -->|"neutralized<br/>effluent"| WASTE2(["ocean discharge"])

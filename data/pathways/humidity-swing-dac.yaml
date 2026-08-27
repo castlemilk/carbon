@@ -24,3 +24,44 @@ challenges:
   - "Resin capacity and kinetics degrade over humidity cycles"
   - "No commercial prototype at meaningful scale; cost estimates speculative"
 source_refs: [mcqueen2021, sanzperez2016]
+mermaid_sequence_source: |
+  sequenceDiagram
+      participant Air as Dry ambient air
+      participant Resin as Anion-exchange resin
+      participant Humid as Humidification stage
+      participant Dryer as Condenser / dryer
+      participant Store as Storage
+      Air->>Resin: Pass dilute CO₂ over dry bed
+      Resin->>Resin: Bind carbonate / bicarbonate counterions
+      Humid->>Resin: Add water vapour
+      Resin->>Resin: Shift equilibrium and release CO₂
+      Resin->>Dryer: Send wet product gas
+      Dryer->>Store: Dry, compress, and store CO₂
+      Resin-->>Air: Return regenerated bed to dry cycle
+mermaid_source: |
+  flowchart LR
+      classDef stream fill:#f6f6f9,stroke:#16161a,color:#16161a
+      classDef equip fill:#1a1a23,stroke:#16161a,color:#ffffff
+      classDef sorb fill:#ffffff,stroke:#5eead4,color:#16161a,stroke-width:2px
+      classDef co2 fill:#7c5cff,stroke:#16161a,color:#ffffff,stroke-width:2px
+      classDef seq fill:#00e0b8,stroke:#16161a,color:#16161a,stroke-width:2px
+      classDef air fill:#bae6fd,stroke:#0284c7,color:#16161a
+      classDef water fill:#67e8f9,stroke:#16161a,color:#16161a
+
+      AIR["Ambient air<br/>~420 ppm<br/>(dry side)"]:::air
+      DRY[/"Dry-air adsorption<br/>passive contactor<br/>(quaternary ammonium<br/>resin)"/]:::equip
+      RES[("Anion-exchange<br/>resin<br/>CO₃²⁻/HCO₃⁻<br/>counterions")]:::sorb
+      HUM[/"Humidity-swing<br/>regeneration<br/>(water vapour<br/>purge)"/]:::equip
+      WTR["Water vapour<br/>(latent heat<br/>dominates energy)"]:::water
+      DRYOUT[/"Condenser +<br/>dry-out"/]:::equip
+      CO2{{"Released CO₂"}}:::seq
+
+      AIR -->|"dry airflow"| DRY
+      DRY <-->|"CO₂ + CO₃²⁻ + H₂O<br/>⇌ 2 HCO₃⁻ (dry → binds)"| RES
+      DRY -->|"CO₂-depleted air"| WASTE(["to atmosphere"])
+      RES -->|"humid swing"| HUM
+      WTR -.->|"shifts equilibrium<br/>back to HCO₃⁻"| HUM
+      HUM -->|"CO₂ release<br/>(no vacuum/heat)"| DRYOUT
+      DRYOUT --> CO2
+      HUM -->|"regenerated resin<br/>(re-dried)"| RES
+      CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))

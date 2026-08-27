@@ -12,3 +12,11 @@ metrics:
     source_ref: mcqueen2021
 material_ids: [mg2dobpdc]
 source_refs: [mcqueen2021]
+mermaid_source: |
+  flowchart LR
+    A[Air] --> B[Capture]
+mermaid_sequence_source: |
+  sequenceDiagram
+    participant A as Air
+    participant B as Capture
+    A->>B: Feed

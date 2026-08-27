@@ -74,6 +74,11 @@ tasks:
     cmds:
       - task: build:app
 
+  verify:
+    desc: Full local verification including Mermaid source validation
+    cmds:
+      - task: quality:verify
+
   dev:
     desc: Next dev server on :3000 (seeds SQLite at boot; restart reloads data/)
     summary: |
