@@ -105,11 +105,18 @@ test.describe('smoke', () => {
 
     await expect(page.getByTestId('pathway-diagrams')).toBeVisible()
     await expect(page.getByTestId('mermaid-viewer').first()).toHaveAttribute('data-status', 'ready')
-    await expect(page.locator('[data-testid="mermaid-viewer"]').first().locator('svg')).toBeVisible()
+    await expect(page.getByTestId('mermaid-canvas').locator('svg')).toBeVisible()
+
+    const canvas = page.getByTestId('mermaid-canvas')
+    await canvas.focus()
+    await canvas.press('+')
+    await expect(page.getByTestId('mermaid-viewer').locator('[aria-live="polite"]')).toHaveText('110%')
+    await canvas.press('0')
+    await expect(page.getByTestId('mermaid-viewer').locator('[aria-live="polite"]')).toHaveText('100%')
 
     await page.getByRole('tab', { name: 'Operational sequence' }).click()
     await expect(page.getByTestId('mermaid-viewer').last()).toHaveAttribute('data-status', 'ready')
-    await expect(page.locator('[data-testid="mermaid-viewer"]').last().locator('svg')).toBeVisible()
+    await expect(page.getByTestId('mermaid-canvas').locator('svg')).toBeVisible()
 
     const html = page.locator('html')
     const before = await html.getAttribute('class')
