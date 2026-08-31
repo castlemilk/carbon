@@ -62,7 +62,7 @@ tasks:
       - sh: KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl get deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}}
         msg: "canonical Carbon deployment {{.RELEASE_PREFIX}}-carbon-stable was not found"
     cmds:
-      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl annotate deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}} kubectl.kubernetes.io/restartedAt="$(date -u +%FT%TZ)" --overwrite
+      - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl patch deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}} --type=merge -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date -u +%FT%TZ)\"}}}}}"
       - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl rollout status deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}} --timeout=180s
 
   logs:
