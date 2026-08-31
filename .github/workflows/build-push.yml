@@ -25,7 +25,9 @@ jobs:
         run: npm ci
 
       - name: Install Chromium for Mermaid validation
-        run: npx puppeteer browsers install chrome-headless-shell
+        run: |
+          npx puppeteer browsers install chrome-headless-shell
+          echo "PUPPETEER_EXECUTABLE_PATH=$(node --input-type=module -e 'import puppeteer from "puppeteer"; process.stdout.write(await puppeteer.executablePath({headless: "shell"}))')" >> "$GITHUB_ENV"
 
       - name: Validate seed corpus
         run: ./node_modules/.bin/tsx src/lib/seed/check.ts data
