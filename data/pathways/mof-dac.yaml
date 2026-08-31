@@ -1,8 +1,11 @@
 id: mof-dac
-name: "MOF-based DAC (diamine-Mg2(dobpdc) class)"
+name: MOF-based DAC (diamine-Mg2(dobpdc) class)
 setting: DAC
 trl: 5
-search_terms: ["diamine-appended Mg2(dobpdc) direct air capture", "step isotherm MOF temperature vacuum swing adsorption", "mmen-Mg2(dobpdc) cooperative CO2 adsorption"]
+search_terms:
+  - diamine-appended Mg2(dobpdc) direct air capture
+  - step isotherm MOF temperature vacuum swing adsorption
+  - mmen-Mg2(dobpdc) cooperative CO2 adsorption
 mechanism: |
   Diamine-appended Mg2(dobpdc) metal-organic frameworks capture CO2 via
   cooperative insertion into metal-bound diamines, forming ammonium-carbamate
@@ -25,13 +28,19 @@ metrics:
     year_basis: 2016
     source_ref: sanzperez2016
 advantages:
-  - "Step-shaped isotherm gives near-full capacity from ambient-air CO2 levels and sharp regeneration"
-  - "TVSA can run on low-quality steam or waste heat; process models project competitive energy use vs liquid-solvent DAC"
+  - Step-shaped isotherm gives near-full capacity from ambient-air CO2 levels and sharp regeneration
+  - TVSA can run on low-quality steam or waste heat; process models project competitive energy use vs liquid-solvent DAC
 challenges:
-  - "Humid-air degradation and diamine volatilization cut sorbent lifetime"
-  - "MOF synthesis cost and scale-up of structured contactors"
-material_ids: [mg2dobpdc]
-source_refs: [mcqueen2021, young2023, sinha2017, mcdonald2012, darunte2017]
+  - Humid-air degradation and diamine volatilization cut sorbent lifetime
+  - MOF synthesis cost and scale-up of structured contactors
+material_ids:
+  - mg2dobpdc
+source_refs:
+  - mcqueen2021
+  - young2023
+  - sinha2017
+  - mcdonald2012
+  - darunte2017
 mermaid_sequence_source: |
   sequenceDiagram
       participant Air as Ambient air
@@ -76,3 +85,216 @@ mermaid_source: |
       REG -->|"CO₂ (dry)"| PUMP
       PUMP --> CO2
       CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Ambient air<br/>~420 ppm
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cont
+      label: Structured<br/>contactor<br/>(MOF-coated<br/>lamellae)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:mof
+      label: Diamine-appended<br/>Mg₂(dobpdc)<br/>step isotherm
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids:
+        - mg2dobpdc
+      source_refs: []
+      metric_keys: []
+    - id: node:ads
+      label: Adsorption<br/>40-60 °C<br/>CO₂ cooperative<br/>insertion →<br/>ammonium-<br/>carbamate chains
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:reg
+      label: TVSA regeneration<br/>~120 °C steam<br/>+ mild vacuum
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:steam
+      label: Low-temperature<br/>steam / waste heat<br/>4.5-7.5 GJ/tCO₂
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:pump
+      label: Vacuum pump +<br/>compression
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:waste
+      label: to atmosphere
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:air
+      target_node_id: node:cont
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: low ΔP
+    - id: edge:e2
+      source_node_id: node:cont
+      target_node_id: node:ads
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e3
+      source_node_id: node:ads
+      target_node_id: node:mof
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: full capacity<br/>at 400 ppm
+    - id: edge:e4
+      source_node_id: node:ads
+      target_node_id: node:waste
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂-lean air
+    - id: edge:e5
+      source_node_id: node:mof
+      target_node_id: node:reg
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: sharp release<br/>step
+    - id: edge:e6
+      source_node_id: node:reg
+      target_node_id: node:mof
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: regenerated MOF
+    - id: edge:e7
+      source_node_id: node:steam
+      target_node_id: node:reg
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:reg
+      target_node_id: node:pump
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ (dry)
+    - id: edge:e9
+      source_node_id: node:pump
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e10
+      source_node_id: node:co2
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Ambient air
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cont
+      label: Structured MOF contactor
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:mof
+      label: Diamine-Mg₂(dobpdc)
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:steam
+      label: Low-grade steam
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:vacuum
+      label: Mild vacuum
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:air
+      target_node_id: node:cont
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Pass dilute air through coated contactor
+    - id: edge:op2
+      source_node_id: node:mof
+      target_node_id: node:mof
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Cooperative CO₂ insertion at ~400 ppm
+    - id: edge:op3
+      source_node_id: node:cont
+      target_node_id: node:steam
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Isolate saturated contactor
+    - id: edge:op4
+      source_node_id: node:steam
+      target_node_id: node:mof
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Cross sharp release step at modest heat
+    - id: edge:op5
+      source_node_id: node:vacuum
+      target_node_id: node:mof
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Pull concentrated CO₂ product
+    - id: edge:op6
+      source_node_id: node:mof
+      target_node_id: node:cont
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return regenerated sorbent to service
+    - id: edge:op7
+      source_node_id: node:vacuum
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Compress and store CO₂

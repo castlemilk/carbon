@@ -1,8 +1,11 @@
 id: macroalgae-cultivation
-name: "Macroalgae cultivation and sinking"
+name: Macroalgae cultivation and sinking
 setting: BIOLOGICAL
 trl: 4
-search_terms: ["macroalgae cultivation carbon sequestration", "seaweed farming blue carbon", "kelp sinking CO2 removal"]
+search_terms:
+  - macroalgae cultivation carbon sequestration
+  - seaweed farming blue carbon
+  - kelp sinking CO2 removal
 mechanism: |
   Farmed seaweed fixes CO2 rapidly (global wild seaweed communities take up
   ~1.5 PgC/yr in production); climate benefit accrues only if farmed biomass
@@ -26,13 +29,15 @@ metrics:
     year_basis: 2022
     source_ref: nas2022
 advantages:
-  - "No freshwater, fertilizer, or land footprint; established aquaculture industry"
+  - No freshwater, fertilizer, or land footprint; established aquaculture industry
   - "Co-products: food, feed (methane-reducing additives), biofuels"
 challenges:
-  - "Fate of exported carbon largely unverified - most decomposes before deep burial"
-  - "Climate-relevant scale needs millions of hectares of offshore farming"
-  - "Nutrient and light competition; offshore engineering for rough seas"
-source_refs: [duarte2017, nas2022]
+  - Fate of exported carbon largely unverified - most decomposes before deep burial
+  - Climate-relevant scale needs millions of hectares of offshore farming
+  - Nutrient and light competition; offshore engineering for rough seas
+source_refs:
+  - duarte2017
+  - nas2022
 mermaid_sequence_source: |
   sequenceDiagram
       participant Atmos as Atmosphere
@@ -76,3 +81,202 @@ mermaid_source: |
       SINK -.->|"large fraction<br/>breaks down"| SHELF
       SHELF -.-> RISK
       DEEP -->|"if recalcitrant"| SEQ
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:dic
+      label: Seawater DIC<br/>(dissolved CO₂ /<br/>HCO₃⁻)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:atm
+      label: Atmospheric<br/>CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:farm
+      label: Offshore macroalgae<br/>farm (kelp lines<br/>~1,500 tCO₂/km²/yr)
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:harv
+      label: Harvested<br/>seaweed biomass
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:sink
+      label: Deliberate sinking<br/>(deep-water export<br/>— undemonstrated)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:shelf
+      label: Decomposition on<br/>continental shelf<br/>(C returns to cycle)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:deep
+      label: Deep sea /<br/>sediment burial
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Buried biomass C<br/>(durability<br/>unproven)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co
+      label: Co-products:<br/>food, feed, biofuel<br/>(asparagopsis →<br/>methane cut)
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:risk
+      label: Most exported C<br/>decomposes before<br/>deep burial<br/>(verification gap)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:atm
+      target_node_id: node:dic
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: air-sea<br/>equilibration
+    - id: edge:e2
+      source_node_id: node:dic
+      target_node_id: node:farm
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: "rapid photosynthesis<br/>(wild ~1.5 PgC/yr) "
+    - id: edge:e3
+      source_node_id: node:farm
+      target_node_id: node:harv
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: harvest
+    - id: edge:e4
+      source_node_id: node:harv
+      target_node_id: node:sink
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: climate-relevant<br/>fraction
+    - id: edge:e5
+      source_node_id: node:harv
+      target_node_id: node:co
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: majority
+    - id: edge:e6
+      source_node_id: node:sink
+      target_node_id: node:deep
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:sink
+      target_node_id: node:shelf
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: large fraction<br/>breaks down
+    - id: edge:e8
+      source_node_id: node:shelf
+      target_node_id: node:risk
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:deep
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: if recalcitrant
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:atmos
+      label: Atmosphere
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:farm
+      label: Offshore seaweed farm
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:harvest
+      label: Harvest operation
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:shelf
+      label: Continental shelf
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:deep
+      label: Deep sea / sediments
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:atmos
+      target_node_id: node:farm
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Supply CO₂ through air-sea equilibrium
+    - id: edge:op2
+      source_node_id: node:farm
+      target_node_id: node:farm
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Fix carbon into growing macroalgae
+    - id: edge:op3
+      source_node_id: node:farm
+      target_node_id: node:harvest
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Harvest mature biomass
+    - id: edge:op4
+      source_node_id: node:harvest
+      target_node_id: node:shelf
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Route non-sequestered fraction
+    - id: edge:op5
+      source_node_id: node:shelf
+      target_node_id: node:atmos
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Decompose and return carbon to cycle
+    - id: edge:op6
+      source_node_id: node:harvest
+      target_node_id: node:deep
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Export selected biomass to deep water
+    - id: edge:op7
+      source_node_id: node:deep
+      target_node_id: node:deep
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Bury carbon if export remains durable

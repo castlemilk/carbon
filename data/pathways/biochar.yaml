@@ -1,8 +1,11 @@
 id: biochar
-name: "Biochar soil amendment"
+name: Biochar soil amendment
 setting: BIOLOGICAL
 trl: 6
-search_terms: ["biochar carbon sequestration soil", "pyrolysis biochar negative emissions", "biochar mean residence time"]
+search_terms:
+  - biochar carbon sequestration soil
+  - pyrolysis biochar negative emissions
+  - biochar mean residence time
 mechanism: |
   Biomass pyrolysed under limited oxygen yields a carbon-rich char whose
   aromatic structure resists decomposition for centuries when incorporated in
@@ -24,12 +27,13 @@ metrics:
     year_basis: 2019
     source_ref: nas2019
 advantages:
-  - "Negative-cost potential where soil benefits are monetized; distributed deployment"
-  - "More stable than soil organic matter - centennial storage"
+  - Negative-cost potential where soil benefits are monetized; distributed deployment
+  - More stable than soil organic matter - centennial storage
 challenges:
-  - "Persistence varies widely with feedstock and pyrolysis temperature"
-  - "MRV of in-soil stability; feedstock logistics limit scale"
-source_refs: [nas2019]
+  - Persistence varies widely with feedstock and pyrolysis temperature
+  - MRV of in-soil stability; feedstock logistics limit scale
+source_refs:
+  - nas2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Atmos as Atmosphere
@@ -71,3 +75,197 @@ mermaid_source: |
       CHAR -->|"mix / spread"| INC
       INC --> SEQ
       INC -.-> COBEN
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:atm
+      label: Atmospheric CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:bio
+      label: Biomass<br/>(residue or<br/>dedicated crop)
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:dry
+      label: Drying +<br/>sizing
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:pyro
+      label: Pyrolyzer<br/>350-700 °C<br/>limited O₂
+      kind: GRAPH_NODE_KIND_CONVERSION
+      stage: GRAPH_STAGE_CONVERSION
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:char
+      label: Biochar<br/>aromatic C<br/>structure
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:gas
+      label: Syngas + bio-oil<br/>(co-products)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:energy
+      label: Energy<br/>co-generation
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:inc
+      label: Soil incorporation<br/>(agriculture)
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Stable soil carbon<br/>100-1000 yr<br/>(persistence varies<br/>w/ feedstock + temp)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:coben
+      label: Soil co-benefits:<br/>fertility, water<br/>retention, pH
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:atm
+      target_node_id: node:bio
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: photosynthesis
+    - id: edge:e2
+      source_node_id: node:bio
+      target_node_id: node:dry
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e3
+      source_node_id: node:dry
+      target_node_id: node:pyro
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dry feed
+    - id: edge:e4
+      source_node_id: node:pyro
+      target_node_id: node:char
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ~30-50% of C<br/>as char
+    - id: edge:e5
+      source_node_id: node:pyro
+      target_node_id: node:gas
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ~50-70% of C<br/>as volatiles
+    - id: edge:e6
+      source_node_id: node:gas
+      target_node_id: node:energy
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: heat recovery<br/>(can fuel pyrolysis)
+    - id: edge:e7
+      source_node_id: node:char
+      target_node_id: node:inc
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: mix / spread
+    - id: edge:e8
+      source_node_id: node:inc
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:inc
+      target_node_id: node:coben
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:atmos
+      label: Atmosphere
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:biomass
+      label: Biomass feedstock
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:pyro
+      label: Pyrolysis unit
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:farm
+      label: Farm soil
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:mrv
+      label: Soil MRV
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:atmos
+      target_node_id: node:biomass
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Fix CO₂ through plant growth
+    - id: edge:op2
+      source_node_id: node:biomass
+      target_node_id: node:pyro
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Deliver dried, sized feed
+    - id: edge:op3
+      source_node_id: node:pyro
+      target_node_id: node:pyro
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Pyrolyse with limited oxygen
+    - id: edge:op4
+      source_node_id: node:pyro
+      target_node_id: node:farm
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Apply stable carbon-rich char
+    - id: edge:op5
+      source_node_id: node:farm
+      target_node_id: node:farm
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Retain aromatic carbon and improve water holding
+    - id: edge:op6
+      source_node_id: node:mrv
+      target_node_id: node:farm
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Measure persistence and stock change

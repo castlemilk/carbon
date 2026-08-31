@@ -6,6 +6,7 @@ import type { Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
 import type { Material } from '@/lib/gen/carbon/v1/material_pb'
 import type { Citation } from '@/lib/gen/carbon/v1/common_pb'
 import type { JournalEntry } from '@/lib/gen/carbon/v1/research_pb'
+import type { LandscapeGraph } from '@/lib/gen/carbon/v1/landscape_pb'
 
 // Thin async wrappers over the active store (Sqlite locally, Turso when
 // CARBON_DB_URL is set). Server components and server actions await these.
@@ -16,6 +17,7 @@ export const getMaterial = (id: string): Promise<Material | undefined> => getSto
 export const listMaterials = (): Promise<Material[]> => getStore().listMaterials()
 export const getCitation = (id: string): Promise<Citation | undefined> => getStore().getCitation(id)
 export const listCitations = (): Promise<Citation[]> => getStore().listCitations()
+export const getLandscapeGraph = (): Promise<LandscapeGraph | undefined> => getStore().getLandscapeGraph()
 
 export const putShortlist = (e: ShortlistUpsert): Promise<void> => getStore().putShortlist(e)
 export const listShortlist = (): Promise<ShortlistRow[]> => getStore().listShortlist()

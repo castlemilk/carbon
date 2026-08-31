@@ -1,9 +1,12 @@
 id: beccs
-name: "Bioenergy with carbon capture and storage (benchmark)"
+name: Bioenergy with carbon capture and storage (benchmark)
 setting: BIOLOGICAL
 is_benchmark: true
 trl: 8
-search_terms: ["BECCS bioenergy carbon capture", "biomass gasification CCS negative emissions", "bioethanol BECCS Illinois"]
+search_terms:
+  - BECCS bioenergy carbon capture
+  - biomass gasification CCS negative emissions
+  - bioethanol BECCS Illinois
 mechanism: |
   Biomass grown via photosynthesis is converted to energy (power, ethanol, H2)
   and the resulting CO2-rich stream is captured and geologically stored,
@@ -25,12 +28,14 @@ metrics:
     year_basis: 2019
     source_ref: nas2019
 advantages:
-  - "Only large-scale pathway pairing energy production with net removal"
-  - "Capture step uses mature amine/physical-solvent technology"
+  - Only large-scale pathway pairing energy production with net removal
+  - Capture step uses mature amine/physical-solvent technology
 challenges:
-  - "Land, water, and biodiversity footprint of dedicated biomass at scale"
-  - "Deployment rates in climate scenarios exceed historical analogues; governance of supply critical"
-source_refs: [vaughan2018, nas2019]
+  - Land, water, and biodiversity footprint of dedicated biomass at scale
+  - Deployment rates in climate scenarios exceed historical analogues; governance of supply critical
+source_refs:
+  - vaughan2018
+  - nas2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Atmos as Atmosphere
@@ -76,3 +81,209 @@ mermaid_source: |
       CAP --> CO2
       CO2 --> COMP
       COMP -->|"dense-phase"| SEQ
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:atm
+      label: Atmospheric<br/>CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:phot
+      label: Biomass growth<br/>photosynthesis<br/>(dedicated or residue)
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:bio
+      label: Harvested<br/>biomass
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:conv
+      label: Energy conversion<br/>combustion / gasification /<br/>fermentation
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:flue
+      label: CO₂-rich<br/>flue gas /<br/>fermentation off-gas
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cap
+      label: Capture<br/>(amine or<br/>physical solvent)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:co2
+      label: Pure CO₂<br/>(biogenic)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Compression +<br/>transport
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage<br/>(net removal if<br/>regrowth balances)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:energy
+      label: Energy co-product<br/>power / ethanol / H₂
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:supply
+      label: Supply chain<br/>emissions +<br/>land footprint<br/>(governance critical)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:atm
+      target_node_id: node:phot
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: photosynthetic<br/>drawdown
+    - id: edge:e2
+      source_node_id: node:phot
+      target_node_id: node:bio
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: harvest
+    - id: edge:e3
+      source_node_id: node:bio
+      target_node_id: node:conv
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: logistics
+    - id: edge:e4
+      source_node_id: node:supply
+      target_node_id: node:bio
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: must be counted
+    - id: edge:e5
+      source_node_id: node:conv
+      target_node_id: node:flue
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ~90-99% CO₂<br/>(fermentation) or<br/>4-15% (flue)
+    - id: edge:e6
+      source_node_id: node:conv
+      target_node_id: node:energy
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:flue
+      target_node_id: node:cap
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:cap
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:co2
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e10
+      source_node_id: node:comp
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:atmos
+      label: Atmosphere
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: Net removal depends on regrowth and supply-chain balance
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:crop
+      label: Biomass system
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:plant
+      label: Energy conversion plant
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:capture
+      label: CO₂ capture unit
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage site
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:atmos
+      target_node_id: node:crop
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Supply CO₂ for photosynthesis
+    - id: edge:op2
+      source_node_id: node:crop
+      target_node_id: node:plant
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Deliver harvested biomass
+    - id: edge:op3
+      source_node_id: node:plant
+      target_node_id: node:plant
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Generate power, ethanol, or H₂
+    - id: edge:op4
+      source_node_id: node:plant
+      target_node_id: node:capture
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Send biogenic CO₂-rich stream
+    - id: edge:op5
+      source_node_id: node:capture
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Compress and inject captured CO₂
+    - id: edge:op6
+      source_node_id: node:store
+      target_node_id: node:atmos
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Prevent return of biogenic carbon

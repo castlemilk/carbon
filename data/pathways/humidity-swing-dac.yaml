@@ -1,8 +1,11 @@
 id: humidity-swing-dac
-name: "Humidity-swing DAC (ion-exchange resin)"
+name: Humidity-swing DAC (ion-exchange resin)
 setting: DAC
 trl: 4
-search_terms: ["humidity swing CO2 capture", "ion exchange resin direct air capture", "moisture swing sorbent"]
+search_terms:
+  - humidity swing CO2 capture
+  - ion exchange resin direct air capture
+  - moisture swing sorbent
 mechanism: |
   Anionic ion-exchange resins functionalized with carbonate/bicarbonate
   counterions bind CO2 when dry and release it when exposed to water vapour:
@@ -18,12 +21,14 @@ metrics:
     year_basis: 2021
     source_ref: mcqueen2021
 advantages:
-  - "Regenerates on water vapour alone - no vacuum pumps or high-grade heat"
-  - "Ambient-temperature operation suits passive or low-energy contactors"
+  - Regenerates on water vapour alone - no vacuum pumps or high-grade heat
+  - Ambient-temperature operation suits passive or low-energy contactors
 challenges:
-  - "Resin capacity and kinetics degrade over humidity cycles"
-  - "No commercial prototype at meaningful scale; cost estimates speculative"
-source_refs: [mcqueen2021, sanzperez2016]
+  - Resin capacity and kinetics degrade over humidity cycles
+  - No commercial prototype at meaningful scale; cost estimates speculative
+source_refs:
+  - mcqueen2021
+  - sanzperez2016
 mermaid_sequence_source: |
   sequenceDiagram
       participant Air as Dry ambient air
@@ -65,3 +70,195 @@ mermaid_source: |
       DRYOUT --> CO2
       HUM -->|"regenerated resin<br/>(re-dried)"| RES
       CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Ambient air<br/>~420 ppm<br/>(dry side)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:dry
+      label: Dry-air adsorption<br/>passive contactor<br/>(quaternary ammonium<br/>resin)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:res
+      label: Anion-exchange<br/>resin<br/>CO₃²⁻/HCO₃⁻<br/>counterions
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:hum
+      label: Humidity-swing<br/>regeneration<br/>(water vapour<br/>purge)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:wtr
+      label: Water vapour<br/>(latent heat<br/>dominates energy)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:dryout
+      label: Condenser +<br/>dry-out
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Released CO₂
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:waste
+      label: to atmosphere
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:air
+      target_node_id: node:dry
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dry airflow
+    - id: edge:e2
+      source_node_id: node:dry
+      target_node_id: node:res
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: CO₂ + CO₃²⁻ + H₂O<br/>⇌ 2 HCO₃⁻ (dry → binds)
+    - id: edge:e3
+      source_node_id: node:dry
+      target_node_id: node:waste
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂-depleted air
+    - id: edge:e4
+      source_node_id: node:res
+      target_node_id: node:hum
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: humid swing
+    - id: edge:e5
+      source_node_id: node:wtr
+      target_node_id: node:hum
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: shifts equilibrium<br/>back to HCO₃⁻
+    - id: edge:e6
+      source_node_id: node:hum
+      target_node_id: node:dryout
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ release<br/>(no vacuum/heat)
+    - id: edge:e7
+      source_node_id: node:dryout
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:hum
+      target_node_id: node:res
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: regenerated resin<br/>(re-dried)
+    - id: edge:e9
+      source_node_id: node:co2
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Dry ambient air
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:resin
+      label: Anion-exchange resin
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:humid
+      label: Humidification stage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:dryer
+      label: Condenser / dryer
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:air
+      target_node_id: node:resin
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Pass dilute CO₂ over dry bed
+    - id: edge:op2
+      source_node_id: node:resin
+      target_node_id: node:resin
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Bind carbonate / bicarbonate counterions
+    - id: edge:op3
+      source_node_id: node:humid
+      target_node_id: node:resin
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Add water vapour
+    - id: edge:op4
+      source_node_id: node:resin
+      target_node_id: node:resin
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Shift equilibrium and release CO₂
+    - id: edge:op5
+      source_node_id: node:resin
+      target_node_id: node:dryer
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Send wet product gas
+    - id: edge:op6
+      source_node_id: node:dryer
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Dry, compress, and store CO₂
+    - id: edge:op7
+      source_node_id: node:resin
+      target_node_id: node:air
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return regenerated bed to dry cycle

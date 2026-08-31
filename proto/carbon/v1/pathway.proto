@@ -1,6 +1,7 @@
 syntax = "proto3";
 package carbon.v1;
 import "carbon/v1/common.proto";
+import "carbon/v1/graph.proto";
 
 enum Setting {
   SETTING_UNSPECIFIED = 0;
@@ -26,4 +27,6 @@ message Pathway {
   repeated string source_refs = 12;
   string mermaid_source = 13;   // optional Mermaid flowchart source
   string mermaid_sequence_source = 14;   // optional Mermaid sequence diagram source
+  ProcessGraph process_graph = 15;
+  ProcessGraph operational_graph = 16;
 }

@@ -1,8 +1,11 @@
 id: aggregate-carbonation
-name: "Demolition aggregate carbonation (recycled concrete)"
+name: Demolition aggregate carbonation (recycled concrete)
 setting: MINERALIZATION
 trl: 5
-search_terms: ["recycled concrete aggregate carbonation", "demolition waste CO2 sequestration", "concrete carbonation curing"]
+search_terms:
+  - recycled concrete aggregate carbonation
+  - demolition waste CO2 sequestration
+  - concrete carbonation curing
 mechanism: |
   Crushed demolition concrete and cement fines re-absorb atmospheric CO2 as
   their exposed calcium silicate hydrate and portlandite carbonates - partially
@@ -19,12 +22,13 @@ metrics:
     year_basis: 2019
     source_ref: renforth2019
 advantages:
-  - "No new feedstock - uses existing demolition flows and urban logistics"
-  - "Carbonate product stays in durable built infrastructure"
+  - No new feedstock - uses existing demolition flows and urban logistics
+  - Carbonate product stays in durable built infrastructure
 challenges:
   - "Carbonation front-limited: only fines and crushed surfaces react quickly"
-  - "Modular, distributed removal is hard to measure and credit"
-source_refs: [renforth2019]
+  - Modular, distributed removal is hard to measure and credit
+source_refs:
+  - renforth2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant City as Demolition site
@@ -65,3 +69,183 @@ mermaid_source: |
       STOCK -->|"slowly<br/>carbonated"| SEQ
       SEQ -->|"re-enters<br/>built environment"| REUSE
       CRUSH -.->|"unreacted<br/>cores"| LIMIT
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:demo
+      label: Demolition<br/>concrete flow<br/>(urban stock)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:crush
+      label: Crushing +<br/>sorting<br/>(RCA fines +<br/>aggregate)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cure
+      label: Accelerated<br/>carbonation curing<br/>(CO₂-rich chamber<br/>on fines / fresh RCA)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:stock
+      label: Passive stockpile<br/>carbonation<br/>Ca(OH)₂ + CO₂ →<br/>CaCO₃ + H₂O
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:atm
+      label: Atmospheric CO₂<br/>(or captured<br/>CO₂ for curing)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Solid carbonate<br/>in construction<br/>material<br/>>10 kyr
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:reuse
+      label: Recycled aggregate<br/>(new construction<br/>products)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:limit
+      label: Carbonation front<br/>limited to fines +<br/>crushed surfaces<br/>(MRV challenge)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:demo
+      target_node_id: node:crush
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: recycled<br/>concrete
+    - id: edge:e2
+      source_node_id: node:crush
+      target_node_id: node:cure
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: fines / fresh<br/>RCA
+    - id: edge:e3
+      source_node_id: node:crush
+      target_node_id: node:stock
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: coarse RCA<br/>stockpile
+    - id: edge:e4
+      source_node_id: node:atm
+      target_node_id: node:cure
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: enriched CO₂<br/>stream
+    - id: edge:e5
+      source_node_id: node:atm
+      target_node_id: node:stock
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: passive<br/>uptake
+    - id: edge:e6
+      source_node_id: node:cure
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: hardened<br/>carbonated product
+    - id: edge:e7
+      source_node_id: node:stock
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: slowly<br/>carbonated
+    - id: edge:e8
+      source_node_id: node:seq
+      target_node_id: node:reuse
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: re-enters<br/>built environment
+    - id: edge:e9
+      source_node_id: node:crush
+      target_node_id: node:limit
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: unreacted<br/>cores
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:city
+      label: Demolition site
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:crush
+      label: Crushing and sorting
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cure
+      label: Carbonation chamber
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:air
+      label: CO₂ source
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:product
+      label: Construction product
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:city
+      target_node_id: node:crush
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Deliver demolition concrete
+    - id: edge:op2
+      source_node_id: node:crush
+      target_node_id: node:cure
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Separate fines and exposed aggregate
+    - id: edge:op3
+      source_node_id: node:air
+      target_node_id: node:cure
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Supply atmospheric or captured CO₂
+    - id: edge:op4
+      source_node_id: node:cure
+      target_node_id: node:cure
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Carbonate portlandite and C-S-H surfaces
+    - id: edge:op5
+      source_node_id: node:cure
+      target_node_id: node:product
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return hardened, carbonated aggregate
+    - id: edge:op6
+      source_node_id: node:product
+      target_node_id: node:product
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Retain carbonate in built infrastructure

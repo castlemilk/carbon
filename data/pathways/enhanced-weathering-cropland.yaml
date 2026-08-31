@@ -1,8 +1,11 @@
 id: enhanced-weathering-cropland
-name: "Enhanced rock weathering (croplands)"
+name: Enhanced rock weathering (croplands)
 setting: MINERALIZATION
 trl: 6
-search_terms: ["enhanced rock weathering croplands", "basalt dust soil carbon removal", "terrestrial enhanced weathering"]
+search_terms:
+  - enhanced rock weathering croplands
+  - basalt dust soil carbon removal
+  - terrestrial enhanced weathering
 mechanism: |
   Crushed silicate rock (basalt, olivine) is spread on cropland where warm,
   wet, biologically active soils accelerate dissolution; captured CO2 is
@@ -31,13 +34,17 @@ metrics:
     year_basis: 2017
     source_ref: renforth2017
 advantages:
-  - "Distributed deployment using existing agricultural machinery and supply chains"
+  - Distributed deployment using existing agricultural machinery and supply chains
   - "Agronomic co-benefits: nutrients, liming effect, possible N2O suppression"
 challenges:
-  - "MRV of actual weathering rates in soils remains uncertain"
-  - "Grinding and transport emissions erode net removal if sourcing is distant"
-material_ids: [olivine, basalt]
-source_refs: [beerling2020, renforth2017]
+  - MRV of actual weathering rates in soils remains uncertain
+  - Grinding and transport emissions erode net removal if sourcing is distant
+material_ids:
+  - olivine
+  - basalt
+source_refs:
+  - beerling2020
+  - renforth2017
 mermaid_sequence_source: |
   sequenceDiagram
       participant Quarry as Rock quarry
@@ -83,3 +90,211 @@ mermaid_source: |
       DRAIN --> OCEAN
       OCEAN --> SEQ
       SOIL -.->|"crop uptake"| COBEN
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:rock
+      label: Silicate rock<br/>(basalt, olivine)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids:
+        - olivine
+        - basalt
+      source_refs: []
+      metric_keys: []
+    - id: node:mine
+      label: Quarry +<br/>crushing / grinding<br/>(to fines)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:trans
+      label: Transport<br/>(rail / ship / truck)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:spread
+      label: Field spreading<br/>(existing ag<br/>machinery)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:soil
+      label: Warm, wet,<br/>biologically active<br/>cropland soil
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rxn
+      label: Dissolution<br/>(Ca,Mg)SiO₃ + 2CO₂<br/>+ 2H₂O →<br/>(Ca,Mg)²⁺<br/>+ 2HCO₃⁻ + SiO₂
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:drain
+      label: Soil drainage<br/>→ rivers
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:ocean
+      label: Ocean<br/>(bicarbonate<br/>reservoir)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Dissolved<br/>bicarbonate<br/>>10 kyr
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:coben
+      label: Co-benefits:<br/>nutrients (P, K),<br/>pH amelioration,<br/>N₂O suppression
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:atm
+      label: Atmospheric CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:rock
+      target_node_id: node:mine
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e2
+      source_node_id: node:mine
+      target_node_id: node:trans
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e3
+      source_node_id: node:trans
+      target_node_id: node:spread
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: spread at<br/>~10-50 t/ha
+    - id: edge:e4
+      source_node_id: node:spread
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e5
+      source_node_id: node:soil
+      target_node_id: node:rxn
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: soil CO₂<br/>(root + microbial)
+    - id: edge:e6
+      source_node_id: node:atm
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: soil-air<br/>exchange
+    - id: edge:e7
+      source_node_id: node:rxn
+      target_node_id: node:drain
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: alkalinity<br/>in soil water
+    - id: edge:e8
+      source_node_id: node:drain
+      target_node_id: node:ocean
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:ocean
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e10
+      source_node_id: node:soil
+      target_node_id: node:coben
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: crop uptake
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:quarry
+      label: Rock quarry
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:mill
+      label: Grinding plant
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:farm
+      label: Cropland
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:soil
+      label: Soil water
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:river
+      label: River and ocean
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: Grinding and transport emissions must be deducted
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:quarry
+      target_node_id: node:mill
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Deliver basalt or olivine
+    - id: edge:op2
+      source_node_id: node:mill
+      target_node_id: node:farm
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Ship and spread reactive fines
+    - id: edge:op3
+      source_node_id: node:farm
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Add rock to warm, wet soil
+    - id: edge:op4
+      source_node_id: node:soil
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Dissolve silicate and consume CO₂
+    - id: edge:op5
+      source_node_id: node:soil
+      target_node_id: node:river
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Drain bicarbonate and cations
+    - id: edge:op6
+      source_node_id: node:river
+      target_node_id: node:river
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Retain alkalinity in aquatic reservoir

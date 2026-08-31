@@ -1,13 +1,15 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fromJson } from '@bufbuild/protobuf'
+import { fromJson, toJson } from '@bufbuild/protobuf'
 import { CitationSchema } from '@/lib/gen/carbon/v1/common_pb'
 import { PathwaySchema, Setting } from '@/lib/gen/carbon/v1/pathway_pb'
+import { MaterialSchema } from '@/lib/gen/carbon/v1/material_pb'
+import { LandscapeGraphSchema, type LandscapeGraph } from '@/lib/gen/carbon/v1/landscape_pb'
 import type { CarbonStore } from './store'
-import { makeSqliteStore } from './sqlite-store'
-import { createTursoStore } from './turso-store'
+import { makeSqliteStore, __setSqliteTestInjectFailure } from './sqlite-store'
+import { createTursoStore, __setTursoTestInjectFailure } from './turso-store'
 
 // Adapter-conformance contract: both drivers must behave identically for the
 // operations the app relies on. The Turso leg runs only when credentials are
@@ -18,6 +20,17 @@ const tursoUrl = process.env.CARBON_TEST_TURSO_URL
 
 const mkPathway = (id: string, name = id.toUpperCase()) =>
   fromJson(PathwaySchema, { id, name, setting: 'DAC', trl: 5, search_terms: [`${id} lit`] })
+
+const mkCitation = (id: string, year = 2024, title = id) =>
+  fromJson(CitationSchema, { id, title, authors: [], year, venue: '', url: '' })
+
+const mkMaterial = (id: string) =>
+  fromJson(MaterialSchema, { id, name: id.toUpperCase(), class: 'MATERIAL_CLASS_UNSPECIFIED' })
+
+// Re-encode to protojson for equality comparisons: survives enum int <-> name
+// hydration cycles without depending on key ordering or default-scalar elision.
+const reencode = (g: LandscapeGraph): string =>
+  JSON.stringify(toJson(LandscapeGraphSchema, g, { useProtoFieldName: true }))
 
 describe.each([
   ['sqlite', () => {
@@ -38,12 +51,18 @@ describe.each([
     await ctx.store.initSchema()
   })
   afterAll(async () => { await ctx.cleanup() })
+  // module-level flag — must reset between tests so a prior failure-injection
+  // test doesn't leak into adjacent ones in the same describe block
+  afterEach(() => {
+    __setSqliteTestInjectFailure(false)
+    __setTursoTestInjectFailure(false)
+  })
 
   it('replaceSeed is a full resync and counts rows written', async () => {
     expect(await ctx.store.replaceSeed({ citations: [], materials: [], pathways: [mkPathway('a'), mkPathway('b')] }))
-      .toEqual({ citations: 0, materials: 0, pathways: 2 })
+      .toEqual({ citations: 0, materials: 0, pathways: 2, landscapeGraphCount: 0 })
     expect(await ctx.store.replaceSeed({ citations: [], materials: [], pathways: [mkPathway('a', 'A Only')] }))
-      .toEqual({ citations: 0, materials: 0, pathways: 1 })
+      .toEqual({ citations: 0, materials: 0, pathways: 1, landscapeGraphCount: 0 })
     expect((await ctx.store.listPathways()).map(p => p.id)).toEqual(['a'])
     expect((await ctx.store.listPathways())[0]!.name).toBe('A Only')
   })
@@ -91,5 +110,83 @@ describe.each([
     const all = await ctx.store.listCitations()
     expect(all.map(c => c.id)).toEqual(['new', 'mid', 'old'])
     expect((await ctx.store.getCitation('new'))?.year).toBe(2024)
+  })
+
+  it('replaceSeed persists the landscape graph atomically with the rest of the seed', async () => {
+    const graph = fromJson(LandscapeGraphSchema, {
+      nodes: [
+        { id: 'setting:DAC', label: 'Direct air capture', entity_type: 'GRAPH_ENTITY_TYPE_SETTING', entity_id: 'DAC' },
+        { id: 'pathway:p1', label: 'P1', entity_type: 'GRAPH_ENTITY_TYPE_PATHWAY', entity_id: 'p1', metric_keys: ['trl'] },
+      ],
+      edges: [{ id: 'edge:sp1', source_node_id: 'setting:DAC', target_node_id: 'pathway:p1', kind: 'GRAPH_EDGE_KIND_RELATION' }],
+    })
+    const counts = await ctx.store.replaceSeed({
+      citations: [],
+      materials: [],
+      pathways: [mkPathway('p1')],
+      landscapeGraph: graph,
+    })
+    expect(counts.landscapeGraphCount).toBe(2)
+
+    const got = await ctx.store.getLandscapeGraph()
+    expect(got).toBeDefined()
+    expect(reencode(got!)).toBe(reencode(graph))
+  })
+
+  it('re-seeding without a landscape graph clears the prior row', async () => {
+    const graph = fromJson(LandscapeGraphSchema, {
+      nodes: [{ id: 'setting:DAC', label: 'DAC', entity_type: 'GRAPH_ENTITY_TYPE_SETTING', entity_id: 'DAC' }],
+      edges: [],
+    })
+    await ctx.store.replaceSeed({ citations: [], materials: [], pathways: [mkPathway('p1')], landscapeGraph: graph })
+    expect(await ctx.store.getLandscapeGraph()).toBeDefined()
+
+    await ctx.store.replaceSeed({ citations: [], materials: [], pathways: [mkPathway('p1')] })
+    expect(await ctx.store.getLandscapeGraph()).toBeUndefined()
+
+    // a subsequent replaceSeed WITH a graph puts it back — confirming the row is
+    // re-created, not stuck at absent
+    await ctx.store.replaceSeed({ citations: [], materials: [], pathways: [mkPathway('p1')], landscapeGraph: graph })
+    expect(await ctx.store.getLandscapeGraph()).toBeDefined()
+  })
+
+  it('a failure injected mid-seed leaves every seed table in its prior state', async () => {
+    const originalGraph = fromJson(LandscapeGraphSchema, {
+      nodes: [
+        { id: 'setting:DAC', label: 'DAC', entity_type: 'GRAPH_ENTITY_TYPE_SETTING', entity_id: 'DAC' },
+        { id: 'pathway:p1', label: 'P1', entity_type: 'GRAPH_ENTITY_TYPE_PATHWAY', entity_id: 'p1', metric_keys: ['trl'] },
+      ],
+      edges: [{ id: 'edge:sp1', source_node_id: 'setting:DAC', target_node_id: 'pathway:p1', kind: 'GRAPH_EDGE_KIND_RELATION' }],
+    })
+    await ctx.store.replaceSeed({
+      citations: [mkCitation('c1')],
+      materials: [mkMaterial('m1')],
+      pathways: [mkPathway('p1')],
+      landscapeGraph: originalGraph,
+    })
+
+    const priorPathways = (await ctx.store.listPathways()).map(p => p.id)
+    const priorCitations = (await ctx.store.listCitations()).map(c => c.id)
+    const priorMaterials = (await ctx.store.listMaterials()).map(m => m.id)
+    const priorLandscape = await ctx.store.getLandscapeGraph()
+    expect(priorLandscape).toBeDefined()
+
+    // failure fires AFTER deletes run, BEFORE inserts reach the server:
+    // the adapter's transactional rollback must restore prior state
+    __setSqliteTestInjectFailure(true)
+    __setTursoTestInjectFailure(true)
+    await expect(ctx.store.replaceSeed({
+      citations: [mkCitation('c2', 1999, 'Different')],
+      materials: [mkMaterial('m2')],
+      pathways: [mkPathway('p2')],
+      // omit landscape — would clear the prior row if reached
+    })).rejects.toThrow()
+
+    expect((await ctx.store.listPathways()).map(p => p.id)).toEqual(priorPathways)
+    expect((await ctx.store.listCitations()).map(c => c.id)).toEqual(priorCitations)
+    expect((await ctx.store.listMaterials()).map(m => m.id)).toEqual(priorMaterials)
+    const postLandscape = await ctx.store.getLandscapeGraph()
+    expect(postLandscape).toBeDefined()
+    expect(reencode(postLandscape!)).toBe(reencode(priorLandscape!))
   })
 })

@@ -1,8 +1,11 @@
 id: selexol-precombustion
-name: "Physical solvent pre-combustion (Selexol)"
+name: Physical solvent pre-combustion (Selexol)
 setting: POINT_SOURCE
 trl: 9
-search_terms: ["Selexol pre-combustion CO2 capture", "physical solvent gasification syngas", "IGCC carbon capture"]
+search_terms:
+  - Selexol pre-combustion CO2 capture
+  - physical solvent gasification syngas
+  - IGCC carbon capture
 mechanism: |
   Fuel is gasified and shifted so the syngas is mostly H2 and CO2 at high
   pressure (~20-70 bar). Selexol (dimethyl ethers of polyethylene glycol)
@@ -18,13 +21,15 @@ metrics:
     year_basis: 2021
     source_ref: iea2022ccus
 advantages:
-  - "Lowest capture cost per tonne among power-sector options (high partial pressure, no reboiler duty)"
-  - "Commercial physical-solvent hardware with decades of operating experience"
+  - Lowest capture cost per tonne among power-sector options (high partial pressure, no reboiler duty)
+  - Commercial physical-solvent hardware with decades of operating experience
 challenges:
-  - "Only applies to gasification/shift flowsheets; not retrofit to conventional boilers"
-  - "Deep chilling or refrigeration needed for cold-solvent operation"
-material_ids: [selexol-solvent]
-source_refs: [iea2022ccus]
+  - Only applies to gasification/shift flowsheets; not retrofit to conventional boilers
+  - Deep chilling or refrigeration needed for cold-solvent operation
+material_ids:
+  - selexol-solvent
+source_refs:
+  - iea2022ccus
 mermaid_sequence_source: |
   sequenceDiagram
       participant Feed as Fuel feedstock
@@ -72,3 +77,228 @@ mermaid_source: |
       COMP -->|"dense-phase"| SEQ(("Geological<br/>storage"))
       FLASH -->|"Lean solvent<br/>(recycle)"| LEAN
       LEAN -->|"recompress<br/>(pump)"| SELX
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:fuel
+      label: Coal / NG /<br/>biomass feedstock
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:gas
+      label: Gasifier<br/>(O₂-blown)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:wgs
+      label: Water-gas-shift<br/>reactor<br/>CO + H₂O → CO₂ + H₂
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:selx
+      label: Selexol absorber<br/>(dimethyl ethers<br/>of PEG)<br/>~20-70 bar
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:solv
+      label: Loaded Selexol<br/>(physical,<br/>no reaction)
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids:
+        - selexol-solvent
+      source_refs: []
+      metric_keys: []
+    - id: node:flash
+      label: Pressure-letdown<br/>flash drums<br/>(H₂S first, then CO₂)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:h2
+      label: H₂-rich fuel<br/>(→ turbine /<br/>fuel cell)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>(sequestered)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Compressor
+      kind: GRAPH_NODE_KIND_TRANSPORT
+      stage: GRAPH_STAGE_TRANSPORT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:lean
+      label: Lean Selexol<br/>(CO₂ stripped)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:fuel
+      target_node_id: node:gas
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e2
+      source_node_id: node:gas
+      target_node_id: node:wgs
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: raw syngas<br/>CO + H₂ + CO₂ + H₂S
+    - id: edge:e3
+      source_node_id: node:wgs
+      target_node_id: node:selx
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ~60% H₂<br/>~35% CO₂<br/>(high pCO₂)
+    - id: edge:e4
+      source_node_id: node:selx
+      target_node_id: node:solv
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: physical absorption<br/>(no chemistry)
+    - id: edge:e5
+      source_node_id: node:selx
+      target_node_id: node:h2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e6
+      source_node_id: node:solv
+      target_node_id: node:flash
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:flash
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:co2
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:comp
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+    - id: edge:e10
+      source_node_id: node:flash
+      target_node_id: node:lean
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: Lean solvent<br/>(recycle)
+    - id: edge:e11
+      source_node_id: node:lean
+      target_node_id: node:selx
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: recompress<br/>(pump)
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:feed
+      label: Fuel feedstock
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:shift
+      label: Gasifier and shift reactor
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:abs
+      label: Selexol absorber
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:flash
+      label: Pressure-letdown flashes
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:h2
+      label: H₂ user
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:feed
+      target_node_id: node:shift
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Gasify and shift to H₂ + CO₂ syngas
+    - id: edge:op2
+      source_node_id: node:shift
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Deliver high-pressure syngas
+    - id: edge:op3
+      source_node_id: node:abs
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Physically dissolve CO₂ in Selexol
+    - id: edge:op4
+      source_node_id: node:abs
+      target_node_id: node:h2
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Send H₂-rich treated fuel
+    - id: edge:op5
+      source_node_id: node:abs
+      target_node_id: node:flash
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Transfer loaded solvent
+    - id: edge:op6
+      source_node_id: node:flash
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Release, compress, and store CO₂
+    - id: edge:op7
+      source_node_id: node:flash
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return lean Selexol by pump

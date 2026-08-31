@@ -1,0 +1,700 @@
+nodes:
+  - id: setting:POINT_SOURCE
+    label: Point source (smokestack/flue gas)
+    kind: GRAPH_NODE_KIND_BIOLOGICAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: "Setting group: POINT_SOURCE"
+    entity_type: GRAPH_ENTITY_TYPE_SETTING
+    entity_id: POINT_SOURCE
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    order: 0
+  - id: setting:DAC
+    label: Direct air capture
+    kind: GRAPH_NODE_KIND_BIOLOGICAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: "Setting group: DAC"
+    entity_type: GRAPH_ENTITY_TYPE_SETTING
+    entity_id: DAC
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    order: 1
+  - id: setting:OCEAN_DIC
+    label: Ocean / dissolved inorganic carbon
+    kind: GRAPH_NODE_KIND_BIOLOGICAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: "Setting group: OCEAN_DIC"
+    entity_type: GRAPH_ENTITY_TYPE_SETTING
+    entity_id: OCEAN_DIC
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    order: 2
+  - id: setting:MINERALIZATION
+    label: Mineralization
+    kind: GRAPH_NODE_KIND_BIOLOGICAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: "Setting group: MINERALIZATION"
+    entity_type: GRAPH_ENTITY_TYPE_SETTING
+    entity_id: MINERALIZATION
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    order: 3
+  - id: setting:BIOLOGICAL
+    label: Biological / biogenic
+    kind: GRAPH_NODE_KIND_BIOLOGICAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: "Setting group: BIOLOGICAL"
+    entity_type: GRAPH_ENTITY_TYPE_SETTING
+    entity_id: BIOLOGICAL
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    order: 4
+  - id: material:basalt
+    label: Basaltic rock
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: basalt
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 5
+  - id: material:cansolv-solvent
+    label: Shell CANSOLV DC-103 (advanced amine solvent)
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: cansolv-solvent
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 6
+  - id: material:cao-lime
+    label: Calcium oxide / limestone (CaO-CaCO3 pair)
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: cao-lime
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 7
+  - id: material:carbonic-anhydrase
+    label: Carbonic anhydrase (alpha-class)
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: carbonic-anhydrase
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 8
+  - id: material:mea
+    label: Monoethanolamine (30 wt% aqueous)
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: mea
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 9
+  - id: material:mg2dobpdc
+    label: Diamine-appended Mg2(dobpdc) MOF
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: mg2dobpdc
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 10
+  - id: material:olivine
+    label: Olivine (forsterite-rich ultramafic rock)
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: olivine
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 11
+  - id: material:quinone-electrode
+    label: Polyanthraquinone-carbon nanotube composite electrode
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: quinone-electrode
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 12
+  - id: material:selexol-solvent
+    label: Selexol (dimethyl ethers of polyethylene glycol)
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: selexol-solvent
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 13
+  - id: material:solid-amine-silica
+    label: Amine-functionalized silica sorbent
+    kind: GRAPH_NODE_KIND_MATERIAL
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_MATERIAL
+    entity_id: solid-amine-silica
+    material_ids: []
+    source_refs: []
+    metric_keys: []
+    initially_hidden: true
+    order: 14
+  - id: pathway:advanced-amine-point-source
+    label: Advanced amine solvents (point source)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: advanced-amine-point-source
+    material_ids:
+      - cansolv-solvent
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 15
+  - id: pathway:aggregate-carbonation
+    label: Demolition aggregate carbonation (recycled concrete)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: aggregate-carbonation
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 16
+  - id: pathway:amine-silica-dac
+    label: Amine-silica solid sorbent DAC
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: amine-silica-dac
+    material_ids:
+      - solid-amine-silica
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 17
+  - id: pathway:basalt-injection
+    label: In-situ basalt mineralization (injected CO2)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: basalt-injection
+    material_ids:
+      - basalt
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 18
+  - id: pathway:beccs
+    label: Bioenergy with carbon capture and storage (benchmark)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: beccs
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 19
+  - id: pathway:biochar
+    label: Biochar soil amendment
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: biochar
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 20
+  - id: pathway:calcium-looping
+    label: Calcium looping (benchmark)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: calcium-looping
+    material_ids:
+      - cao-lime
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 21
+  - id: pathway:electro-sorption-dac
+    label: Electro-sorption DAC (quinone electrodes)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: electro-sorption-dac
+    material_ids:
+      - quinone-electrode
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 22
+  - id: pathway:electrochemical-oae
+    label: Electrochemical ocean alkalinity enhancement (seawater mineralization)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: electrochemical-oae
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 23
+  - id: pathway:electrodialysis-doc
+    label: Electrodialytic DOC extraction (BPMED)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: electrodialysis-doc
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 24
+  - id: pathway:enhanced-weathering-cropland
+    label: Enhanced rock weathering (croplands)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: enhanced-weathering-cropland
+    material_ids:
+      - olivine
+      - basalt
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 25
+  - id: pathway:enzymatic-absorption
+    label: Enzymatic CO2 absorption (carbonic anhydrase)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: enzymatic-absorption
+    material_ids:
+      - carbonic-anhydrase
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 26
+  - id: pathway:humidity-swing-dac
+    label: Humidity-swing DAC (ion-exchange resin)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: humidity-swing-dac
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 27
+  - id: pathway:liquid-solvent-dac
+    label: Liquid solvent DAC (tropical KOH loop)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: liquid-solvent-dac
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 28
+  - id: pathway:macroalgae-cultivation
+    label: Macroalgae cultivation and sinking
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: macroalgae-cultivation
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 29
+  - id: pathway:mea-scrubbing
+    label: MEA amine scrubbing (benchmark)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: mea-scrubbing
+    material_ids:
+      - mea
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 30
+  - id: pathway:membranes-point-source
+    label: Membrane separation (point source)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: membranes-point-source
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 31
+  - id: pathway:mineral-addition-oae
+    label: Mineral addition ocean alkalinity enhancement (ocean liming)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: mineral-addition-oae
+    material_ids:
+      - cao-lime
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 32
+  - id: pathway:mof-dac
+    label: MOF-based DAC (diamine-Mg2(dobpdc) class)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: mof-dac
+    material_ids:
+      - mg2dobpdc
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 33
+  - id: pathway:oxy-fuel-combustion
+    label: Oxy-fuel combustion
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: oxy-fuel-combustion
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 34
+  - id: pathway:selexol-precombustion
+    label: Physical solvent pre-combustion (Selexol)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: selexol-precombustion
+    material_ids:
+      - selexol-solvent
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 35
+  - id: pathway:slag-carbonation
+    label: Industrial residue carbonation (slag and ash)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: slag-carbonation
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 36
+  - id: pathway:soil-carbon-sequestration
+    label: Soil carbon sequestration
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: soil-carbon-sequestration
+    material_ids: []
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 37
+  - id: pathway:solid-amine-point-source
+    label: Solid amine sorbents (point source)
+    kind: GRAPH_NODE_KIND_CONVERSION
+    stage: GRAPH_STAGE_UNSPECIFIED
+    summary: ""
+    entity_type: GRAPH_ENTITY_TYPE_PATHWAY
+    entity_id: solid-amine-point-source
+    material_ids:
+      - solid-amine-silica
+    source_refs: []
+    metric_keys:
+      - trl
+    order: 38
+edges:
+  - id: edge:s-advanced-amine-point-source
+    source_node_id: setting:POINT_SOURCE
+    target_node_id: pathway:advanced-amine-point-source
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-advanced-amine-point-source-cansolv-solvent
+    source_node_id: pathway:advanced-amine-point-source
+    target_node_id: material:cansolv-solvent
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-aggregate-carbonation
+    source_node_id: setting:MINERALIZATION
+    target_node_id: pathway:aggregate-carbonation
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-amine-silica-dac
+    source_node_id: setting:DAC
+    target_node_id: pathway:amine-silica-dac
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-amine-silica-dac-solid-amine-silica
+    source_node_id: pathway:amine-silica-dac
+    target_node_id: material:solid-amine-silica
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-basalt-injection
+    source_node_id: setting:MINERALIZATION
+    target_node_id: pathway:basalt-injection
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-basalt-injection-basalt
+    source_node_id: pathway:basalt-injection
+    target_node_id: material:basalt
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-beccs
+    source_node_id: setting:BIOLOGICAL
+    target_node_id: pathway:beccs
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-biochar
+    source_node_id: setting:BIOLOGICAL
+    target_node_id: pathway:biochar
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-calcium-looping
+    source_node_id: setting:POINT_SOURCE
+    target_node_id: pathway:calcium-looping
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-calcium-looping-cao-lime
+    source_node_id: pathway:calcium-looping
+    target_node_id: material:cao-lime
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-electro-sorption-dac
+    source_node_id: setting:DAC
+    target_node_id: pathway:electro-sorption-dac
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-electro-sorption-dac-quinone-electrode
+    source_node_id: pathway:electro-sorption-dac
+    target_node_id: material:quinone-electrode
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-electrochemical-oae
+    source_node_id: setting:OCEAN_DIC
+    target_node_id: pathway:electrochemical-oae
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-electrodialysis-doc
+    source_node_id: setting:OCEAN_DIC
+    target_node_id: pathway:electrodialysis-doc
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-enhanced-weathering-cropland
+    source_node_id: setting:MINERALIZATION
+    target_node_id: pathway:enhanced-weathering-cropland
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-enhanced-weathering-cropland-olivine
+    source_node_id: pathway:enhanced-weathering-cropland
+    target_node_id: material:olivine
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:m-enhanced-weathering-cropland-basalt
+    source_node_id: pathway:enhanced-weathering-cropland
+    target_node_id: material:basalt
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-enzymatic-absorption
+    source_node_id: setting:BIOLOGICAL
+    target_node_id: pathway:enzymatic-absorption
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-enzymatic-absorption-carbonic-anhydrase
+    source_node_id: pathway:enzymatic-absorption
+    target_node_id: material:carbonic-anhydrase
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-humidity-swing-dac
+    source_node_id: setting:DAC
+    target_node_id: pathway:humidity-swing-dac
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-liquid-solvent-dac
+    source_node_id: setting:DAC
+    target_node_id: pathway:liquid-solvent-dac
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-macroalgae-cultivation
+    source_node_id: setting:BIOLOGICAL
+    target_node_id: pathway:macroalgae-cultivation
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-mea-scrubbing
+    source_node_id: setting:POINT_SOURCE
+    target_node_id: pathway:mea-scrubbing
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-mea-scrubbing-mea
+    source_node_id: pathway:mea-scrubbing
+    target_node_id: material:mea
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-membranes-point-source
+    source_node_id: setting:POINT_SOURCE
+    target_node_id: pathway:membranes-point-source
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-mineral-addition-oae
+    source_node_id: setting:OCEAN_DIC
+    target_node_id: pathway:mineral-addition-oae
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-mineral-addition-oae-cao-lime
+    source_node_id: pathway:mineral-addition-oae
+    target_node_id: material:cao-lime
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-mof-dac
+    source_node_id: setting:DAC
+    target_node_id: pathway:mof-dac
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-mof-dac-mg2dobpdc
+    source_node_id: pathway:mof-dac
+    target_node_id: material:mg2dobpdc
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-oxy-fuel-combustion
+    source_node_id: setting:POINT_SOURCE
+    target_node_id: pathway:oxy-fuel-combustion
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-selexol-precombustion
+    source_node_id: setting:POINT_SOURCE
+    target_node_id: pathway:selexol-precombustion
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-selexol-precombustion-selexol-solvent
+    source_node_id: pathway:selexol-precombustion
+    target_node_id: material:selexol-solvent
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []
+  - id: edge:s-slag-carbonation
+    source_node_id: setting:MINERALIZATION
+    target_node_id: pathway:slag-carbonation
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-soil-carbon-sequestration
+    source_node_id: setting:BIOLOGICAL
+    target_node_id: pathway:soil-carbon-sequestration
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:s-solid-amine-point-source
+    source_node_id: setting:POINT_SOURCE
+    target_node_id: pathway:solid-amine-point-source
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: in setting
+    source_refs: []
+  - id: edge:m-solid-amine-point-source-solid-amine-silica
+    source_node_id: pathway:solid-amine-point-source
+    target_node_id: material:solid-amine-silica
+    kind: GRAPH_EDGE_KIND_RELATION
+    label: uses material
+    source_refs: []

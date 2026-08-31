@@ -9,11 +9,20 @@ import { useEffect } from 'react'
  */
 export default function EmbedFrame() {
   useEffect(() => {
-    const targetOrigin = process.env.NEXT_PUBLIC_EMBED_PARENT_ORIGIN || '*'
+    const rawOrigin = process.env.NEXT_PUBLIC_EMBED_PARENT_ORIGIN
+    const targetOrigin = rawOrigin
+      ? new URL(rawOrigin).origin
+      : process.env.NODE_ENV === 'production'
+        ? null
+        : 'http://localhost:4321'
+    if (!targetOrigin) return
+
     const post = () => {
       if (window.parent === window) return
+      const height = Math.ceil(document.documentElement.scrollHeight)
+      if (!Number.isFinite(height) || height < 1) return
       window.parent.postMessage(
-        { type: 'carbon:height', height: document.documentElement.scrollHeight },
+        { type: 'carbon:height', height },
         targetOrigin,
       )
     }

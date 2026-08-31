@@ -1,0 +1,85 @@
+syntax = "proto3";
+package carbon.v1;
+
+enum GraphNodeKind {
+  GRAPH_NODE_KIND_UNSPECIFIED = 0;
+  GRAPH_NODE_KIND_INPUT = 1;
+  GRAPH_NODE_KIND_CAPTURE = 2;
+  GRAPH_NODE_KIND_MATERIAL = 3;
+  GRAPH_NODE_KIND_MEMBRANE = 4;
+  GRAPH_NODE_KIND_CONVERSION = 5;
+  GRAPH_NODE_KIND_ELECTROCHEMICAL = 6;
+  GRAPH_NODE_KIND_REGENERATION = 7;
+  GRAPH_NODE_KIND_SEPARATION = 8;
+  GRAPH_NODE_KIND_TRANSPORT = 9;
+  GRAPH_NODE_KIND_STORAGE = 10;
+  GRAPH_NODE_KIND_BIOLOGICAL = 11;
+  GRAPH_NODE_KIND_WASTE = 12;
+  GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT = 13;
+}
+
+enum GraphStage {
+  GRAPH_STAGE_UNSPECIFIED = 0;
+  GRAPH_STAGE_INPUT = 1;
+  GRAPH_STAGE_CAPTURE = 2;
+  GRAPH_STAGE_CONVERSION = 3;
+  GRAPH_STAGE_REGENERATION = 4;
+  GRAPH_STAGE_SEPARATION = 5;
+  GRAPH_STAGE_TRANSPORT = 6;
+  GRAPH_STAGE_STORAGE = 7;
+  GRAPH_STAGE_BYPRODUCT = 8;
+}
+
+enum GraphEdgeKind {
+  GRAPH_EDGE_KIND_UNSPECIFIED = 0;
+  GRAPH_EDGE_KIND_FLOW = 1;
+  GRAPH_EDGE_KIND_FEEDBACK = 2;
+  GRAPH_EDGE_KIND_MESSAGE = 3;
+  GRAPH_EDGE_KIND_SELF_TRANSITION = 4;
+  GRAPH_EDGE_KIND_RELATION = 5;
+}
+
+enum GraphCyclePolicy {
+  GRAPH_CYCLE_POLICY_UNSPECIFIED = 0;
+  GRAPH_CYCLE_POLICY_ACYCLIC = 1;
+  GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED = 2;
+}
+
+enum GraphEntityType {
+  GRAPH_ENTITY_TYPE_UNSPECIFIED = 0;
+  GRAPH_ENTITY_TYPE_PATHWAY = 1;
+  GRAPH_ENTITY_TYPE_MATERIAL = 2;
+  GRAPH_ENTITY_TYPE_CITATION = 3;
+  GRAPH_ENTITY_TYPE_SETTING = 4;
+}
+
+message GraphNode {
+  string id = 1;
+  string label = 2;
+  GraphNodeKind kind = 3;
+  GraphStage stage = 4;
+  string summary = 5;
+  GraphEntityType entity_type = 6;
+  string entity_id = 7;
+  repeated string material_ids = 8;
+  repeated string source_refs = 9;
+  repeated string metric_keys = 10;
+  string asset_id = 11;
+  int32 order = 12;
+  bool initially_hidden = 13;
+}
+
+message GraphEdge {
+  string id = 1;
+  string source_node_id = 2;
+  string target_node_id = 3;
+  GraphEdgeKind kind = 4;
+  string label = 5;
+  repeated string source_refs = 6;
+}
+
+message ProcessGraph {
+  GraphCyclePolicy cycle_policy = 1;
+  repeated GraphNode nodes = 2;
+  repeated GraphEdge edges = 3;
+}

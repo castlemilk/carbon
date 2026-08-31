@@ -1,8 +1,11 @@
 id: liquid-solvent-dac
-name: "Liquid solvent DAC (tropical KOH loop)"
+name: Liquid solvent DAC (tropical KOH loop)
 setting: DAC
 trl: 8
-search_terms: ["liquid solvent direct air capture", "KOH causticization DAC", "calcium pellet reactor air contactor"]
+search_terms:
+  - liquid solvent direct air capture
+  - KOH causticization DAC
+  - calcium pellet reactor air contactor
 mechanism: |
   Atmospheric CO2 is absorbed into ~1 M KOH in large thin-film air contactors,
   forming K2CO3. The carbonate is causticized with Ca(OH)2 to precipitate
@@ -21,24 +24,27 @@ metrics:
     year_basis: 2018
     source_ref: keith2018
   energy_thermal:
-    low: 5.0
-    high: 9.0
+    low: 5
+    high: 9
     unit: GJ/tCO2
     year_basis: 2018
     source_ref: keith2018
   energy_electric:
-    low: 1.0
-    high: 2.0
+    low: 1
+    high: 2
     unit: GJ-e/tCO2
     year_basis: 2018
     source_ref: keith2018
 advantages:
-  - "Air contactor uses off-the-shelf cooling-tower components; scalable to Mt/yr"
-  - "High-temperature calciner delivers pipeline-ready pure CO2"
+  - Air contactor uses off-the-shelf cooling-tower components; scalable to Mt/yr
+  - High-temperature calciner delivers pipeline-ready pure CO2
 challenges:
-  - "Large natural-gas (or electrified) heat demand drives cost and siting"
-  - "Causticization solids handling at extreme scale; water evaporation losses"
-source_refs: [keith2018, young2023, fasihi2019]
+  - Large natural-gas (or electrified) heat demand drives cost and siting
+  - Causticization solids handling at extreme scale; water evaporation losses
+source_refs:
+  - keith2018
+  - young2023
+  - fasihi2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Air as Ambient air
@@ -91,3 +97,256 @@ mermaid_source: |
       CALC -->|"regenerated CaO"| LIME
       LIME -->|"slake to<br/>Ca(OH)₂"| CAOH
       KOH -.->|"regenerated<br/>KOH loop"| CONT
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Ambient air<br/>~420 ppm CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cont
+      label: Air contactor<br/>(cooling-tower-style<br/>thin-film packing)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:koh
+      label: ~1 M KOH<br/>aqueous<br/>loop A
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:caust
+      label: Causticizer<br/>(pellet reactor)<br/>~70 °C
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:caoh
+      label: Ca(OH)₂<br/>slurry<br/>(slake lime)
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:pell
+      label: CaCO₃ pellets<br/>(filter cake)
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:calc
+      label: Calciner<br/>oxy-fired<br/>~900 °C
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:asu
+      label: Air separation<br/>(O₂ fuel)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cool
+      label: CO₂ cooler +<br/>compressor
+      kind: GRAPH_NODE_KIND_TRANSPORT
+      stage: GRAPH_STAGE_TRANSPORT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>(sequestered)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:lime
+      label: CaO<br/>(regenerated lime)<br/>→ slaker
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:waste
+      label: to atmosphere
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage /<br/>sequestration
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:air
+      target_node_id: node:cont
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: forced-draft<br/>fan
+    - id: edge:e2
+      source_node_id: node:cont
+      target_node_id: node:koh
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: CO₂ + 2KOH → K₂CO₃<br/>+ H₂O
+    - id: edge:e3
+      source_node_id: node:cont
+      target_node_id: node:waste
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂-lean air
+    - id: edge:e4
+      source_node_id: node:koh
+      target_node_id: node:caust
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: K₂CO₃<br/>solution
+    - id: edge:e5
+      source_node_id: node:caoh
+      target_node_id: node:caust
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e6
+      source_node_id: node:caust
+      target_node_id: node:pell
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:pell
+      target_node_id: node:calc
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: calciner feed
+    - id: edge:e8
+      source_node_id: node:asu
+      target_node_id: node:calc
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: O₂ fuel
+    - id: edge:e9
+      source_node_id: node:calc
+      target_node_id: node:cool
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: high-purity CO₂
+    - id: edge:e10
+      source_node_id: node:cool
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e11
+      source_node_id: node:co2
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+    - id: edge:e12
+      source_node_id: node:calc
+      target_node_id: node:lime
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: regenerated CaO
+    - id: edge:e13
+      source_node_id: node:lime
+      target_node_id: node:caoh
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: slake to<br/>Ca(OH)₂
+    - id: edge:e14
+      source_node_id: node:koh
+      target_node_id: node:cont
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: regenerated<br/>KOH loop
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Ambient air
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cont
+      label: KOH air contactor
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:caust
+      label: Causticizer
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:kiln
+      label: Oxy-fired calciner
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:lime
+      label: Lime and KOH loops
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:air
+      target_node_id: node:cont
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Supply high-volume air
+    - id: edge:op2
+      source_node_id: node:cont
+      target_node_id: node:lime
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Convert KOH and CO₂ to K₂CO₃
+    - id: edge:op3
+      source_node_id: node:lime
+      target_node_id: node:caust
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Send carbonate solution and Ca(OH)₂
+    - id: edge:op4
+      source_node_id: node:caust
+      target_node_id: node:kiln
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Form and filter CaCO₃ pellets
+    - id: edge:op5
+      source_node_id: node:kiln
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Calcine pellets and compress pure CO₂
+    - id: edge:op6
+      source_node_id: node:kiln
+      target_node_id: node:lime
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return CaO for slaking and KOH loop
+    - id: edge:op7
+      source_node_id: node:store
+      target_node_id: node:air
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Permanently remove atmospheric CO₂

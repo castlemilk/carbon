@@ -1,6 +1,11 @@
 # carbon — chart values
 # Deployed on the omega VKE cluster via a Paprika Application CR watching this
-# repo (path deploy/kubernetes/chart). Release name in-cluster: `carbon`.
+# repo (path deploy/kubernetes/chart). Paprika release name is `carbon-release`,
+# producing the canonical deployment `carbon-release-carbon-stable`.
+#
+# The child embed origin is a Next.js build-time value. The image must be built
+# with this exact origin; a Kubernetes runtime env value cannot rewrite it.
+embedParentOrigin: https://benebsworth.com
 
 replicaCount: 1
 

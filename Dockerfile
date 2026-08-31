@@ -14,6 +14,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG NEXT_PUBLIC_EMBED_PARENT_ORIGIN
+ENV NEXT_PUBLIC_EMBED_PARENT_ORIGIN=${NEXT_PUBLIC_EMBED_PARENT_ORIGIN}
+RUN node -e "if (process.env.NEXT_PUBLIC_EMBED_PARENT_ORIGIN !== 'https://benebsworth.com') process.exit(1)"
 # call next directly: package scripts are thin aliases to `task`, which the
 # container deliberately doesn't carry
 RUN ./node_modules/.bin/next build

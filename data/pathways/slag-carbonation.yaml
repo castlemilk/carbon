@@ -1,8 +1,11 @@
 id: slag-carbonation
-name: "Industrial residue carbonation (slag and ash)"
+name: Industrial residue carbonation (slag and ash)
 setting: MINERALIZATION
 trl: 6
-search_terms: ["steel slag carbonation CO2", "industrial alkaline waste mineralization", "ex-situ mineral carbonation residues"]
+search_terms:
+  - steel slag carbonation CO2
+  - industrial alkaline waste mineralization
+  - ex-situ mineral carbonation residues
 mechanism: |
   Alkaline industrial residues - steel slag, fly ash, cement kiln dust, mine
   tailings - contain Ca/Mg oxides and silicates that react with CO2 to form
@@ -25,12 +28,13 @@ metrics:
     year_basis: 2019
     source_ref: renforth2019
 advantages:
-  - "Uses existing waste streams - no mining burden; potential product revenue"
-  - "Carbonates are thermodynamically stable on geological timescales"
+  - Uses existing waste streams - no mining burden; potential product revenue
+  - Carbonates are thermodynamically stable on geological timescales
 challenges:
-  - "Residue supply is finite and geographically fixed; not scalable beyond ~Gt/yr"
-  - "Trace-metal leaching during processing; slow intrinsic reaction rates"
-source_refs: [renforth2019]
+  - Residue supply is finite and geographically fixed; not scalable beyond ~Gt/yr
+  - Trace-metal leaching during processing; slow intrinsic reaction rates
+source_refs:
+  - renforth2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Industry as Steel, cement, or mining plant
@@ -73,3 +77,203 @@ mermaid_source: |
       PASS -->|"slowly<br/>carbonated"| SEQ
       RXN -.->|"water + metals"| LEACH
       SEQ -.->|"product<br/>substitution"| PROD
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:slag
+      label: Alkaline residues:<br/>steel slag, fly ash,<br/>cement kiln dust,<br/>mine tailings<br/>(~7 Gt/yr global)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:prep
+      label: Comminution<br/>(milling to<br/>increase surface)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rxn
+      label: Ex-situ reactor<br/>Ca/Mg silicate + CO₂<br/>→ CaCO₃/MgCO₃<br/>50-200 °C<br/>optimized water
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:pass
+      label: Passive stockpile<br/>carbonation<br/>(atmospheric<br/>CO₂, slow)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2in
+      label: CO₂ source<br/>(captured flue gas<br/>or DAC)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Carbonate<br/>minerals<br/>>10 kyr
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:prod
+      label: Products:<br/>aggregates,<br/>precipitated CaCO₃<br/>fillers (revenue)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:leach
+      label: Trace-metal<br/>leaching<br/>management
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:atm
+      label: Atmospheric CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:slag
+      target_node_id: node:prep
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: residue<br/>stream
+    - id: edge:e2
+      source_node_id: node:prep
+      target_node_id: node:rxn
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: fine feed
+    - id: edge:e3
+      source_node_id: node:prep
+      target_node_id: node:pass
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: coarse fraction
+    - id: edge:e4
+      source_node_id: node:co2in
+      target_node_id: node:rxn
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: concentrated<br/>CO₂
+    - id: edge:e5
+      source_node_id: node:atm
+      target_node_id: node:pass
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e6
+      source_node_id: node:rxn
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: carbonated<br/>product
+    - id: edge:e7
+      source_node_id: node:pass
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: slowly<br/>carbonated
+    - id: edge:e8
+      source_node_id: node:rxn
+      target_node_id: node:leach
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: water + metals
+    - id: edge:e9
+      source_node_id: node:seq
+      target_node_id: node:prod
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: product<br/>substitution
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:industry
+      label: Steel, cement, or mining plant
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:residue
+      label: Alkaline residue stream
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:prep
+      label: Comminution and preparation
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:reactor
+      label: Carbonation reactor
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Captured CO₂ source
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:product
+      label: Carbonate product
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:industry
+      target_node_id: node:residue
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Collect slag, ash, or tailings
+    - id: edge:op2
+      source_node_id: node:residue
+      target_node_id: node:prep
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Crush and expose reactive minerals
+    - id: edge:op3
+      source_node_id: node:prep
+      target_node_id: node:reactor
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Feed fine residue and water
+    - id: edge:op4
+      source_node_id: node:co2
+      target_node_id: node:reactor
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Supply concentrated CO₂
+    - id: edge:op5
+      source_node_id: node:reactor
+      target_node_id: node:reactor
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: React Ca/Mg oxides and silicates
+    - id: edge:op6
+      source_node_id: node:reactor
+      target_node_id: node:product
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Form stable carbonate aggregate or filler
+    - id: edge:op7
+      source_node_id: node:product
+      target_node_id: node:industry
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Substitute virgin construction material

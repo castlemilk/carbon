@@ -4,6 +4,7 @@ import { PathwaySchema, Setting, type Pathway } from '@/lib/gen/carbon/v1/pathwa
 import { MaterialSchema, MaterialClass, type Material } from '@/lib/gen/carbon/v1/material_pb'
 import { CitationSchema, type Citation } from '@/lib/gen/carbon/v1/common_pb'
 import { JournalEntrySchema, ShortlistEntrySchema, ShortlistStatus, EntryKind, type JournalEntry } from '@/lib/gen/carbon/v1/research_pb'
+import { LandscapeGraphSchema } from '@/lib/gen/carbon/v1/landscape_pb'
 import {
   type CarbonStore, type CachedLiterature, type JournalUpsert, type SeedCounts,
   type SeedPayload, type ShortlistRow, type ShortlistUpsert,
@@ -28,7 +29,18 @@ CREATE TABLE IF NOT EXISTS journal_entries (
   pathway_refs TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS lit_cache (
   pathway_id TEXT PRIMARY KEY, fetched_at INTEGER NOT NULL, works_json TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS landscape_graph (
+  id INTEGER PRIMARY KEY CHECK(id = 1), doc TEXT NOT NULL);
 `
+
+// Test-only failure hook: when set, a guaranteed-failing SQL statement is
+// injected into the seed batch between deletes and inserts. The batch's
+// transactional semantics roll everything back, and the conformance suite
+// verifies no partial state is left behind. Gated on VITEST so production
+// binaries cannot observe or trip the hook.
+const __testEnv = process.env.VITEST === 'true' || process.env.NODE_ENV === 'test'
+let __testInjectFailure = false
+export const __setTursoTestInjectFailure = (v: boolean): void => { if (__testEnv) __testInjectFailure = v }
 
 const rowify = (result: Awaited<ReturnType<Client['execute']>>): Row | undefined =>
   result.rows.length === 0 ? undefined : (result.rows[0] as unknown as Row)
@@ -49,18 +61,26 @@ export function createTursoStore(config: TursoConfig): CarbonStore {
   return {
     kind: 'turso',
     async initSchema() { await client.executeMultiple(SCHEMA) },
-    async replaceSeed({ citations, materials, pathways }: SeedPayload): Promise<SeedCounts> {
+    async replaceSeed({ citations, materials, pathways, landscapeGraph }: SeedPayload): Promise<SeedCounts> {
       const stmts: { sql: string; args: unknown[] }[] = [
         { sql: 'DELETE FROM citations', args: [] },
         { sql: 'DELETE FROM materials', args: [] },
         { sql: 'DELETE FROM pathways', args: [] },
+        { sql: 'DELETE FROM landscape_graph', args: [] },
       ]
+      // test seam: inject a statement guaranteed to fail so the transactional
+      // batch rolls back between deletes and inserts; conformance verifies
+      // no partial state survives
+      if (__testInjectFailure) {
+        stmts.push({ sql: 'INSERT INTO __test_seed_tripwire_nonexistent_table (id) VALUES (1)', args: [] })
+      }
       for (const c of citations) stmts.push({ sql: 'INSERT OR REPLACE INTO citations (id, doc) VALUES (?,?)', args: [c.id, encodeDoc(CitationSchema, c)] })
       for (const m of materials) stmts.push({ sql: 'INSERT OR REPLACE INTO materials (id,class,name,doc) VALUES (?,?,?,?)', args: [m.id, enumName(MaterialClass, m.class), m.name, encodeDoc(MaterialSchema, m)] })
       for (const p of pathways) stmts.push({ sql: 'INSERT OR REPLACE INTO pathways (id,setting,trl,is_benchmark,name,doc) VALUES (?,?,?,?,?,?)', args: [p.id, enumName(Setting, p.setting), p.trl, p.isBenchmark ? 1 : 0, p.name, encodeDoc(PathwaySchema, p)] })
+      if (landscapeGraph) stmts.push({ sql: 'INSERT INTO landscape_graph (id, doc) VALUES (1, ?)', args: [encodeDoc(LandscapeGraphSchema, landscapeGraph)] })
       // libsql batch is transactional ('write' mode) — matches SqliteStore semantics
       await client.batch(stmts as InStatement[], 'write')
-      return { citations: citations.length, materials: materials.length, pathways: pathways.length }
+      return { citations: citations.length, materials: materials.length, pathways: pathways.length, landscapeGraphCount: landscapeGraph?.nodes.length ?? 0 }
     },
     async getPathway(id: string) { return decodeDoc(PathwaySchema, rowify(await exec('SELECT doc FROM pathways WHERE id=?', [id]))) },
     async listPathways(): Promise<Pathway[]> {
@@ -73,6 +93,9 @@ export function createTursoStore(config: TursoConfig): CarbonStore {
         .map(r => fromJson(MaterialSchema, JSON.parse(r.doc as string)))
     },
     async getCitation(id: string) { return decodeDoc(CitationSchema, rowify(await exec('SELECT doc FROM citations WHERE id=?', [id]))) },
+    async getLandscapeGraph() {
+      return decodeDoc(LandscapeGraphSchema, rowify(await exec('SELECT doc FROM landscape_graph WHERE id=1')))
+    },
     async listCitations(): Promise<Citation[]> {
       const rows = (await queryRows('SELECT doc FROM citations'))
         .map(r => fromJson(CitationSchema, JSON.parse(r.doc as string)))

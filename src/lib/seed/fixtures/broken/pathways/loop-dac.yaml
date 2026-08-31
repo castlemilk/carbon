@@ -1,0 +1,14 @@
+# intentionally broken: FLOW edges form a cycle under an ACYCLIC policy — used to demo check.ts failure mode
+id: loop-dac
+name: Loop DAC
+setting: DAC
+trl: 3
+source_refs: [mcqueen2021]
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - { id: node:a, label: A, kind: GRAPH_NODE_KIND_CAPTURE, stage: GRAPH_STAGE_CAPTURE }
+    - { id: node:b, label: B, kind: GRAPH_NODE_KIND_REGENERATION, stage: GRAPH_STAGE_REGENERATION }
+  edges:
+    - { id: edge:1, source_node_id: node:a, target_node_id: node:b, kind: GRAPH_EDGE_KIND_FLOW }
+    - { id: edge:2, source_node_id: node:b, target_node_id: node:a, kind: GRAPH_EDGE_KIND_FLOW }

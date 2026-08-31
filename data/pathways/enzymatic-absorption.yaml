@@ -1,8 +1,11 @@
 id: enzymatic-absorption
-name: "Enzymatic CO2 absorption (carbonic anhydrase)"
+name: Enzymatic CO2 absorption (carbonic anhydrase)
 setting: BIOLOGICAL
 trl: 4
-search_terms: ["carbonic anhydrase carbon capture", "enzyme accelerated CO2 absorption", "biomimetic post-combustion capture"]
+search_terms:
+  - carbonic anhydrase carbon capture
+  - enzyme accelerated CO2 absorption
+  - biomimetic post-combustion capture
 mechanism: |
   Carbonic anhydrase (CA) catalyses CO2 + H2O <-> HCO3- + H+ with turnover up
   to ~10^6 s-1, roughly a million-fold acceleration over the uncatalysed
@@ -27,15 +30,19 @@ metrics:
     year_basis: 2014
     source_ref: reardon2014
 advantages:
-  - "High selectivity and fast kinetics under mild, non-corrosive conditions"
-  - "Regeneration at lower temperature than amine solvents, cutting heat demand"
-  - "Projected 20-30% capture-cost savings vs amine benchmarks in published TEAs"
+  - High selectivity and fast kinetics under mild, non-corrosive conditions
+  - Regeneration at lower temperature than amine solvents, cutting heat demand
+  - Projected 20-30% capture-cost savings vs amine benchmarks in published TEAs
 challenges:
-  - "Enzyme thermal and pH stability in hot alkaline process streams"
-  - "Immobilization lifetime and enzyme production cost"
-  - "No commercial-scale demonstration; cost estimates are pre-pilot projections"
-material_ids: [carbonic-anhydrase]
-source_refs: [talekar2022, reardon2014, csi2017]
+  - Enzyme thermal and pH stability in hot alkaline process streams
+  - Immobilization lifetime and enzyme production cost
+  - No commercial-scale demonstration; cost estimates are pre-pilot projections
+material_ids:
+  - carbonic-anhydrase
+source_refs:
+  - talekar2022
+  - reardon2014
+  - csi2017
 mermaid_sequence_source: |
   sequenceDiagram
       participant Flue as Flue gas
@@ -78,3 +85,206 @@ mermaid_source: |
       CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))
       CO2 -.->|"alternative route"| MIN
       MIN --> SEQ2
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas<br/>(coal / NG /<br/>industrial)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:abs
+      label: Absorber column<br/>40-60 °C<br/>(smaller than<br/>amine units)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:solv
+      label: Aqueous carbonate /<br/>amino-acid-salt<br/>solvent (benign)
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:enz
+      label: Immobilized<br/>carbonic anhydrase<br/>(thermostable)<br/>turnover ~10⁶ s⁻¹
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids:
+        - carbonic-anhydrase
+      source_refs: []
+      metric_keys: []
+    - id: node:reg
+      label: Low-temperature<br/>regeneration<br/>60-90 °C
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>(sequestered)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:min
+      label: "Mineralization<br/>route: enzyme →<br/>CaCO₃ precipitation"
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq2
+      label: CaCO₃ solid<br/>(alternative<br/>storage)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:waste
+      label: to stack
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:flue
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ 4-14%
+    - id: edge:e2
+      source_node_id: node:abs
+      target_node_id: node:solv
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: CO₂ + H₂O ⇌ HCO₃⁻ + H⁺<br/>(10⁶× faster<br/>than uncatalysed)
+    - id: edge:e3
+      source_node_id: node:enz
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: biocatalyst<br/>immobilized in<br/>contactor
+    - id: edge:e4
+      source_node_id: node:abs
+      target_node_id: node:waste
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂-lean<br/>flue gas
+    - id: edge:e5
+      source_node_id: node:solv
+      target_node_id: node:reg
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: loaded<br/>bicarbonate
+    - id: edge:e6
+      source_node_id: node:reg
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: gentle heating<br/>reverses equilibrium
+    - id: edge:e7
+      source_node_id: node:co2
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+    - id: edge:e8
+      source_node_id: node:co2
+      target_node_id: node:min
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: alternative route
+    - id: edge:e9
+      source_node_id: node:min
+      target_node_id: node:seq2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:abs
+      label: Absorber
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:enzyme
+      label: Immobilized carbonic anhydrase
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:solvent
+      label: Aqueous solvent
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:regen
+      label: Regenerator
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:flue
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Contact dilute CO₂ with solvent
+    - id: edge:op2
+      source_node_id: node:enzyme
+      target_node_id: node:solvent
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Accelerate CO₂ + H₂O ⇌ HCO₃⁻ + H⁺
+    - id: edge:op3
+      source_node_id: node:solvent
+      target_node_id: node:regen
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Transfer loaded bicarbonate
+    - id: edge:op4
+      source_node_id: node:regen
+      target_node_id: node:solvent
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Release CO₂ at 60-90 °C
+    - id: edge:op5
+      source_node_id: node:solvent
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return regenerated solvent
+    - id: edge:op6
+      source_node_id: node:regen
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Compress recovered CO₂

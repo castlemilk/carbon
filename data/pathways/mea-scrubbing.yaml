@@ -1,9 +1,11 @@
 id: mea-scrubbing
-name: "MEA amine scrubbing (benchmark)"
+name: MEA amine scrubbing (benchmark)
 setting: POINT_SOURCE
 is_benchmark: true
 trl: 9
-search_terms: ["MEA post-combustion capture", "monoethanolamine CO2 scrubbing"]
+search_terms:
+  - MEA post-combustion capture
+  - monoethanolamine CO2 scrubbing
 mechanism: |
   30 wt% monoethanolamine aqueous solvent chemisorbs CO2 from flue gas in an
   absorber column (~40-60 C); the rich solvent is regenerated in a stripper at
@@ -22,10 +24,17 @@ metrics:
     unit: GJ/tCO2
     year_basis: 2021
     source_ref: iea2022ccus
-advantages: ["Proven at scale for decades", "High capture efficiency (>90%)"]
-challenges: ["Large reboiler duty", "Solvent degradation and aerosol emissions"]
-material_ids: [mea]
-source_refs: [iea2022ccus, nas2019]
+advantages:
+  - Proven at scale for decades
+  - High capture efficiency (>90%)
+challenges:
+  - Large reboiler duty
+  - Solvent degradation and aerosol emissions
+material_ids:
+  - mea
+source_refs:
+  - iea2022ccus
+  - nas2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Flue as Flue gas source
@@ -75,3 +84,240 @@ mermaid_source: |
       STR -->|"Lean solvent<br/>(regenerated)"| LEAN
       LEAN -->|"recycle to<br/>absorber"| ABS
       RB -.->|"heat duty<br/>3.5-4.2 GJ/tCO₂"| STR
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas<br/>(power/steel/cement)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:abs
+      label: Absorber<br/>40-60 °C
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:mea
+      label: 30 wt% MEA<br/>aqueous solvent
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids:
+        - mea
+      source_refs: []
+      metric_keys: []
+    - id: node:str
+      label: Stripper<br/>~120 °C
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rb
+      label: Reboiler<br/>(steam)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cond
+      label: Condenser
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Compressor<br/>~100 bar
+      kind: GRAPH_NODE_KIND_TRANSPORT
+      stage: GRAPH_STAGE_TRANSPORT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>(sequestered)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:lean
+      label: Lean solvent<br/>(CO₂-lean MEA)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rich
+      label: Rich solvent<br/>(CO₂-loaded MEA)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:waste
+      label: Solvent<br/>degradation<br/>+ aerosols
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:flue
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ ~3-15%
+    - id: edge:e2
+      source_node_id: node:abs
+      target_node_id: node:mea
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: absorbs<br/>CO₂ + 2MEA → MEACOO⁻ + HMEA⁺
+    - id: edge:e3
+      source_node_id: node:abs
+      target_node_id: node:waste
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: depleted<br/>flue gas
+    - id: edge:e4
+      source_node_id: node:abs
+      target_node_id: node:rich
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: Rich solvent<br/>(CO₂-loaded)
+    - id: edge:e5
+      source_node_id: node:rich
+      target_node_id: node:str
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e6
+      source_node_id: node:str
+      target_node_id: node:cond
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ + H₂O vapour
+    - id: edge:e7
+      source_node_id: node:cond
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:co2
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:comp
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase<br/>CO₂
+    - id: edge:e10
+      source_node_id: node:str
+      target_node_id: node:lean
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: Lean solvent<br/>(regenerated)
+    - id: edge:e11
+      source_node_id: node:lean
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: recycle to<br/>absorber
+    - id: edge:e12
+      source_node_id: node:rb
+      target_node_id: node:str
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: heat duty<br/>3.5-4.2 GJ/tCO₂
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas source
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:abs
+      label: MEA absorber
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rich
+      label: Rich-solvent loop
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:strip
+      label: Stripper and reboiler
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: CO₂ compressor
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Geological storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:flue
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Send dilute flue gas
+    - id: edge:op2
+      source_node_id: node:abs
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Form MEA carbamate / bicarbonate
+    - id: edge:op3
+      source_node_id: node:abs
+      target_node_id: node:rich
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Pump CO₂-loaded solvent
+    - id: edge:op4
+      source_node_id: node:rich
+      target_node_id: node:strip
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Exchange heat and strip at ~120 °C
+    - id: edge:op5
+      source_node_id: node:strip
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return lean MEA to absorber
+    - id: edge:op6
+      source_node_id: node:strip
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Release pure CO₂ and water vapour
+    - id: edge:op7
+      source_node_id: node:comp
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Compress and inject CO₂
