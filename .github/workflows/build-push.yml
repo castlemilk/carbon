@@ -30,7 +30,8 @@ jobs:
           echo "PUPPETEER_EXECUTABLE_PATH=$(node --input-type=module -e 'import puppeteer from "puppeteer"; process.stdout.write(await puppeteer.executablePath({headless: "shell"}))')" >> "$GITHUB_ENV"
 
       - name: Verify Mermaid browser launch
-        run: node --input-type=module -e 'import puppeteer from "puppeteer"; console.log(await puppeteer.executablePath({headless: "shell"})); const browser = await puppeteer.launch({headless: "shell"}); console.log(await browser.version()); await browser.close()'
+        run: |
+          node --input-type=module -e 'import puppeteer from "puppeteer"; console.log(await puppeteer.executablePath({headless: "shell"})); const browser = await puppeteer.launch({headless: "shell"}); console.log(await browser.version()); await browser.close()'
 
       - name: Validate seed corpus
         run: ./node_modules/.bin/tsx src/lib/seed/check.ts data
