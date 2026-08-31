@@ -39,26 +39,42 @@ test.describe('smoke', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { name: /landscape/i })).toBeVisible()
 
-    const dots = page.locator('[data-testid="dot"]')
-    await expect(dots).toHaveCount(18)
+    // Graph-first landscape: every filtered pathway node renders in the canvas
+    // while the cost-less ones sit in the "Unmapped on this view" rail.
+    const canvas = page.getByTestId('graph-canvas')
+    const nodes = canvas.locator('[data-node-id^="pathway:"]')
+    const rail = page.getByTestId('unmapped-item')
+    await expect(nodes).toHaveCount(24)
+    await expect(rail).toHaveCount(6)
 
     // Settings checkboxes are exclusion toggles that all start checked, so
-    // reaching DAC-only means unchecking the other four settings; the numbers
-    // are dot counts after each uncheck (seed cost/trl coverage is fixed:
-    // POINT_SOURCE 7, DAC 5, OCEAN_DIC 1, MINERALIZATION 1, BIOLOGICAL 4).
-    const dotsAfterUnchecking: ReadonlyArray<readonly [string, number]> = [
-      ['POINT_SOURCE', 11],
-      ['OCEAN_DIC', 10],
-      ['MINERALIZATION', 9],
-      ['BIOLOGICAL', 5],
+    // reaching DAC-only means unchecking the other four settings. The numbers
+    // are pathway-node counts after each uncheck (seed setting totals fixed:
+    // POINT_SOURCE 7, DAC 5, OCEAN_DIC 3, MINERALIZATION 4, BIOLOGICAL 5); the
+    // rail tracks the cost-less subset of each setting.
+    const nodesAfterUnchecking: ReadonlyArray<readonly [string, number, number]> = [
+      ['POINT_SOURCE', 17, 6],
+      ['OCEAN_DIC', 14, 4],
+      ['MINERALIZATION', 10, 1],
+      ['BIOLOGICAL', 5, 0],
     ]
-    for (const [setting, remaining] of dotsAfterUnchecking) {
+    for (const [setting, remaining, railRemaining] of nodesAfterUnchecking) {
       await page.getByTestId(`filter-setting-${setting}`).click()
-      await expect(dots).toHaveCount(remaining)
+      await expect(nodes).toHaveCount(remaining)
+      await expect(rail).toHaveCount(railRemaining)
     }
 
-    await page.locator('[data-testid="dot"][data-id="mof-dac"]').click()
+    // Navigate into a pathway via the graph: select the DAC node, then follow
+    // the inspector's See more link (it preserves the landscape query).
+    await canvas.locator('[data-testid="graph-node"][data-node-id="pathway:mof-dac"] button').click()
+    await expect(page.getByTestId('graph-inspector')).toContainText('MOF-based DAC')
+    await page.getByTestId('inspector-see-more').click()
     await expect(page).toHaveURL(/\/pathways\/mof-dac/)
+    // The graph canvas is client-rendered only, so its visibility gates on React
+    // hydration finishing; without it the Eliminate button below is still inert
+    // SSR HTML and the click silently no-ops (full-suite resource load widens the
+    // window).
+    await expect(page.getByTestId('graph-canvas')).toBeVisible()
     await expect(page.getByText(/\$80–\$600/)).toBeVisible()
 
     await page.getByTestId('eliminate-button').click()
@@ -100,23 +116,16 @@ test.describe('smoke', () => {
     expect(row.title).toBe(title)
   })
 
-  test('pathway diagrams render in both views and theme toggle updates the document', async ({ page }) => {
+  test('pathway diagrams render the interactive graph in both views (Mermaid-only fallback is covered by view-selection unit tests)', async ({ page }) => {
     await page.goto('/pathways/mof-dac')
 
     await expect(page.getByTestId('pathway-diagrams')).toBeVisible()
-    await expect(page.getByTestId('mermaid-viewer').first()).toHaveAttribute('data-status', 'ready')
-    await expect(page.getByTestId('mermaid-canvas').locator('svg')).toBeVisible()
-
-    const canvas = page.getByTestId('mermaid-canvas')
-    await canvas.focus()
-    await canvas.press('+')
-    await expect(page.getByTestId('mermaid-viewer').locator('[aria-live="polite"]')).toHaveText('110%')
-    await canvas.press('0')
-    await expect(page.getByTestId('mermaid-viewer').locator('[aria-live="polite"]')).toHaveText('100%')
+    const canvas = page.getByTestId('graph-canvas')
+    await expect(canvas).toBeVisible()
+    await expect(canvas.locator('[data-testid="graph-node"]').first()).toBeVisible()
 
     await page.getByRole('tab', { name: 'Operational sequence' }).click()
-    await expect(page.getByTestId('mermaid-viewer').last()).toHaveAttribute('data-status', 'ready')
-    await expect(page.getByTestId('mermaid-canvas').locator('svg')).toBeVisible()
+    await expect(page.getByTestId('graph-canvas')).toBeVisible()
 
     const html = page.locator('html')
     const before = await html.getAttribute('class')

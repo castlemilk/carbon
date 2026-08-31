@@ -1,8 +1,11 @@
 id: soil-carbon-sequestration
-name: "Soil carbon sequestration"
+name: Soil carbon sequestration
 setting: BIOLOGICAL
 trl: 7
-search_terms: ["soil organic carbon sequestration cropland", "regenerative agriculture carbon removal", "no-till cover crop soil carbon"]
+search_terms:
+  - soil organic carbon sequestration cropland
+  - regenerative agriculture carbon removal
+  - no-till cover crop soil carbon
 mechanism: |
   Management changes - reduced tillage, cover crops, residue retention, rotational
   grazing - increase soil organic carbon stocks in agricultural soils,
@@ -24,12 +27,13 @@ metrics:
     year_basis: 2019
     source_ref: nas2019
 advantages:
-  - "Deployable now with existing agronomy at low or negative cost"
-  - "Co-benefits for yields, water holding, and erosion"
+  - Deployable now with existing agronomy at low or negative cost
+  - Co-benefits for yields, water holding, and erosion
 challenges:
-  - "Saturation and reversibility undermine permanence claims"
-  - "Measurement of stock change is costly and noisy per farm"
-source_refs: [nas2019]
+  - Saturation and reversibility undermine permanence claims
+  - Measurement of stock change is costly and noisy per farm
+source_refs:
+  - nas2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Atmos as Atmosphere
@@ -71,3 +75,195 @@ mermaid_source: |
       REV -.->|"re-emission"| ATM
       HUMUS --> SEQ
       SOIL -.-> COBEN
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:atm
+      label: Atmospheric CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:photo
+      label: Photosynthesis<br/>(cover crops, residues,<br/>diverse rotations)
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:soil
+      label: Agricultural<br/>soil (managed<br/>cropland / pasture)
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:prac
+      label: Practice changes:<br/>reduced tillage,<br/>cover cropping,<br/>residue retention,<br/>rotational grazing
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:humus
+      label: Soil organic<br/>carbon (humus)<br/>stock build
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:sat
+      label: Saturation:<br/>stocks plateau in<br/>10-20 yr<br/>(finite stock build)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rev
+      label: Reversibility:<br/>tillage / practice lapse<br/>re-emits stored C
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Soil carbon<br/>stocks<br/>(impermanent —<br/>must maintain<br/>practices)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:coben
+      label: Co-benefits:<br/>yields, water holding,<br/>erosion control
+      kind: GRAPH_NODE_KIND_BIOLOGICAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:atm
+      target_node_id: node:photo
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ uptake
+    - id: edge:e2
+      source_node_id: node:prac
+      target_node_id: node:photo
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: enable
+    - id: edge:e3
+      source_node_id: node:prac
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: reduce<br/>decomposition
+    - id: edge:e4
+      source_node_id: node:photo
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: residue / root<br/>inputs
+    - id: edge:e5
+      source_node_id: node:soil
+      target_node_id: node:humus
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: humification
+    - id: edge:e6
+      source_node_id: node:humus
+      target_node_id: node:sat
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: stock grows<br/>until
+    - id: edge:e7
+      source_node_id: node:humus
+      target_node_id: node:rev
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: if practices<br/>lapse
+    - id: edge:e8
+      source_node_id: node:rev
+      target_node_id: node:atm
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: re-emission
+    - id: edge:e9
+      source_node_id: node:humus
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e10
+      source_node_id: node:soil
+      target_node_id: node:coben
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:atmos
+      label: Atmosphere
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: Removal is a maintained, finite stock build
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:crop
+      label: Crop and pasture system
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:farmer
+      label: Farm management
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:soil
+      label: Soil carbon pool
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:mrv
+      label: Measurement and verification
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:atmos
+      target_node_id: node:crop
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Supply CO₂ for photosynthesis
+    - id: edge:op2
+      source_node_id: node:farmer
+      target_node_id: node:crop
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Apply cover crops, rotations, and residue retention
+    - id: edge:op3
+      source_node_id: node:crop
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Add roots and residues
+    - id: edge:op4
+      source_node_id: node:soil
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Stabilise organic carbon as humus
+    - id: edge:op5
+      source_node_id: node:mrv
+      target_node_id: node:soil
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Measure stock change and saturation
+    - id: edge:op6
+      source_node_id: node:soil
+      target_node_id: node:atmos
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Re-emit carbon if practices lapse

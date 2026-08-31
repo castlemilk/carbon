@@ -1,8 +1,11 @@
 id: electro-sorption-dac
-name: "Electro-sorption DAC (quinone electrodes)"
+name: Electro-sorption DAC (quinone electrodes)
 setting: DAC
 trl: 4
-search_terms: ["faradaic electro-swing CO2 capture", "quinone carbon nanotube electrode DAC", "electrochemical direct air capture"]
+search_terms:
+  - faradaic electro-swing CO2 capture
+  - quinone carbon nanotube electrode DAC
+  - electrochemical direct air capture
 mechanism: |
   Solid-state electrochemical cells capture CO2 by reductive addition to
   quinone units on polyanthraquinone-carbon-nanotube electrodes and release it
@@ -24,13 +27,15 @@ metrics:
     year_basis: 2019
     source_ref: voskian2019
 advantages:
-  - "All-electric, ambient-pressure operation; simple plug-and-play modules"
-  - "Capacity independent of feed concentration; <30% loss over 7000 cycles"
+  - All-electric, ambient-pressure operation; simple plug-and-play modules
+  - Capacity independent of feed concentration; <30% loss over 7000 cycles
 challenges:
-  - "Only lab-scale cells built; module scale-up unproven at DAC airflow rates"
-  - "Ionic-liquid electrolyte cost and long-term electrode stability"
-material_ids: [quinone-electrode]
-source_refs: [voskian2019]
+  - Only lab-scale cells built; module scale-up unproven at DAC airflow rates
+  - Ionic-liquid electrolyte cost and long-term electrode stability
+material_ids:
+  - quinone-electrode
+source_refs:
+  - voskian2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Air as Air or flue gas
@@ -73,3 +78,201 @@ mermaid_source: |
       CHARGE -.->|"swing cycle"| DISCHARGE
       DISCHARGE --> CO2
       CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Feed gas<br/>0.6-10% CO₂<br/>(air or flue)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cell
+      label: Electro-swing cell<br/>(stacked parallel-<br/>passage contactors)
+      kind: GRAPH_NODE_KIND_ELECTROCHEMICAL
+      stage: GRAPH_STAGE_CONVERSION
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:qt
+      label: Polyanthraquinone-<br/>CNT electrode<br/>(quinone redox)
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids:
+        - quinone-electrode
+      source_refs: []
+      metric_keys: []
+    - id: node:charge
+      label: Charge<br/>(reductive<br/>addition)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:discharge
+      label: Discharge<br/>(CO₂ release)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:dc
+      label: DC power<br/>0.9-2.1 GJ-e/tCO₂
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>released on<br/>discharge
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:waste
+      label: vent
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:air
+      target_node_id: node:cell
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: gas flows<br/>through cell
+    - id: edge:e2
+      source_node_id: node:cell
+      target_node_id: node:qt
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: Q + 2e⁻ + 2CO₂ ⇌ Q(CO₂)₂²⁻
+    - id: edge:e3
+      source_node_id: node:cell
+      target_node_id: node:waste
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂-depleted<br/>outlet
+    - id: edge:e4
+      source_node_id: node:dc
+      target_node_id: node:charge
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e5
+      source_node_id: node:dc
+      target_node_id: node:discharge
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e6
+      source_node_id: node:qt
+      target_node_id: node:charge
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: charged
+    - id: edge:e7
+      source_node_id: node:qt
+      target_node_id: node:discharge
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: discharged
+    - id: edge:e8
+      source_node_id: node:charge
+      target_node_id: node:discharge
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: swing cycle
+    - id: edge:e9
+      source_node_id: node:discharge
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e10
+      source_node_id: node:co2
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Air or flue gas
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cell
+      label: Electro-swing cell
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:electrode
+      label: Quinone electrode
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:power
+      label: DC power supply
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:air
+      target_node_id: node:cell
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Flow feed through parallel passages
+    - id: edge:op2
+      source_node_id: node:power
+      target_node_id: node:electrode
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Apply reducing potential
+    - id: edge:op3
+      source_node_id: node:electrode
+      target_node_id: node:electrode
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Add CO₂ at reduced quinone sites
+    - id: edge:op4
+      source_node_id: node:power
+      target_node_id: node:electrode
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Reverse potential to discharge
+    - id: edge:op5
+      source_node_id: node:electrode
+      target_node_id: node:cell
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Release concentrated CO₂
+    - id: edge:op6
+      source_node_id: node:cell
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Send CO₂ to compression and storage
+    - id: edge:op7
+      source_node_id: node:cell
+      target_node_id: node:air
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Vent CO₂-depleted feed

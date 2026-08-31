@@ -1,0 +1,8 @@
+syntax = "proto3";
+package carbon.v1;
+import "carbon/v1/graph.proto";
+
+message LandscapeGraph {
+  repeated GraphNode nodes = 1;
+  repeated GraphEdge edges = 2;
+}

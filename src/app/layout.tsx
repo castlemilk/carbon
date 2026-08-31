@@ -34,7 +34,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${mono.variable} ${display.variable} ${sans.variable} h-full antialiased`}
+      className={`${mono.variable} ${display.variable} ${sans.variable} h-full antialiased ${embed ? "carbon-embed" : ""}`}
     >
       <body className={`min-h-full font-sans antialiased ${embed ? "bg-transparent" : ""}`}>
         <ThemeProvider>
@@ -44,8 +44,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 <Suspense fallback={null}>
                   <EmbedNav />
                 </Suspense>
-                <main className="mt-8">{children}</main>
               </div>
+              <main className="mt-8 w-full">{children}</main>
               <EmbedFrame />
             </>
           ) : (

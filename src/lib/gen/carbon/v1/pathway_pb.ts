@@ -6,13 +6,15 @@ import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2"
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { MetricRange } from "./common_pb";
 import { file_carbon_v1_common } from "./common_pb";
+import type { ProcessGraph } from "./graph_pb";
+import { file_carbon_v1_graph } from "./graph_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file carbon/v1/pathway.proto.
  */
 export const file_carbon_v1_pathway: GenFile = /*@__PURE__*/
-  fileDesc("ChdjYXJib24vdjEvcGF0aHdheS5wcm90bxIJY2FyYm9uLnYxIpoDCgdQYXRod2F5EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSIwoHc2V0dGluZxgDIAEoDjISLmNhcmJvbi52MS5TZXR0aW5nEhQKDGlzX2JlbmNobWFyaxgEIAEoCBIRCgltZWNoYW5pc20YBSABKAkSCwoDdHJsGAYgASgFEhQKDHNlYXJjaF90ZXJtcxgHIAMoCRIwCgdtZXRyaWNzGAggAygLMh8uY2FyYm9uLnYxLlBhdGh3YXkuTWV0cmljc0VudHJ5EhIKCmFkdmFudGFnZXMYCSADKAkSEgoKY2hhbGxlbmdlcxgKIAMoCRIUCgxtYXRlcmlhbF9pZHMYCyADKAkSEwoLc291cmNlX3JlZnMYDCADKAkSFgoObWVybWFpZF9zb3VyY2UYDSABKAkSHwoXbWVybWFpZF9zZXF1ZW5jZV9zb3VyY2UYDiABKAkaRgoMTWV0cmljc0VudHJ5EgsKA2tleRgBIAEoCRIlCgV2YWx1ZRgCIAEoCzIWLmNhcmJvbi52MS5NZXRyaWNSYW5nZToCOAEqcAoHU2V0dGluZxIXChNTRVRUSU5HX1VOU1BFQ0lGSUVEEAASEAoMUE9JTlRfU09VUkNFEAESBwoDREFDEAISDQoJT0NFQU5fRElDEAMSEgoOTUlORVJBTElaQVRJT04QBBIOCgpCSU9MT0dJQ0FMEAViBnByb3RvMw", [file_carbon_v1_common]);
+  fileDesc("ChdjYXJib24vdjEvcGF0aHdheS5wcm90bxIJY2FyYm9uLnYxIv4DCgdQYXRod2F5EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSIwoHc2V0dGluZxgDIAEoDjISLmNhcmJvbi52MS5TZXR0aW5nEhQKDGlzX2JlbmNobWFyaxgEIAEoCBIRCgltZWNoYW5pc20YBSABKAkSCwoDdHJsGAYgASgFEhQKDHNlYXJjaF90ZXJtcxgHIAMoCRIwCgdtZXRyaWNzGAggAygLMh8uY2FyYm9uLnYxLlBhdGh3YXkuTWV0cmljc0VudHJ5EhIKCmFkdmFudGFnZXMYCSADKAkSEgoKY2hhbGxlbmdlcxgKIAMoCRIUCgxtYXRlcmlhbF9pZHMYCyADKAkSEwoLc291cmNlX3JlZnMYDCADKAkSFgoObWVybWFpZF9zb3VyY2UYDSABKAkSHwoXbWVybWFpZF9zZXF1ZW5jZV9zb3VyY2UYDiABKAkSLgoNcHJvY2Vzc19ncmFwaBgPIAEoCzIXLmNhcmJvbi52MS5Qcm9jZXNzR3JhcGgSMgoRb3BlcmF0aW9uYWxfZ3JhcGgYECABKAsyFy5jYXJib24udjEuUHJvY2Vzc0dyYXBoGkYKDE1ldHJpY3NFbnRyeRILCgNrZXkYASABKAkSJQoFdmFsdWUYAiABKAsyFi5jYXJib24udjEuTWV0cmljUmFuZ2U6AjgBKnAKB1NldHRpbmcSFwoTU0VUVElOR19VTlNQRUNJRklFRBAAEhAKDFBPSU5UX1NPVVJDRRABEgcKA0RBQxACEg0KCU9DRUFOX0RJQxADEhIKDk1JTkVSQUxJWkFUSU9OEAQSDgoKQklPTE9HSUNBTBAFYgZwcm90bzM", [file_carbon_v1_common, file_carbon_v1_graph]);
 
 /**
  * @generated from message carbon.v1.Pathway
@@ -99,6 +101,16 @@ export type Pathway = Message<"carbon.v1.Pathway"> & {
    * @generated from field: string mermaid_sequence_source = 14;
    */
   mermaidSequenceSource: string;
+
+  /**
+   * @generated from field: carbon.v1.ProcessGraph process_graph = 15;
+   */
+  processGraph?: ProcessGraph | undefined;
+
+  /**
+   * @generated from field: carbon.v1.ProcessGraph operational_graph = 16;
+   */
+  operationalGraph?: ProcessGraph | undefined;
 };
 
 /**
@@ -148,4 +160,3 @@ export enum Setting {
  */
 export const SettingSchema: GenEnum<Setting> = /*@__PURE__*/
   enumDesc(file_carbon_v1_pathway, 0);
-

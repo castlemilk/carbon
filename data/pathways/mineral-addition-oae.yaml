@@ -1,8 +1,11 @@
 id: mineral-addition-oae
-name: "Mineral addition ocean alkalinity enhancement (ocean liming)"
+name: Mineral addition ocean alkalinity enhancement (ocean liming)
 setting: OCEAN_DIC
 trl: 5
-search_terms: ["ocean liming CO2 removal", "ocean alkalinity enhancement lime olivine", "accelerated weathering limestone seawater"]
+search_terms:
+  - ocean liming CO2 removal
+  - ocean alkalinity enhancement lime olivine
+  - accelerated weathering limestone seawater
 mechanism: |
   Processed alkaline minerals - calcined limestone (lime/portlandite), ground
   olivine, or industrial alkalinity - are distributed at the ocean surface.
@@ -27,14 +30,17 @@ metrics:
     year_basis: 2022
     source_ref: nas2022
 advantages:
-  - "Leverages abundant minerals and proven bulk-materials handling"
-  - "May locally ameliorate ocean acidification"
+  - Leverages abundant minerals and proven bulk-materials handling
+  - May locally ameliorate ocean acidification
 challenges:
-  - "Lime production emits CO2 unless kiln capture is added"
-  - "Local pH/carbonate-saturation spikes; ecological response uncertain"
-  - "Alkalinity persistence depends on carbonate compensation; empirical validation at deployment scale still lacking"
-material_ids: [cao-lime]
-source_refs: [renforth2017, nas2022]
+  - Lime production emits CO2 unless kiln capture is added
+  - Local pH/carbonate-saturation spikes; ecological response uncertain
+  - Alkalinity persistence depends on carbonate compensation; empirical validation at deployment scale still lacking
+material_ids:
+  - cao-lime
+source_refs:
+  - renforth2017
+  - nas2022
 mermaid_sequence_source: |
   sequenceDiagram
       participant Feed as Limestone or olivine supply
@@ -79,3 +85,198 @@ mermaid_source: |
       SW --> DISS
       ATM -.->|"equilibrating<br/>drawdown"| DISS
       DISS -->|"alkalinity as<br/>HCO₃⁻ (storage)"| SEQ
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:ls
+      label: Limestone<br/>(or olivine /<br/>industrial alkali)
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:kiln
+      label: Calciner<br/>~900 °C<br/>(paired with<br/>CCS on kiln)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:lime
+      label: CaO / Ca(OH)₂<br/>processed<br/>alkalinity
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_STORAGE
+      material_ids:
+        - cao-lime
+      source_refs: []
+      metric_keys: []
+    - id: node:disp
+      label: Ocean surface<br/>dispersal<br/>(vessel / outfall)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:sw
+      label: Surface ocean<br/>seawater<br/>CO₂(aq) + H₂O
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:diss
+      label: Dissolution<br/>Ca(OH)₂ + 2CO₂<br/>→ Ca²⁺ + 2HCO₃⁻
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:seq
+      label: Ocean alkalinity<br/>(bicarbonate)<br/>1-100 kyr
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:kemit
+      label: Kiln CO₂<br/>(must be<br/>captured)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:atm
+      label: Atmospheric<br/>CO₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:heat
+      label: Kiln fuel /<br/>electricity
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:ls
+      target_node_id: node:kiln
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: feed
+    - id: edge:e2
+      source_node_id: node:heat
+      target_node_id: node:kiln
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: calcination<br/>emissions
+    - id: edge:e3
+      source_node_id: node:kiln
+      target_node_id: node:lime
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: quicklime
+    - id: edge:e4
+      source_node_id: node:kiln
+      target_node_id: node:kemit
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ (captured<br/>elsewhere)
+    - id: edge:e5
+      source_node_id: node:lime
+      target_node_id: node:disp
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: bulk transport
+    - id: edge:e6
+      source_node_id: node:disp
+      target_node_id: node:sw
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:sw
+      target_node_id: node:diss
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:atm
+      target_node_id: node:diss
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: equilibrating<br/>drawdown
+    - id: edge:e9
+      source_node_id: node:diss
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: alkalinity as<br/>HCO₃⁻ (storage)
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:feed
+      label: Limestone or olivine supply
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:kiln
+      label: Calcination and processing
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:vessel
+      label: Transport and dispersal
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:ocean
+      label: Surface ocean
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: Kiln emissions require capture to preserve net removal
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:atmos
+      label: Atmosphere
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:feed
+      target_node_id: node:kiln
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Process mineral alkalinity
+    - id: edge:op2
+      source_node_id: node:kiln
+      target_node_id: node:vessel
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Load lime or ground silicate
+    - id: edge:op3
+      source_node_id: node:vessel
+      target_node_id: node:ocean
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Disperse material at surface
+    - id: edge:op4
+      source_node_id: node:ocean
+      target_node_id: node:ocean
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Dissolve and consume CO₂ to bicarbonate
+    - id: edge:op5
+      source_node_id: node:atmos
+      target_node_id: node:ocean
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Draw down CO₂ through equilibration
+    - id: edge:op6
+      source_node_id: node:ocean
+      target_node_id: node:ocean
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Retain alkalinity over millennia

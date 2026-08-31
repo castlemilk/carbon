@@ -1,8 +1,11 @@
 id: oxy-fuel-combustion
-name: "Oxy-fuel combustion"
+name: Oxy-fuel combustion
 setting: POINT_SOURCE
 trl: 7
-search_terms: ["oxy-fuel combustion carbon capture", "oxygen-fired boiler flue gas CO2", "air separation unit capture"]
+search_terms:
+  - oxy-fuel combustion carbon capture
+  - oxygen-fired boiler flue gas CO2
+  - air separation unit capture
 mechanism: |
   Fuel is burned in near-pure oxygen (from a cryogenic air separation unit)
   instead of air, with flue-gas recycle to control flame temperature. The
@@ -17,12 +20,14 @@ metrics:
     year_basis: 2021
     source_ref: iea2022ccus
 advantages:
-  - "No solvent consumption or degradation; simple back-end purification"
-  - "Applicable to new-build boilers designed around oxy-firing"
+  - No solvent consumption or degradation; simple back-end purification
+  - Applicable to new-build boilers designed around oxy-firing
 challenges:
-  - "Large air separation unit energy penalty (~15-20% of gross output)"
-  - "Air ingress dilutes CO2; boiler retrofit complexity"
-source_refs: [iea2022ccus, nas2019]
+  - Large air separation unit energy penalty (~15-20% of gross output)
+  - Air ingress dilutes CO2; boiler retrofit complexity
+source_refs:
+  - iea2022ccus
+  - nas2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Air as Atmospheric air
@@ -70,3 +75,222 @@ mermaid_source: |
       COOL -->|"wet CO₂"| PUR
       PUR --> CO2
       CO2 -->|"dense-phase"| SEQ(("Geological<br/>storage"))
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Atmospheric air
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:asu
+      label: Cryogenic<br/>air separation<br/>(ASU)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:fuel
+      label: Fuel<br/>(coal / NG / biomass)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:boiler
+      label: Oxy-fired boiler<br/>(recycled CO₂<br/>for T control)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:hrsg
+      label: Heat recovery<br/>(steam cycle)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cool
+      label: Recycle cooler +<br/>water knockout
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:pur
+      label: CO₂ compression<br/>+ purification
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>>95% vol
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:n2
+      label: N₂ to<br/>atmosphere
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:recycle
+      label: CO₂ recycle<br/>(flame temp control)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:air
+      target_node_id: node:asu
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e2
+      source_node_id: node:asu
+      target_node_id: node:boiler
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ~95% O₂
+    - id: edge:e3
+      source_node_id: node:asu
+      target_node_id: node:n2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e4
+      source_node_id: node:fuel
+      target_node_id: node:boiler
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e5
+      source_node_id: node:boiler
+      target_node_id: node:hrsg
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: hot<br/>CO₂ + H₂O
+    - id: edge:e6
+      source_node_id: node:hrsg
+      target_node_id: node:cool
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:recycle
+      target_node_id: node:boiler
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: ~70% CO₂ recycled for T control
+    - id: edge:e8
+      source_node_id: node:cool
+      target_node_id: node:pur
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: wet CO₂
+    - id: edge:e9
+      source_node_id: node:pur
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e10
+      source_node_id: node:co2
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:air
+      label: Atmospheric air
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:asu
+      label: Air separation unit
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:boiler
+      label: Oxy-fired boiler
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cooler
+      label: Cooler and water knockout
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:purify
+      label: CO₂ purification
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:air
+      target_node_id: node:asu
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Separate near-pure oxygen
+    - id: edge:op2
+      source_node_id: node:asu
+      target_node_id: node:boiler
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Feed O₂ with recycled CO₂
+    - id: edge:op3
+      source_node_id: node:boiler
+      target_node_id: node:cooler
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Produce hot CO₂ and water flue gas
+    - id: edge:op4
+      source_node_id: node:cooler
+      target_node_id: node:purify
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Condense water and remove impurities
+    - id: edge:op5
+      source_node_id: node:purify
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Compress high-purity CO₂
+    - id: edge:op6
+      source_node_id: node:store
+      target_node_id: node:boiler
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Accept dense-phase storage stream
+    - id: edge:op7
+      source_node_id: node:boiler
+      target_node_id: node:boiler
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Recycle CO₂ to control flame temperature

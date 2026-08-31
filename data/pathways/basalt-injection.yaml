@@ -1,8 +1,11 @@
 id: basalt-injection
-name: "In-situ basalt mineralization (injected CO2)"
+name: In-situ basalt mineralization (injected CO2)
 setting: MINERALIZATION
 trl: 7
-search_terms: ["CarbFix basalt injection mineralization", "in-situ CO2 mineralization basalt", "dissolved CO2 geologic storage"]
+search_terms:
+  - CarbFix basalt injection mineralization
+  - in-situ CO2 mineralization basalt
+  - dissolved CO2 geologic storage
 mechanism: |
   CO2 is dissolved in water downhole and injected into reactive basaltic
   formations, where Ca/Mg/Fe silicates react with the dissolved carbon to form
@@ -22,13 +25,16 @@ metrics:
     year_basis: 2019
     source_ref: nas2019
 advantages:
-  - "Rapid in-situ mineralization removes leakage risk entirely"
-  - "Vast global basalt provinces, including offshore basalts"
+  - Rapid in-situ mineralization removes leakage risk entirely
+  - Vast global basalt provinces, including offshore basalts
 challenges:
-  - "Water demand per tonne of CO2; injection-induced seismicity management"
-  - "Requires capture plant co-located with suitable basalt geology"
-material_ids: [basalt]
-source_refs: [matter2016, nas2019]
+  - Water demand per tonne of CO2; injection-induced seismicity management
+  - Requires capture plant co-located with suitable basalt geology
+material_ids:
+  - basalt
+source_refs:
+  - matter2016
+  - nas2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Capture as Capture plant
@@ -64,3 +70,162 @@ mermaid_source: |
       BAS --> RXN
       RXN -->|">95% mineralized<br/>in 2 yr<br/>(CarbFix field data)"| SEQ
       MON -.->|"verification"| RXN
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:co2in
+      label: Captured CO₂<br/>(dense phase)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:h2o
+      label: Water<br/>(~25 t per t CO₂)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:inj
+      label: Downhole<br/>dissolution<br/>+ injection well<br/>(CO₂ fully dissolved,<br/>no gas phase)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:bas
+      label: Basaltic<br/>host rock<br/>(Ca/Mg/Fe<br/>silicates)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids:
+        - basalt
+      source_refs: []
+      metric_keys: []
+    - id: node:rxn
+      label: In-situ<br/>mineralization<br/>silicates + CO₂<br/>→ carbonates
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Solid carbonate<br/>minerals<br/>CaCO₃, MgCO₃, FeCO₃<br/>>10 kyr
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:mon
+      label: "Monitoring wells<br/>(tracers: SF₆)"
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:co2in
+      target_node_id: node:inj
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dissolution<br/>at depth
+    - id: edge:e2
+      source_node_id: node:h2o
+      target_node_id: node:inj
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e3
+      source_node_id: node:inj
+      target_node_id: node:bas
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: carbonated<br/>water (no buoyant<br/>gas phase)
+    - id: edge:e4
+      source_node_id: node:bas
+      target_node_id: node:rxn
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e5
+      source_node_id: node:rxn
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ">95% mineralized<br/>in 2 yr<br/>(CarbFix field data)"
+    - id: edge:e6
+      source_node_id: node:mon
+      target_node_id: node:rxn
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: verification
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:capture
+      label: Capture plant
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:water
+      label: Water supply
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:well
+      label: Injection well
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rock
+      label: Basalt formation
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:monitor
+      label: Monitoring wells
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:capture
+      target_node_id: node:water
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Dissolve captured CO₂ downhole
+    - id: edge:op2
+      source_node_id: node:water
+      target_node_id: node:well
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Deliver carbonated water
+    - id: edge:op3
+      source_node_id: node:well
+      target_node_id: node:rock
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Inject below formation pressure limit
+    - id: edge:op4
+      source_node_id: node:rock
+      target_node_id: node:rock
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Dissolve silicates and precipitate carbonates
+    - id: edge:op5
+      source_node_id: node:rock
+      target_node_id: node:monitor
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Track tracers and pressure
+    - id: edge:op6
+      source_node_id: node:monitor
+      target_node_id: node:capture
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Verify mineralisation progress

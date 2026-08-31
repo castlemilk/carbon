@@ -4,6 +4,7 @@ import { PathwaySchema, Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 import { MaterialSchema, MaterialClass } from '@/lib/gen/carbon/v1/material_pb'
 import { CitationSchema, type Citation } from '@/lib/gen/carbon/v1/common_pb'
 import { JournalEntrySchema, ShortlistEntrySchema, ShortlistStatus, EntryKind, type JournalEntry } from '@/lib/gen/carbon/v1/research_pb'
+import { LandscapeGraphSchema } from '@/lib/gen/carbon/v1/landscape_pb'
 import {
   type CarbonStore, type CachedLiterature, type JournalUpsert, type SeedCounts,
   type SeedPayload, type ShortlistRow, type ShortlistUpsert,
@@ -12,6 +13,8 @@ import {
 
 type Row = Record<string, unknown>
 
+// SCHEMA is kept identical to turso-store.ts: the two dialects stay in
+// lockstep on purpose so a schema change here forces the same change there.
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS pathways (
   id TEXT PRIMARY KEY, setting TEXT NOT NULL, trl INTEGER NOT NULL,
@@ -27,7 +30,18 @@ CREATE TABLE IF NOT EXISTS journal_entries (
   pathway_refs TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS lit_cache (
   pathway_id TEXT PRIMARY KEY, fetched_at INTEGER NOT NULL, works_json TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS landscape_graph (
+  id INTEGER PRIMARY KEY CHECK(id = 1), doc TEXT NOT NULL);
 `
+
+// Test-only failure hook: when set, replaceSeed throws immediately after
+// Test-only failure seam. Gated on VITEST so production binaries cannot trip
+// it even if a misbehaving caller imports the setter. The setter is still
+// exported for the conformance suite; in production the env check is false
+// and the flag is dead code.
+const __testEnv = process.env.VITEST === 'true' || process.env.NODE_ENV === 'test'
+let __testInjectFailure = false
+export const __setSqliteTestInjectFailure = (v: boolean): void => { if (__testEnv) __testInjectFailure = v }
 
 export function makeSqliteStore(file = process.env.CARBON_DB ?? 'carbon.db'): CarbonStore & { raw: Database.Database } {
   const db = new Database(file)
@@ -37,19 +51,27 @@ export function makeSqliteStore(file = process.env.CARBON_DB ?? 'carbon.db'): Ca
     kind: 'sqlite',
     raw: db,
     async initSchema() { db.exec(SCHEMA) },
-    async replaceSeed({ citations, materials, pathways }: SeedPayload): Promise<SeedCounts> {
-      let nCitations = 0, nMaterials = 0, nPathways = 0
+    async replaceSeed({ citations, materials, pathways, landscapeGraph }: SeedPayload): Promise<SeedCounts> {
+      let nCitations = 0, nMaterials = 0, nPathways = 0, nLandscapeNodes = 0
       db.transaction(() => {
         // full git-truth resync: seed tables mirror data/ exactly; shortlist/journal
         // are runtime state and untouched here (drift there is seedDrift's job)
         db.prepare('DELETE FROM citations').run()
         db.prepare('DELETE FROM materials').run()
         db.prepare('DELETE FROM pathways').run()
+        db.prepare('DELETE FROM landscape_graph').run()
+        // test seam: forces rollback of the seed transaction between deletes
+        // and inserts so conformance can verify atomicity
+        if (__testInjectFailure) throw new Error('sqlite-store: test-injected seed failure (post-delete, pre-insert)')
         for (const c of citations) nCitations += db.prepare('INSERT OR REPLACE INTO citations (id, doc) VALUES (?,?)').run(c.id, encodeDoc(CitationSchema, c)).changes
         for (const m of materials) nMaterials += db.prepare('INSERT OR REPLACE INTO materials (id,class,name,doc) VALUES (?,?,?,?)').run(m.id, enumName(MaterialClass, m.class), m.name, encodeDoc(MaterialSchema, m)).changes
         for (const p of pathways) nPathways += db.prepare('INSERT OR REPLACE INTO pathways (id,setting,trl,is_benchmark,name,doc) VALUES (?,?,?,?,?,?)').run(p.id, enumName(Setting, p.setting), p.trl, p.isBenchmark ? 1 : 0, p.name, encodeDoc(PathwaySchema, p)).changes
+        if (landscapeGraph) {
+          nLandscapeNodes = landscapeGraph.nodes.length
+          db.prepare('INSERT INTO landscape_graph (id, doc) VALUES (1, ?)').run(encodeDoc(LandscapeGraphSchema, landscapeGraph))
+        }
       })()
-      return { citations: nCitations, materials: nMaterials, pathways: nPathways }
+      return { citations: nCitations, materials: nMaterials, pathways: nPathways, landscapeGraphCount: nLandscapeNodes }
     },
     async getPathway(id) { return getPathway(id) },
     async listPathways() {
@@ -62,6 +84,9 @@ export function makeSqliteStore(file = process.env.CARBON_DB ?? 'carbon.db'): Ca
         .map(r => fromJson(MaterialSchema, JSON.parse(r.doc as string)))
     },
     async getCitation(id) { return decodeDoc(CitationSchema, db.prepare('SELECT doc FROM citations WHERE id=?').get(id) as Row | undefined) },
+    async getLandscapeGraph() {
+      return decodeDoc(LandscapeGraphSchema, db.prepare('SELECT doc FROM landscape_graph WHERE id=1').get() as Row | undefined)
+    },
     async listCitations(): Promise<Citation[]> {
       // Citations are stored as protojson blobs in `doc`; sort client-side by year DESC.
       const rows = (db.prepare('SELECT doc FROM citations').all() as Row[])

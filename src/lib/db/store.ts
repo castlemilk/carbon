@@ -3,6 +3,7 @@ import type { Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
 import type { Material } from '@/lib/gen/carbon/v1/material_pb'
 import type { Citation } from '@/lib/gen/carbon/v1/common_pb'
 import type { JournalEntry, ShortlistEntry } from '@/lib/gen/carbon/v1/research_pb'
+import type { LandscapeGraph } from '@/lib/gen/carbon/v1/landscape_pb'
 
 export interface ShortlistUpsert {
   pathwayId: string
@@ -34,12 +35,21 @@ export interface SeedPayload {
   citations: Citation[]
   materials: Material[]
   pathways: Pathway[]
+  /**
+   * Singleton landscape graph (data/landscape.yaml). Absent → row is removed
+   * during replaceSeed so downstream readers see `undefined`. Must be
+   * atomic with the other seed tables — a partial landscape write is a
+   * partial seed.
+   */
+  landscapeGraph?: LandscapeGraph
 }
 
 export interface SeedCounts {
   citations: number
   materials: number
   pathways: number
+  /** Number of nodes in the persisted landscape graph (0 if absent). */
+  landscapeGraphCount: number
 }
 
 /**
@@ -65,6 +75,9 @@ export interface CarbonStore {
   listMaterials(): Promise<Material[]>
   getCitation(id: string): Promise<Citation | undefined>
   listCitations(): Promise<Citation[]>
+
+  /** Singleton landscape graph (decoded), or undefined if no corpus graph. */
+  getLandscapeGraph(): Promise<LandscapeGraph | undefined>
 
   putShortlist(e: ShortlistUpsert): Promise<void>
   listShortlist(): Promise<ShortlistRow[]>

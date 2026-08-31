@@ -1,8 +1,11 @@
 id: electrochemical-oae
-name: "Electrochemical ocean alkalinity enhancement (seawater mineralization)"
+name: Electrochemical ocean alkalinity enhancement (seawater mineralization)
 setting: OCEAN_DIC
 trl: 5
-search_terms: ["electrolytic seawater mineralization", "single-step carbon sequestration sCS2", "ocean alkalinity enhancement electrolysis"]
+search_terms:
+  - electrolytic seawater mineralization
+  - single-step carbon sequestration sCS2
+  - ocean alkalinity enhancement electrolysis
 mechanism: |
   Flow-through membraneless electrolysis splits seawater, raising catholyte pH
   so dissolved inorganic carbon and divalent cations precipitate as stable
@@ -19,12 +22,13 @@ metrics:
     year_basis: 2021
     source_ref: laplante2021
 advantages:
-  - "Solid-carbonate storage with millennial durability, no pipelines or reservoirs"
-  - "Modular electrochemical plant; H2 co-product"
+  - Solid-carbonate storage with millennial durability, no pipelines or reservoirs
+  - Modular electrochemical plant; H2 co-product
 challenges:
-  - "Chlorine and chlorinated byproduct management at seawater anodes"
-  - "Large low-carbon electricity demand; electrode scaling and carbonate precipitation control"
-source_refs: [laplante2021]
+  - Chlorine and chlorinated byproduct management at seawater anodes
+  - Large low-carbon electricity demand; electrode scaling and carbonate precipitation control
+source_refs:
+  - laplante2021
 mermaid_sequence_source: |
   sequenceDiagram
       participant Sea as Seawater intake
@@ -74,3 +78,234 @@ mermaid_source: |
       ATM -.->|"bicarbonate<br/>in seawater"| SW
       ANODE -->|"acid stream<br/>pre-discharge"| NEUT
       NEUT -->|"neutralized<br/>effluent"| WASTE2(["ocean discharge"])
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:sw
+      label: Seawater<br/>intake<br/>(DIC + Ca²⁺/Mg²⁺)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cell
+      label: Flow-through<br/>membraneless<br/>electrolyzer
+      kind: GRAPH_NODE_KIND_MEMBRANE
+      stage: GRAPH_STAGE_SEPARATION
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:cath
+      label: Catholyte<br/>pH ↑ to ~10-11<br/>(local alkali)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:anode
+      label: Anolyte<br/>pH ↓ (acidic)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:ppt
+      label: Precipitation<br/>vessel<br/>Ca/Mg carbonate<br/>or Mg(OH)₂
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:neut
+      label: Neutralization<br/>(alkaline rock<br/>contact)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:atm
+      label: Atmospheric CO₂<br/>(if Mg(OH)₂ route)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Stable Ca/Mg<br/>carbonate minerals<br/>10-100 kyr
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:h2
+      label: H₂<br/>co-product
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cl2
+      label: Cl₂ / O₂<br/>management
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:pwr
+      label: Low-carbon<br/>electricity
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:waste2
+      label: ocean discharge
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:sw
+      target_node_id: node:cell
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: feed
+    - id: edge:e2
+      source_node_id: node:pwr
+      target_node_id: node:cell
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: electrolysis
+    - id: edge:e3
+      source_node_id: node:cell
+      target_node_id: node:cath
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e4
+      source_node_id: node:cell
+      target_node_id: node:anode
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e5
+      source_node_id: node:cell
+      target_node_id: node:h2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e6
+      source_node_id: node:anode
+      target_node_id: node:cl2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:cath
+      target_node_id: node:ppt
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: supersaturated<br/>DIC + cations
+    - id: edge:e8
+      source_node_id: node:ppt
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: solid carbonate
+    - id: edge:e9
+      source_node_id: node:ppt
+      target_node_id: node:atm
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: Mg(OH)₂ route:<br/>slow drawdown
+    - id: edge:e10
+      source_node_id: node:atm
+      target_node_id: node:sw
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: bicarbonate<br/>in seawater
+    - id: edge:e11
+      source_node_id: node:anode
+      target_node_id: node:neut
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: acid stream<br/>pre-discharge
+    - id: edge:e12
+      source_node_id: node:neut
+      target_node_id: node:waste2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: neutralized<br/>effluent
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:sea
+      label: Seawater intake
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cell
+      label: Membraneless electrolyzer
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:cath
+      label: Catholyte reactor
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:anode
+      label: Anolyte reactor
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:solid
+      label: Carbonate precipitate
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:ocean
+      label: Ocean discharge
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:sea
+      target_node_id: node:cell
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Feed seawater DIC and cations
+    - id: edge:op2
+      source_node_id: node:cell
+      target_node_id: node:cath
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Raise pH with electrochemical alkalinity
+    - id: edge:op3
+      source_node_id: node:cath
+      target_node_id: node:solid
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Precipitate CaCO₃, MgCO₃, or Mg(OH)₂
+    - id: edge:op4
+      source_node_id: node:cell
+      target_node_id: node:anode
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Produce acidic stream
+    - id: edge:op5
+      source_node_id: node:anode
+      target_node_id: node:ocean
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Neutralise before discharge
+    - id: edge:op6
+      source_node_id: node:solid
+      target_node_id: node:ocean
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Retain carbon as mineral or alkalinity

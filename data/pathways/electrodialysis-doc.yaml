@@ -1,8 +1,11 @@
 id: electrodialysis-doc
-name: "Electrodialytic DOC extraction (BPMED)"
+name: Electrodialytic DOC extraction (BPMED)
 setting: OCEAN_DIC
 trl: 5
-search_terms: ["bipolar membrane electrodialysis seawater CO2", "dissolved inorganic carbon extraction ocean", "electrochemical pH swing seawater"]
+search_terms:
+  - bipolar membrane electrodialysis seawater CO2
+  - dissolved inorganic carbon extraction ocean
+  - electrochemical pH swing seawater
 mechanism: |
   Bipolar membrane electrodialysis (BPMED) splits water to acidify a slipstream
   of seawater, shifting the carbonate equilibrium so dissolved inorganic carbon
@@ -19,12 +22,14 @@ metrics:
     year_basis: 2012
     source_ref: eisaman2012
 advantages:
-  - "No sorbent inventory; membrane stack is modular and scalable"
-  - "Discharged stream leaves ocean alkalinity enhanced"
+  - No sorbent inventory; membrane stack is modular and scalable
+  - Discharged stream leaves ocean alkalinity enhanced
 challenges:
-  - "Membrane cost and fouling; electrode scaling at seawater chemistry"
-  - "System-level energy including pumping and stripping exceeds stack-only figures"
-source_refs: [eisaman2012, mcqueen2021]
+  - Membrane cost and fouling; electrode scaling at seawater chemistry
+  - System-level energy including pumping and stripping exceeds stack-only figures
+source_refs:
+  - eisaman2012
+  - mcqueen2021
 mermaid_sequence_source: |
   sequenceDiagram
       participant Sea as Seawater slipstream
@@ -68,3 +73,210 @@ mermaid_source: |
       COMP --> SEQ(("Geological<br/>storage /<br/>utilization"))
       STRIP -->|"degassed<br/>acid stream"| BASE
       BASE -->|"re-alkalinized"| OUT
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_ACYCLIC
+  nodes:
+    - id: node:sw
+      label: Seawater<br/>slipstream<br/>(DIC ~2.3 mM)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:bpm
+      label: Bipolar membrane<br/>electrodialysis stack<br/>(H₂O → H⁺ + OH⁻)
+      kind: GRAPH_NODE_KIND_MEMBRANE
+      stage: GRAPH_STAGE_SEPARATION
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:acid
+      label: Acidified stream<br/>pH ~4<br/>(HCO₃⁻ → CO₂)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:base
+      label: Basified stream<br/>pH > 9
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:strip
+      label: Vacuum stripper<br/>(CO₂ degassing)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Compressor
+      kind: GRAPH_NODE_KIND_TRANSPORT
+      stage: GRAPH_STAGE_TRANSPORT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: CO₂ gas<br/>(storage or<br/>utilization)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:out
+      label: Alkalinity-enhanced<br/>discharge<br/>(OAE co-benefit)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:pwr
+      label: Electricity<br/>~242 kJ/mol CO₂<br/>stack only
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage /<br/>utilization
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:sw
+      target_node_id: node:bpm
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ocean holds ~150×<br/>atmospheric DIC
+    - id: edge:e2
+      source_node_id: node:pwr
+      target_node_id: node:bpm
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e3
+      source_node_id: node:bpm
+      target_node_id: node:acid
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e4
+      source_node_id: node:bpm
+      target_node_id: node:base
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e5
+      source_node_id: node:acid
+      target_node_id: node:strip
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: carbonate<br/>equilibrium shift
+    - id: edge:e6
+      source_node_id: node:strip
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: 59% DIC<br/>extraction
+    - id: edge:e7
+      source_node_id: node:co2
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:comp
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:strip
+      target_node_id: node:base
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: degassed<br/>acid stream
+    - id: edge:e10
+      source_node_id: node:base
+      target_node_id: node:out
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: re-alkalinized
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:sea
+      label: Seawater slipstream
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:bpm
+      label: Bipolar membrane stack
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:acid
+      label: Acid channel
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:base
+      label: Base channel
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:strip
+      label: Vacuum stripper
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage or use
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:sea
+      target_node_id: node:bpm
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Pump dissolved inorganic carbon feed
+    - id: edge:op2
+      source_node_id: node:bpm
+      target_node_id: node:acid
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Generate H⁺ and shift carbonate equilibrium
+    - id: edge:op3
+      source_node_id: node:acid
+      target_node_id: node:strip
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Convert bicarbonate to CO₂ gas
+    - id: edge:op4
+      source_node_id: node:strip
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Dry and compress recovered CO₂
+    - id: edge:op5
+      source_node_id: node:bpm
+      target_node_id: node:base
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Generate OH⁻ and restore alkalinity
+    - id: edge:op6
+      source_node_id: node:base
+      target_node_id: node:sea
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return alkalinity-enhanced discharge

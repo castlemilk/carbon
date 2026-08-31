@@ -1,0 +1,7 @@
+# intentionally broken: no pathway node for the loaded pathways — used to demo check.ts failure mode
+nodes:
+  - id: setting:DAC
+    label: Direct air capture
+    entity_type: GRAPH_ENTITY_TYPE_SETTING
+    entity_id: DAC
+edges: []

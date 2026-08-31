@@ -1,0 +1,43 @@
+{
+  "provider": "brandbrain",
+  "session_id": "flow_session_e6db42e6ab3b",
+  "plan_node_id": "plan",
+  "flow_revision": 3,
+  "manifest_revision": 2,
+  "manifest_hash": "sha256:207aa51deaf2ad0a77a8b80d9d2456d6a2ecf9ebb5078a780f685c8a52b51159",
+  "approved": true,
+  "generated": false,
+  "run_ids": ["8ce3b34765696cce911100a8ab1883b3"],
+  "attempt_ids": [],
+  "items": [
+    { "role": "emission-source", "file": "emission-source.png", "status": "not_generated", "qa": null },
+    { "role": "capture-column", "file": "capture-column.png", "status": "not_generated", "qa": null },
+    { "role": "sorbent-material", "file": "sorbent-material.png", "status": "not_generated", "qa": null },
+    { "role": "membrane-module", "file": "membrane-module.png", "status": "not_generated", "qa": null },
+    { "role": "electrochemical-unit", "file": "electrochemical-unit.png", "status": "not_generated", "qa": null },
+    { "role": "heat-regeneration", "file": "heat-regeneration.png", "status": "not_generated", "qa": null },
+    { "role": "separation", "file": "separation.png", "status": "not_generated", "qa": null },
+    { "role": "compression-transport", "file": "compression-transport.png", "status": "not_generated", "qa": null },
+    { "role": "storage-mineralization", "file": "storage-mineralization.png", "status": "not_generated", "qa": null },
+    { "role": "biological-ocean", "file": "biological-ocean.png", "status": "not_generated", "qa": null },
+    { "role": "waste-byproduct", "file": "waste-byproduct.png", "status": "not_generated", "qa": null }
+  ],
+  "semantic_role_to_file": {
+    "emission-source": "emission-source.png",
+    "capture-column": "capture-column.png",
+    "sorbent-material": "sorbent-material.png",
+    "membrane-module": "membrane-module.png",
+    "electrochemical-unit": "electrochemical-unit.png",
+    "heat-regeneration": "heat-regeneration.png",
+    "separation": "separation.png",
+    "compression-transport": "compression-transport.png",
+    "storage-mineralization": "storage-mineralization.png",
+    "biological-ocean": "biological-ocean.png",
+    "waste-byproduct": "waste-byproduct.png"
+  },
+  "source": {
+    "name": "Carbon CCS pathway icon set",
+    "template": "icon-set",
+    "gallery": "https://app.brandbrain.dev/crm/canvas/flow_session_e6db42e6ab3b/gallery"
+  }
+}

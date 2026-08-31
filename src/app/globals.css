@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@xyflow/react/dist/style.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -219,6 +220,11 @@
 
 .dark body {
   background: radial-gradient(120% 120% at 50% 0%, #131318 0%, var(--bg) 60%);
+}
+
+html.carbon-embed,
+html.carbon-embed body {
+  background: transparent;
 }
 
 *:focus-visible { outline: 2px solid #7c5cff; outline-offset: 2px; }

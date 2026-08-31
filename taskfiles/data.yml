@@ -9,6 +9,9 @@ tasks:
       materials / 25 citations). Same validation the server runs at boot:
       strict protojson, unit allowlist, referential integrity, duplicate ids.
 
+      Strict by default: it fails until the graph corpus lands — interim
+      authoring uses `tsx src/lib/seed/check.ts data --allow-partial-graphs`.
+
       Exit 0 prints `OK {counts}`; any problem exits 1 with file+field precision.
       Zero counts warn loudly — that means the data dir path is wrong.
     aliases: [seed]

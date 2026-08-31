@@ -7,7 +7,9 @@ import { MaterialSchema } from '@/lib/gen/carbon/v1/material_pb'
 import { CitationSchema, type Citation } from '@/lib/gen/carbon/v1/common_pb'
 import type { Pathway } from '@/lib/gen/carbon/v1/pathway_pb'
 import type { Material } from '@/lib/gen/carbon/v1/material_pb'
-import type { CarbonStore } from '@/lib/db/store'
+import { LandscapeGraphSchema, type LandscapeGraph } from '@/lib/gen/carbon/v1/landscape_pb'
+import { validateLandscapeGraph, validateProcessGraph } from './graph'
+import type { CarbonStore, SeedCounts } from '@/lib/db/store'
 
 const UNIT_VALUES = [
   'USD/tCO2', 'GJ/tCO2', 'GJ-e/tCO2', 'Gt/yr', 'Mt/yr', 'years', 'mmol/g', 'kJ/mol', 'USD/kg',
@@ -85,17 +87,22 @@ type LoadedDoc = { file: string; doc: AnyDoc }
 
 // .yaml-only rule: seed authoring is YAML, .yml is deliberately rejected so a mis-suffixed
 // file can never be silently skipped during load
+const readYamlDoc = (full: string, rel: string): AnyDoc => {
+  let parsed: unknown
+  try { parsed = parse(fs.readFileSync(full, 'utf8')) }
+  catch (e) { throw new Error(`${rel}: YAML parse error: ${(e as Error).message}`) }
+  const got = parsed === null || parsed === '' ? 'empty document' : Array.isArray(parsed) ? 'array' : typeof parsed
+  if (got !== 'object')
+    throw new Error(`${rel}: expected a YAML mapping, got ${got}`)
+  return parsed as AnyDoc
+}
+
 const readYamls = (dir: string): LoadedDoc[] =>
   !fs.existsSync(dir) ? [] : fs.readdirSync(dir).filter(f => f.endsWith('.yaml')).sort().flatMap(f => {
     const full = path.join(dir, f)
     if (!fs.statSync(full).isFile()) return []
-    let parsed: unknown
-    try { parsed = parse(fs.readFileSync(full, 'utf8')) }
-    catch (e) { throw new Error(`${path.basename(dir)}/${f}: YAML parse error: ${(e as Error).message}`) }
-    const got = parsed === null || parsed === '' ? 'empty document' : Array.isArray(parsed) ? 'array' : typeof parsed
-    if (got !== 'object')
-      throw new Error(`${path.basename(dir)}/${f}: expected a YAML mapping, got ${got}`)
-    return [{ file: `${path.basename(dir)}/${f}`, doc: parsed as AnyDoc }]
+    const rel = `${path.basename(dir)}/${f}`
+    return [{ file: rel, doc: readYamlDoc(full, rel) }]
   })
 
 function assertUniqueIds(docs: LoadedDoc[], kind: string) {
@@ -112,23 +119,71 @@ function assertUniqueIds(docs: LoadedDoc[], kind: string) {
     throw new Error(dupes.map(([id, files]) => `duplicate ${kind} id '${id}' (${files.join(', ')})`).join('; '))
 }
 
-function loadBatch<T>(dir: string, kind: string, validate: (d: AnyDoc, file: string) => T): T[] {
+function loadBatch<T>(dir: string, kind: string, validate: (d: AnyDoc, file: string) => T): { file: string; value: T }[] {
   const docs = readYamls(dir)
   assertUniqueIds(docs, kind)
   return docs.map(({ file, doc }) => {
-    try { return validate(doc, `${path.basename(dir)}/${file}`) } catch (e) { throw new Error(`${file}: ${(e as Error).message}`) }
+    try { return { file, value: validate(doc, `${path.basename(dir)}/${file}`) } } catch (e) { throw new Error(`${file}: ${(e as Error).message}`) }
   })
 }
 
-export async function seedFromDataDir(store: CarbonStore, dataDir: string): Promise<{ citations: number; materials: number; pathways: number }> {
-  const citations = loadBatch<Citation>(path.join(dataDir, 'sources'), 'citation', (d) => validateCitationDoc(d))
+export interface SeedGraphOptions {
+  /** Strict mode: every pathway needs process_graph + operational_graph and data/landscape.yaml must exist. */
+  requireCompleteGraphs?: boolean
+}
+
+export interface SeedLoadInfo extends SeedCounts {
+  processGraphCount: number
+  operationalGraphCount: number
+  landscapeGraph: LandscapeGraph | undefined
+  landscapeNodeCount: number
+}
+
+export async function seedFromDataDir(store: CarbonStore, dataDir: string, options: SeedGraphOptions = {}): Promise<SeedLoadInfo> {
+  const requireComplete = options.requireCompleteGraphs === true
+  const citations = loadBatch<Citation>(path.join(dataDir, 'sources'), 'citation', (d) => validateCitationDoc(d)).map(d => d.value)
   const citationIds = new Set(citations.map(c => c.id))
-  const materials = loadBatch<Material>(path.join(dataDir, 'materials'), 'material', (d, file) => validateMaterialDoc(d, citationIds, file))
+  const materials = loadBatch<Material>(path.join(dataDir, 'materials'), 'material', (d, file) => validateMaterialDoc(d, citationIds, file)).map(d => d.value)
   const materialIds = new Set(materials.map(m => m.id))
-  const pathways = loadBatch<Pathway>(path.join(dataDir, 'pathways'), 'pathway', (d, file) => validatePathwayDoc(d, citationIds, materialIds, file))
+  const pathwayDocs = loadBatch<Pathway>(path.join(dataDir, 'pathways'), 'pathway', (d, file) => validatePathwayDoc(d, citationIds, materialIds, file))
+  const pathways = pathwayDocs.map(d => d.value)
+  const pathwayIds = new Set(pathways.map(p => p.id))
+  const refs = { citations: citationIds, materials: materialIds, pathways: pathwayIds }
+
+  // graph subdocuments validate AFTER every document is read so entity refs
+  // resolve regardless of file order (citations -> materials -> pathways -> graphs)
+  const pathwayMetricKeys = new Map(pathways.map(p => [p.id, new Set<string>(['trl', ...Object.keys(p.metrics)])]))
+  let processGraphCount = 0
+  let operationalGraphCount = 0
+  for (const { file, value: p } of pathwayDocs) {
+    if (requireComplete && !p.processGraph)
+      throw new Error(`${file}: ${p.id}: missing process_graph (requireCompleteGraphs)`)
+    if (requireComplete && !p.operationalGraph)
+      throw new Error(`${file}: ${p.id}: missing operational_graph (requireCompleteGraphs)`)
+    const metricKeys = pathwayMetricKeys.get(p.id)!
+    if (p.processGraph) {
+      processGraphCount++
+      validateProcessGraph(p.processGraph, { file, pathwayId: p.id, graphName: 'process_graph', refs, metricKeys })
+    }
+    if (p.operationalGraph) {
+      operationalGraphCount++
+      validateProcessGraph(p.operationalGraph, { file, pathwayId: p.id, graphName: 'operational_graph', refs, metricKeys })
+    }
+  }
+
+  const landscapeRel = 'landscape.yaml'
+  const landscapeFull = path.join(dataDir, landscapeRel)
+  let landscapeGraph: LandscapeGraph | undefined
+  if (fs.existsSync(landscapeFull)) {
+    landscapeGraph = parseStrict(landscapeRel, LandscapeGraphSchema, readYamlDoc(landscapeFull, landscapeRel))
+    validateLandscapeGraph(landscapeGraph, { file: landscapeRel, refs, pathwayMetricKeys })
+  } else if (requireComplete) {
+    throw new Error(`${landscapeRel}: missing landscape graph (requireCompleteGraphs)`)
+  }
 
   // full git-truth resync inside the store's transaction: seed tables mirror data/
   // exactly; shortlist/journal are runtime state and untouched (drift there is
   // store.seedDrift's job)
-  return store.replaceSeed({ citations, materials, pathways })
+  const counts = await store.replaceSeed({ citations, materials, pathways, landscapeGraph })
+  return { ...counts, processGraphCount, operationalGraphCount, landscapeGraph, landscapeNodeCount: landscapeGraph?.nodes.length ?? 0 }
 }

@@ -1,8 +1,11 @@
 id: advanced-amine-point-source
-name: "Advanced amine solvents (point source)"
+name: Advanced amine solvents (point source)
 setting: POINT_SOURCE
 trl: 8
-search_terms: ["advanced amine solvent post-combustion capture", "CANSOLV DC103 pilot", "low reboiler duty amine"]
+search_terms:
+  - advanced amine solvent post-combustion capture
+  - CANSOLV DC103 pilot
+  - low reboiler duty amine
 mechanism: |
   Next-generation amine blends (e.g. CANSOLV DC-103) capture CO2 from flue gas
   in an absorber-stripper loop like MEA scrubbing, but with lower volatility,
@@ -24,13 +27,17 @@ metrics:
     year_basis: 2021
     source_ref: fagerlund2021
 advantages:
-  - "Near-commercial with multiple full-scale deployments"
-  - "Lower emissions and regeneration energy than MEA"
+  - Near-commercial with multiple full-scale deployments
+  - Lower emissions and regeneration energy than MEA
 challenges:
-  - "Aerosol-mediated amine slip requires mitigation trains"
-  - "Solvent cost and long-term degradation on real flue gases"
-material_ids: [cansolv-solvent]
-source_refs: [fagerlund2021, nas2019, iea2022ccus]
+  - Aerosol-mediated amine slip requires mitigation trains
+  - Solvent cost and long-term degradation on real flue gases
+material_ids:
+  - cansolv-solvent
+source_refs:
+  - fagerlund2021
+  - nas2019
+  - iea2022ccus
 mermaid_sequence_source: |
   sequenceDiagram
       participant Flue as Flue gas source
@@ -78,3 +85,228 @@ mermaid_source: |
       COMP -->|"dense-phase<br/>CO₂"| SEQ(("Geological<br/>storage"))
       STR -->|"Lean solvent"| LEAN
       LEAN -->|"recycle"| ABS
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas<br/>(coal / WtE)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:aerosol
+      label: Aerosol<br/>mitigation<br/>(water wash + demister)
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:abs
+      label: Structured packing<br/>absorber 40-60 °C
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:solv
+      label: Sterically hindered /<br/>tertiary amine blend<br/>(CANSOLV-class)
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids:
+        - cansolv-solvent
+      source_refs: []
+      metric_keys: []
+    - id: node:str
+      label: Stripper<br/>elevated pressure<br/>2.4-3.5 GJ/tCO₂
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Multi-stage<br/>compressor
+      kind: GRAPH_NODE_KIND_TRANSPORT
+      stage: GRAPH_STAGE_TRANSPORT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>(sequestered)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:lean
+      label: Lean solvent<br/>(CO₂-lean)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:rich
+      label: Rich solvent<br/>(CO₂-loaded)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:slip
+      label: Amine slip<br/>(treated)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:flue
+      target_node_id: node:aerosol
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ 4-14%
+    - id: edge:e2
+      source_node_id: node:aerosol
+      target_node_id: node:slip
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: to atmosphere<br/>(depleted CO₂)
+    - id: edge:e3
+      source_node_id: node:aerosol
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dry flue gas
+    - id: edge:e4
+      source_node_id: node:abs
+      target_node_id: node:solv
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: R-NH₂ + CO₂ + H₂O<br/>⇌ R-NH₃⁺ + HCO₃⁻
+    - id: edge:e5
+      source_node_id: node:abs
+      target_node_id: node:rich
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e6
+      source_node_id: node:rich
+      target_node_id: node:str
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:str
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:co2
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e9
+      source_node_id: node:comp
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase<br/>CO₂
+    - id: edge:e10
+      source_node_id: node:str
+      target_node_id: node:lean
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: Lean solvent
+    - id: edge:e11
+      source_node_id: node:lean
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: recycle
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas source
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:wash
+      label: Aerosol mitigation
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:abs
+      label: Advanced-amine absorber
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:strip
+      label: Pressurised stripper
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Compression train
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Geological storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:flue
+      target_node_id: node:wash
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Send conditioned flue gas
+    - id: edge:op2
+      source_node_id: node:wash
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Remove aerosols and contaminants
+    - id: edge:op3
+      source_node_id: node:abs
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_SELF_TRANSITION
+      label: Form carbamate / bicarbonate in solvent
+    - id: edge:op4
+      source_node_id: node:abs
+      target_node_id: node:strip
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Pump rich solvent
+    - id: edge:op5
+      source_node_id: node:strip
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Release concentrated CO₂ at higher pressure
+    - id: edge:op6
+      source_node_id: node:strip
+      target_node_id: node:abs
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Return lean, low-degradation solvent
+    - id: edge:op7
+      source_node_id: node:comp
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Dehydrate, compress, and inject CO₂

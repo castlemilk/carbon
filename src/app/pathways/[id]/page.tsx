@@ -4,6 +4,11 @@ import { notFound } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 
 import { CitationList } from '@/components/citation/citation-badge'
+import type {
+  MaterialSummaryDto,
+  MetricRowDto,
+  SourceSummaryDto,
+} from '@/components/graph/graph-types'
 import LiteratureErrorBoundary from '@/components/pathway/literature-error-boundary'
 import LiteraturePanel from '@/components/pathway/literature-panel'
 import MetricTable, {
@@ -18,6 +23,8 @@ import { getCitation, getMaterial, getPathway, listShortlist } from '@/lib/db/re
 import { type Material } from '@/lib/gen/carbon/v1/material_pb'
 import { Setting } from '@/lib/gen/carbon/v1/pathway_pb'
 import { ShortlistStatus } from '@/lib/gen/carbon/v1/research_pb'
+import { buildProcessDto, type ProcessLookups } from '@/lib/graph/process'
+import type { DetailViewState } from '@/lib/graph/view-selection'
 import { SETTING_COLORS, SETTING_LABELS } from '@/lib/settings'
 import { materialClassLabel } from '@/lib/material-class'
 
@@ -28,6 +35,22 @@ const decodeBack = (raw: string): string => {
     return raw
   }
 }
+
+const toCitationSummary = (c: {
+  id: string
+  title: string
+  authors: string[]
+  year: number
+  venue: string
+  url: string
+}): SourceSummaryDto => ({
+  id: c.id,
+  title: c.title,
+  authors: [...c.authors],
+  year: c.year,
+  venue: c.venue,
+  url: c.url,
+})
 
 export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) {
   const { id } = await props.params
@@ -40,26 +63,38 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
   // Split citations into "pathway-level" refs (declared on the pathway itself)
   // and "metric-level" refs (each metric's source_ref). Both render in different
   // places on the detail page — pathway-level refs are aggregated here, metric-
-  // level refs show inline in the MetricTable.
+  // level refs show inline in the MetricTable. The graph documents additionally
+  // surface node/edge source refs into the inspector, so those must resolve too.
   const pathwayLevelRefIds = pathway.sourceRefs.filter(Boolean)
   const metricLevelRefIds = Object.values(pathway.metrics)
     .map((m) => m.sourceRef)
     .filter(Boolean)
-  const allRefIds = [...new Set([...pathwayLevelRefIds, ...metricLevelRefIds])]
+
+  const graphSourceRefs: string[] = []
+  const graphMaterialIds: string[] = []
+  for (const g of [pathway.processGraph, pathway.operationalGraph]) {
+    if (!g) continue
+    for (const n of g.nodes) {
+      graphMaterialIds.push(...n.materialIds)
+      graphSourceRefs.push(...n.sourceRefs)
+    }
+    for (const e of g.edges) graphSourceRefs.push(...e.sourceRefs)
+  }
+
+  const allRefIds = [...new Set([...pathwayLevelRefIds, ...metricLevelRefIds, ...graphSourceRefs])]
+  const allMaterialIds = [...new Set([...pathway.materialIds, ...graphMaterialIds])]
 
   const citationsById: Record<string, CitationSummary> = {}
-  for (const ref of allRefIds) {
-    if (citationsById[ref]) continue
-    const c = await getCitation(ref)
-    if (c) {
-      citationsById[ref] = {
-        id: c.id,
-        title: c.title,
-        authors: [...c.authors],
-        year: c.year,
-        venue: c.venue,
-        url: c.url,
-      }
+  const citationRows = await Promise.all(allRefIds.map((ref) => getCitation(ref)))
+  for (const c of citationRows) {
+    if (!c) continue
+    citationsById[c.id] = {
+      id: c.id,
+      title: c.title,
+      authors: [...c.authors],
+      year: c.year,
+      venue: c.venue,
+      url: c.url,
     }
   }
 
@@ -71,12 +106,21 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
     ]),
   )
 
-  // keep dangling ids visible as links even when the material row is absent
-  const materials: { id: string; material: Material | undefined }[] = []
-  for (const mid of pathway.materialIds) materials.push({ id: mid, material: await getMaterial(mid) })
+  // keep dangling ids visible as links even when the material row is absent.
+  // graph lookups run in parallel so the biggest materials on the page don't
+  // serialize behind citation resolution.
+  const [materialsById, shortlistEntry] = await Promise.all([
+    Promise.all(allMaterialIds.map((mid) => getMaterial(mid))).then((rows) => {
+      const byId: Record<string, Material | undefined> = {}
+      allMaterialIds.forEach((mid, i) => {
+        byId[mid] = rows[i]
+      })
+      return byId
+    }),
+    listShortlist().then((rows) => rows.find((s) => s.entry.pathwayId === id)),
+  ])
+  const materials = pathway.materialIds.map((mid) => ({ id: mid, material: materialsById[mid] }))
 
-  // plain-object shortlist entry (enum name, not hydrated number) for the client action bar
-  const shortlistEntry = (await listShortlist()).find((s) => s.entry.pathwayId === id)
   const shortlist = shortlistEntry
     ? {
         status: ShortlistStatus[shortlistEntry.entry.status] ?? '',
@@ -87,6 +131,45 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
 
   const settingName = Setting[pathway.setting] ?? 'SETTING_UNSPECIFIED'
   const backHref = backRaw ? `/?${decodeBack(backRaw)}` : undefined
+
+  // Inspector lookups resolved server-side — the client graph surface never
+  // re-fetches materials, sources, or metrics per node.
+  const materialSummaries: Record<string, MaterialSummaryDto> = {}
+  for (const mid of allMaterialIds) {
+    const m = materialsById[mid]
+    if (m) materialSummaries[mid] = { id: m.id, name: m.name, summary: m.summary || undefined }
+  }
+  const sourceSummaries: Record<string, SourceSummaryDto> = {}
+  for (const c of Object.values(citationsById)) sourceSummaries[c.id] = toCitationSummary(c)
+  const pathwayMetrics: Record<string, MetricRowDto> = {}
+  for (const [key, m] of Object.entries(pathway.metrics)) {
+    pathwayMetrics[key] = {
+      key,
+      low: m.low,
+      high: m.high,
+      unit: m.unit,
+      yearBasis: m.yearBasis,
+      sourceRef: m.sourceRef,
+    }
+  }
+  if (pathway.trl > 0 && !pathwayMetrics.trl) {
+    pathwayMetrics.trl = { key: 'trl', low: pathway.trl, high: pathway.trl, unit: 'years', yearBasis: 0, sourceRef: '' }
+  }
+  const lookups: ProcessLookups = { materialSummaries, sourceSummaries, pathwayMetrics }
+
+  const viewState: DetailViewState = {
+    process: pathway.processGraph
+      ? { status: 'valid', dto: buildProcessDto(pathway.processGraph, lookups, { kind: 'process' }) }
+      : { status: 'missing' },
+    operational: pathway.operationalGraph
+      ? { status: 'valid', dto: buildProcessDto(pathway.operationalGraph, lookups, { kind: 'operational' }) }
+      : { status: 'missing' },
+    flowSource: pathway.mermaidSource || '',
+    sequenceSource: pathway.mermaidSequenceSource || '',
+  }
+
+  const hasAnyDiagram =
+    !!pathway.processGraph || !!pathway.operationalGraph || !!viewState.flowSource || !!viewState.sequenceSource
 
   return (
     <div className="flex min-h-screen flex-col gap-6 p-8">
@@ -118,7 +201,7 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
         <ShortlistActions pathwayId={pathway.id} entry={shortlist} />
       </header>
 
-      <Card>
+      <Card id="mechanism">
         <CardHeader>
           <CardTitle>Mechanism</CardTitle>
         </CardHeader>
@@ -129,20 +212,17 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
         </CardContent>
       </Card>
 
-      {(pathway.mermaidSource || pathway.mermaidSequenceSource) && (
-        <PathwayDiagrams
-          flowSource={pathway.mermaidSource}
-          sequenceSource={pathway.mermaidSequenceSource}
-        />
+      {hasAnyDiagram && (
+        <PathwayDiagrams viewState={viewState} pathwayId={pathway.id} />
       )}
 
-      <section className="flex flex-col gap-2">
+      <section id="metrics" className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold tracking-tight">Cited metrics</h2>
         <MetricTable metrics={metrics} citationsById={citationsById} />
       </section>
 
       {materials.length > 0 && (
-        <section className="flex flex-col gap-2">
+        <section id="materials" className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold tracking-tight">Materials</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {materials.map(({ id: mid, material: m }) => (
@@ -197,7 +277,7 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
       )}
 
       {pathwayLevelRefIds.length > 0 && (
-        <Card data-testid="pathway-references">
+        <Card id="references" data-testid="pathway-references">
           <CardHeader>
             <CardTitle>References</CardTitle>
           </CardHeader>
@@ -232,9 +312,11 @@ export default async function PathwayDetail(props: PageProps<'/pathways/[id]'>) 
         </Card>
       )}
 
-      <LiteratureErrorBoundary>
-        <LiteraturePanel pathwayId={pathway.id} />
-      </LiteratureErrorBoundary>
+      <section id="literature" className="flex flex-col gap-2">
+        <LiteratureErrorBoundary>
+          <LiteraturePanel pathwayId={pathway.id} />
+        </LiteratureErrorBoundary>
+      </section>
     </div>
   )
 }

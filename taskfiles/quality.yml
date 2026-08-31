@@ -26,6 +26,7 @@ tasks:
       - "{{.BIN}}/eslint ."
       - "{{.BIN}}/tsc --noEmit"
       - "{{.BIN}}/vitest run"
+      - task: ':data:check'
       - task: ':quality:mermaid'
 
   mermaid:

@@ -1,9 +1,12 @@
 id: calcium-looping
-name: "Calcium looping (benchmark)"
+name: Calcium looping (benchmark)
 setting: POINT_SOURCE
 is_benchmark: true
 trl: 7
-search_terms: ["calcium looping CO2 capture", "CaO carbonation calcination cycle", "limestone sorbent fluidised bed"]
+search_terms:
+  - calcium looping CO2 capture
+  - CaO carbonation calcination cycle
+  - limestone sorbent fluidised bed
 mechanism: |
   Crushed limestone cycles between two fluidised beds: CaO carbonates with flue-
   gas CO2 at ~650 C (carbonator, exothermic, heat recovered for steam), and
@@ -19,19 +22,22 @@ metrics:
     year_basis: 2011
     source_ref: anthony2011
   energy_thermal:
-    low: 3.0
+    low: 3
     high: 4.5
     unit: GJ/tCO2
     year_basis: 2011
     source_ref: anthony2011
 advantages:
-  - "Extremely cheap sorbent (crushed limestone); reactors use proven circulating fluidised bed technology"
-  - "High-temperature heat recovery offsets efficiency penalty; cement integration synergy"
+  - Extremely cheap sorbent (crushed limestone); reactors use proven circulating fluidised bed technology
+  - High-temperature heat recovery offsets efficiency penalty; cement integration synergy
 challenges:
-  - "Sorbent sintering and capacity fade over carbonation cycles"
-  - "Oxy-fired calciner requires air separation unit; attrition of sorbent"
-material_ids: [cao-lime]
-source_refs: [anthony2011, nas2019]
+  - Sorbent sintering and capacity fade over carbonation cycles
+  - Oxy-fired calciner requires air separation unit; attrition of sorbent
+material_ids:
+  - cao-lime
+source_refs:
+  - anthony2011
+  - nas2019
 mermaid_sequence_source: |
   sequenceDiagram
       participant Flue as Flue gas
@@ -80,3 +86,228 @@ mermaid_source: |
       CALC -->|"CaO recycle<br/>(fresh + regenerated)"| LIME
       LIME -->|"attrition +<br/>fade"| SPENT
       FRESH -->|"make-up"| LIME
+process_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas<br/>(cement, power)
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:carb
+      label: Carbonator<br/>CFB, ~650 °C<br/>exothermic
+      kind: GRAPH_NODE_KIND_CAPTURE
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids: []
+      source_refs: []
+      metric_keys:
+        - trl
+    - id: node:lime
+      label: CaO / CaCO₃<br/>limestone<br/>sorbent
+      kind: GRAPH_NODE_KIND_MATERIAL
+      stage: GRAPH_STAGE_CAPTURE
+      material_ids:
+        - cao-lime
+      source_refs: []
+      metric_keys: []
+    - id: node:calc
+      label: Calciner<br/>oxy-fired, ~900 °C<br/>endothermic
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:asu
+      label: Air separation<br/>unit (ASU)<br/>>95% O₂
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Compressor +<br/>CO₂ purification
+      kind: GRAPH_NODE_KIND_TRANSPORT
+      stage: GRAPH_STAGE_TRANSPORT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:co2
+      label: Pure CO₂<br/>(sequestered)
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:hx
+      label: High-grade<br/>heat recovery<br/>(steam cycle)
+      kind: GRAPH_NODE_KIND_REGENERATION
+      stage: GRAPH_STAGE_REGENERATION
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:fresh
+      label: Fresh<br/>limestone<br/>make-up
+      kind: GRAPH_NODE_KIND_INPUT
+      stage: GRAPH_STAGE_INPUT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:spent
+      label: Spent sorbent<br/>(to cement kiln)
+      kind: GRAPH_NODE_KIND_WASTE
+      stage: GRAPH_STAGE_BYPRODUCT
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:seq
+      label: Geological<br/>storage
+      kind: GRAPH_NODE_KIND_STORAGE
+      stage: GRAPH_STAGE_STORAGE
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:e1
+      source_node_id: node:flue
+      target_node_id: node:carb
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CO₂ 4-30%
+    - id: edge:e2
+      source_node_id: node:carb
+      target_node_id: node:lime
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: CaO + CO₂ ⇌ CaCO₃
+    - id: edge:e3
+      source_node_id: node:carb
+      target_node_id: node:hx
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: lean flue gas<br/>(CO₂ < 5%)
+    - id: edge:e4
+      source_node_id: node:lime
+      target_node_id: node:calc
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: CaCO₃ to calciner
+    - id: edge:e5
+      source_node_id: node:asu
+      target_node_id: node:calc
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: O₂ fuel
+    - id: edge:e6
+      source_node_id: node:calc
+      target_node_id: node:co2
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e7
+      source_node_id: node:co2
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: ""
+    - id: edge:e8
+      source_node_id: node:comp
+      target_node_id: node:seq
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: dense-phase CO₂
+    - id: edge:e9
+      source_node_id: node:calc
+      target_node_id: node:lime
+      kind: GRAPH_EDGE_KIND_FEEDBACK
+      label: CaO recycle<br/>(fresh + regenerated)
+    - id: edge:e10
+      source_node_id: node:lime
+      target_node_id: node:spent
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: attrition +<br/>fade
+    - id: edge:e11
+      source_node_id: node:fresh
+      target_node_id: node:lime
+      kind: GRAPH_EDGE_KIND_FLOW
+      label: make-up
+operational_graph:
+  cycle_policy: GRAPH_CYCLE_POLICY_RECYCLE_ALLOWED
+  nodes:
+    - id: node:flue
+      label: Flue gas
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:carb
+      label: Carbonator
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:sorb
+      label: CaO sorbent
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:calc
+      label: Oxy-calciner
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:comp
+      label: Compression
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+    - id: node:store
+      label: Storage
+      kind: GRAPH_NODE_KIND_SEQUENCE_PARTICIPANT
+      stage: GRAPH_STAGE_UNSPECIFIED
+      summary: ""
+      material_ids: []
+      source_refs: []
+      metric_keys: []
+  edges:
+    - id: edge:op1
+      source_node_id: node:flue
+      target_node_id: node:carb
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Feed CO₂-containing gas
+    - id: edge:op2
+      source_node_id: node:sorb
+      target_node_id: node:carb
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Present regenerated CaO
+    - id: edge:op3
+      source_node_id: node:carb
+      target_node_id: node:sorb
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Carbonate CaO to CaCO₃
+    - id: edge:op4
+      source_node_id: node:sorb
+      target_node_id: node:calc
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Transfer loaded sorbent
+    - id: edge:op5
+      source_node_id: node:calc
+      target_node_id: node:sorb
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Calcine CaCO₃ back to CaO
+    - id: edge:op6
+      source_node_id: node:calc
+      target_node_id: node:comp
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Release concentrated CO₂
+    - id: edge:op7
+      source_node_id: node:comp
+      target_node_id: node:store
+      kind: GRAPH_EDGE_KIND_MESSAGE
+      label: Dehydrate and inject CO₂

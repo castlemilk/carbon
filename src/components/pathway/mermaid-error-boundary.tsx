@@ -4,6 +4,7 @@ import { Component, type ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
+  onError?: () => void
 }
 
 interface State {
@@ -16,6 +17,10 @@ export default class MermaidErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(): State {
     return { failed: true }
+  }
+
+  componentDidCatch(): void {
+    this.props.onError?.()
   }
 
   render() {

@@ -14,7 +14,7 @@ vars:
   KUBECONFIG_PATH: ~/projects/paprika/omega-oidc.kubeconfig
   IMAGE: ghcr.io/castlemilk/carbon
   NAMESPACE: paprika-e2e
-  RELEASE_PREFIX: carbon
+  RELEASE_PREFIX: carbon-release
 
 tasks:
   image:
@@ -27,8 +27,9 @@ tasks:
       use it, override the chart's image.repository/tag via the Application CR
       stage parameters or a values bump, then revert once GHA catches up.
     cmds:
-      - task: ../check:node
-      - docker buildx build --platform linux/amd64 -t {{.IMAGE}}:local -t ttl.sh/carbon-amd64:4h --push .
+      - task: ':check:node'
+      - task: ':data:check'
+      - docker buildx build --platform linux/amd64 --build-arg NEXT_PUBLIC_EMBED_PARENT_ORIGIN=https://benebsworth.com -t {{.IMAGE}}:local -t ttl.sh/carbon-amd64:4h --push .
       - echo "pushed ttl.sh/carbon-amd64:4h (expires) and {{.IMAGE}}:local"
 
   cr:
@@ -57,6 +58,9 @@ tasks:
       Paprika re-renders on CHART changes; a new :latest image alone doesn't
       move the rollout. This annotates the pod template to force a rolling
       recreate. (Deployment uses Recreate strategy because of the RWO PVC.)
+    preconditions:
+      - sh: KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl get deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}}
+        msg: "canonical Carbon deployment {{.RELEASE_PREFIX}}-carbon-stable was not found"
     cmds:
       - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl annotate deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}} kubectl.kubernetes.io/restartedAt="$(date -u +%FT%TZ)" --overwrite
       - KUBECONFIG={{printf "%s" .KUBECONFIG_PATH | expandenv}} kubectl rollout status deployment/{{.RELEASE_PREFIX}}-carbon-stable -n {{.NAMESPACE}} --timeout=180s
@@ -69,7 +73,7 @@ tasks:
   health:
     desc: Hit /api/health through the public hostname
     cmds:
-      - curl -s https://carbon.benebsworth.com/api/health | head -c 400; echo
+      - tmp="$$(mktemp)"; trap 'rm -f "$$tmp"' EXIT; curl --fail --show-error --silent https://carbon.benebsworth.com/api/health >"$$tmp"; node -e 'const fs = require("node:fs"); const body = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); if (body.status !== "ok" || body.components?.database?.status !== "healthy") process.exit(1); console.log(JSON.stringify(body))' "$$tmp"
 
   # ---- legacy target kept for reference -------------------------------------
   vercel-auth:

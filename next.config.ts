@@ -1,5 +1,27 @@
 import type { NextConfig } from "next";
 
+const productionParentOrigin = 'https://benebsworth.com';
+const rawParentOrigin = process.env.NEXT_PUBLIC_EMBED_PARENT_ORIGIN;
+let parentOrigin: string | undefined;
+
+if (rawParentOrigin) {
+  try {
+    const parsed = new URL(rawParentOrigin);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new Error('unsupported protocol');
+    parentOrigin = parsed.origin;
+  } catch {
+    throw new Error('NEXT_PUBLIC_EMBED_PARENT_ORIGIN must be a valid HTTP(S) origin');
+  }
+}
+
+if (process.env.NODE_ENV === 'production' && parentOrigin !== productionParentOrigin) {
+  throw new Error(`NEXT_PUBLIC_EMBED_PARENT_ORIGIN must equal ${productionParentOrigin} for production builds`);
+}
+
+const frameAncestors = process.env.NODE_ENV === 'production'
+  ? productionParentOrigin
+  : `'self' ${parentOrigin ?? 'http://localhost:4321'} http://localhost:*`;
+
 const nextConfig: NextConfig = {
   // self-contained server bundle for the container image (cluster deploys)
   output: "standalone",
@@ -11,9 +33,9 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: [
           {
-            key: 'Content-Security-Policy',
-            value:
-              "frame-ancestors 'self' https://benebsworth.com https://*.benebsworth.com http://localhost:*",
+             key: 'Content-Security-Policy',
+             value:
+               `frame-ancestors ${frameAncestors}`,
           },
         ],
       },
