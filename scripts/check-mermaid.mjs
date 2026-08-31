@@ -13,6 +13,7 @@ import { tmpdir } from 'node:os'
 const ROOT = path.resolve(import.meta.dirname, '..')
 const DIR = path.join(ROOT, 'data', 'pathways')
 const MMDC = path.join(ROOT, 'node_modules', '.bin', 'mmdc')
+const puppeteerConfig = process.env.MERMAID_PUPPETEER_CONFIG
 const work = mkdtempSync(path.join(tmpdir(), 'mmd-check-'))
 const pathwayFiles = fs.readdirSync(DIR).filter((x) => x.endsWith('.yaml')).sort()
 const EXPECTED_PATHWAY_COUNT = 24
@@ -38,10 +39,12 @@ for (const f of pathwayFiles) {
     seen.add(tag)
     const mmd = path.join(work, 'in.mmd')
     writeFileSync(mmd, src)
+    const args = ['-i', mmd, '-o', path.join(work, 'out.svg'), '--quiet']
+    if (puppeteerConfig) args.push('--puppeteerConfigFile', puppeteerConfig)
     let lastError
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        execFileSync(MMDC, ['-i', mmd, '-o', path.join(work, 'out.svg'), '--quiet'], { stdio: 'pipe', timeout: 60000 })
+        execFileSync(MMDC, args, { stdio: 'pipe', timeout: 60000 })
         pass++
         lastError = undefined
         break
