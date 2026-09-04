@@ -36,6 +36,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${mono.variable} ${display.variable} ${sans.variable} h-full antialiased ${embed ? "carbon-embed" : ""}`}
     >
+      <head>
+        <meta httpEquiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+      </head>
       <body className={`min-h-full font-sans antialiased ${embed ? "bg-transparent" : ""}`}>
         <ThemeProvider>
           {embed ? (
