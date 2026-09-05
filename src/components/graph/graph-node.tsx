@@ -31,14 +31,19 @@ interface Props {
 
 // Split a Mermaid label like 'Flue gas<br/>(coal / WtE)' into a primary line
 // and (optional) secondary lines. The literal '<br/>' is never rendered.
-const splitLabel = (raw: string): { title: string; sub: string[] } => {
+// The first sub-line is shown under the title on the node; remaining sub
+// lines are folded into a tooltip and surfaced in the inspector only, so
+// the card stays compact and readable.
+const splitLabel = (raw: string): { title: string; sub: string; tooltip: string } => {
   const parts = raw
     .split(/<br\s*\/?>/i)
     .map((p) => p.trim())
     .filter(Boolean)
-  if (parts.length === 0) return { title: '', sub: [] }
-  const [title, ...sub] = parts
-  return { title, sub }
+  if (parts.length === 0) return { title: '', sub: '', tooltip: '' }
+  const [title, ...rest] = parts
+  const sub = rest[0] ?? ''
+  const tooltip = rest.length > 0 ? rest.join(' · ') : title
+  return { title, sub, tooltip }
 }
 
 // Kind → accent token. Each kind gets a unique accent strip and pill colour
@@ -64,7 +69,7 @@ const kindAccent = (kind?: string) =>
 
 const NodeShell = ({ id, data, selected }: Props) => {
   const label = data.label || id
-  const { title, sub } = splitLabel(label)
+  const { title, sub, tooltip } = splitLabel(label)
   const summary = data.summary ?? ''
   const assetId = roleForNode(id, data.kind, data.assetId)
   const hasAsset = !!assetId
@@ -92,8 +97,9 @@ const NodeShell = ({ id, data, selected }: Props) => {
     borderRadius: '9999px',
   }
 
-  // Sub-label is up to 2 lines, wrapped; truncated with ellipsis if longer.
-  const subText = sub.join(' · ')
+  // Sub-label is shown as a single clamped line; the full content lives in
+  // the tooltip + inspector.
+  const subText = sub
 
   return (
     <div
@@ -112,13 +118,13 @@ const NodeShell = ({ id, data, selected }: Props) => {
         tabIndex={data.__contextHidden ? -1 : data.__tabIndex ?? 0}
         aria-expanded={selected}
         aria-controls={inspectorId}
-        aria-label={`${title}${sub.length > 0 ? `, ${sub.join(' ')}` : ''}${data.kind ? `, ${data.kind.toLowerCase()}` : ''}${
+        aria-label={`${title}${sub ? `, ${sub}` : ''}${data.kind ? `, ${data.kind.toLowerCase()}` : ''}${
           data.stage ? `, stage ${data.stage.toLowerCase()}` : ''
         }`}
         data-selected={selected ? 'true' : undefined}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        className="group relative flex h-[120px] w-[200px] cursor-pointer flex-col items-stretch overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-left text-[var(--color-fg)] shadow-sm transition outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-fg)] hover:border-[var(--color-fg)] data-[selected=true]:border-[var(--color-fg)] data-[selected=true]:ring-2 data-[selected=true]:ring-[var(--color-fg)]"
+        className="group relative flex h-[112px] w-[220px] cursor-pointer flex-col items-stretch overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-left text-[var(--color-fg)] shadow-sm transition outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-fg)] hover:border-[var(--color-fg)] data-[selected=true]:border-[var(--color-fg)] data-[selected=true]:ring-2 data-[selected=true]:ring-[var(--color-fg)]"
       >
         <span
           aria-hidden="true"
@@ -133,17 +139,17 @@ const NodeShell = ({ id, data, selected }: Props) => {
               <GraphAssetGlyph assetId={id} label={title} className="h-full w-full" />
             )}
           </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span
               className="truncate text-[13px] font-semibold leading-tight"
-              title={title}
+              title={tooltip}
             >
               {title}
             </span>
             {subText ? (
               <span
-                className="line-clamp-2 text-[11px] leading-snug text-[var(--color-muted)]"
-                title={subText}
+                className="truncate text-[11px] leading-snug text-[var(--color-muted)]"
+                title={tooltip}
               >
                 {subText}
               </span>
