@@ -43,6 +43,16 @@ export function EmbedNav() {
             </Link>
           )
         })}
+        {searchParams.has("embed") ? (
+          <Link
+            href={pathname}
+            data-testid="exit-embed"
+            aria-label="Exit embedded view"
+            className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-1.5 font-mono text-xs font-medium uppercase tracking-widest text-[var(--color-fg)] transition hover:bg-[var(--color-surface-2)]"
+          >
+            Exit embed
+          </Link>
+        ) : null}
       </nav>
       <ThemeToggle />
     </div>
