@@ -39,41 +39,38 @@ test.describe('smoke', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { name: /landscape/i })).toBeVisible()
 
-    // Graph-first landscape: every filtered pathway node renders in the canvas
-    // while the cost-less ones sit in the "Unmapped on this view" rail.
-    const canvas = page.getByTestId('graph-canvas')
-    const nodes = canvas.locator('[data-node-id^="pathway:"]')
-    const rail = page.getByTestId('unmapped-item')
-    await expect(nodes).toHaveCount(24)
-    await expect(rail).toHaveCount(6)
+    // Scatter-plot landscape: 18 dots plot on the cost × TRL axes; the 6
+    // cost-less pathways are surfaced via the missing-cost note instead of
+    // being silently dropped. The full filtered set always renders in the
+    // pathway table below.
+    const dots = page.locator('[data-testid="dot"]')
+    const missingCost = page.getByTestId('missing-cost')
+    await expect(dots).toHaveCount(18)
+    await expect(missingCost).toContainText('6 pathways')
+    await expect(page.getByTestId('pathway-row')).toHaveCount(24)
 
     // Settings checkboxes are exclusion toggles that all start checked, so
     // reaching DAC-only means unchecking the other four settings. The numbers
-    // are pathway-node counts after each uncheck (seed setting totals fixed:
-    // POINT_SOURCE 7, DAC 5, OCEAN_DIC 3, MINERALIZATION 4, BIOLOGICAL 5); the
-    // rail tracks the cost-less subset of each setting.
-    const nodesAfterUnchecking: ReadonlyArray<readonly [string, number, number]> = [
-      ['POINT_SOURCE', 17, 6],
-      ['OCEAN_DIC', 14, 4],
-      ['MINERALIZATION', 10, 1],
+    // are plotted-dot counts after each uncheck (seed setting totals fixed:
+    // POINT_SOURCE 7, DAC 5, OCEAN_DIC 3, MINERALIZATION 4, BIOLOGICAL 5);
+    // the missing-cost note absorbs the cost-less subset of each setting.
+    const dotsAfterUnchecking: ReadonlyArray<readonly [string, number, number]> = [
+      ['POINT_SOURCE', 12, 6],
+      ['OCEAN_DIC', 11, 4],
+      ['MINERALIZATION', 8, 1],
       ['BIOLOGICAL', 5, 0],
     ]
-    for (const [setting, remaining, railRemaining] of nodesAfterUnchecking) {
+    for (const [setting, remaining, missingRemaining] of dotsAfterUnchecking) {
       await page.getByTestId(`filter-setting-${setting}`).click()
-      await expect(nodes).toHaveCount(remaining)
-      await expect(rail).toHaveCount(railRemaining)
+      await expect(dots).toHaveCount(remaining)
+      await expect(missingCost).toContainText(`${missingRemaining} pathway${missingRemaining === 1 ? '' : 's'}`)
     }
 
-    // Navigate into a pathway via the graph: select the DAC node, then follow
-    // the inspector's See more link (it preserves the landscape query).
-    await canvas.locator('[data-testid="graph-node"][data-node-id="pathway:mof-dac"] button').click()
-    await expect(page.getByTestId('graph-inspector')).toContainText('MOF-based DAC')
-    await page.getByTestId('inspector-see-more').click()
-    await expect(page).toHaveURL(/\/pathways\/mof-dac/)
-    // The graph canvas is client-rendered only, so its visibility gates on React
-    // hydration finishing; without it the Eliminate button below is still inert
-    // SSR HTML and the click silently no-ops (full-suite resource load widens the
-    // window).
+    // Navigate into a pathway via its scatter dot (the dot preserves the
+    // landscape query as the back param).
+    await page.locator('[data-testid="dot"][data-id="mof-dac"]').click()
+    await expect(page).toHaveURL(/\/pathways\/mof-dac\?back=/)
+    // The pathway detail page renders its own interactive React Flow diagram.
     await expect(page.getByTestId('graph-canvas')).toBeVisible()
     await expect(page.getByText(/\$80–\$600/)).toBeVisible()
 
