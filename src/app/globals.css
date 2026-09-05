@@ -103,6 +103,48 @@
   --dot: #c9c9d2;
   --stage: #eef0f4;
   --diagram-paper: #f4f5f8;
+
+  /* Per-kind graph node accents (light mode). */
+  --graph-kind-input-strip: #bae6fd;
+  --graph-kind-input-pill: #e0f2fe;
+  --graph-kind-input-ink: #0369a1;
+  --graph-kind-capture-strip: #7c5cff;
+  --graph-kind-capture-pill: #ede9fe;
+  --graph-kind-capture-ink: #5b21b6;
+  --graph-kind-material-strip: #5eead4;
+  --graph-kind-material-pill: #ccfbf1;
+  --graph-kind-material-ink: #115e59;
+  --graph-kind-membrane-strip: #c4b5fd;
+  --graph-kind-membrane-pill: #ede9fe;
+  --graph-kind-membrane-ink: #5b21b6;
+  --graph-kind-conversion-strip: #c084fc;
+  --graph-kind-conversion-pill: #f3e8ff;
+  --graph-kind-conversion-ink: #6b21a8;
+  --graph-kind-electrochemical-strip: #fde047;
+  --graph-kind-electrochemical-pill: #fef9c3;
+  --graph-kind-electrochemical-ink: #854d0e;
+  --graph-kind-regeneration-strip: #ff7a59;
+  --graph-kind-regeneration-pill: #ffe4d6;
+  --graph-kind-regeneration-ink: #9a3412;
+  --graph-kind-separation-strip: #f0abfc;
+  --graph-kind-separation-pill: #fae8ff;
+  --graph-kind-separation-ink: #86198f;
+  --graph-kind-transport-strip: #60a5fa;
+  --graph-kind-transport-pill: #dbeafe;
+  --graph-kind-transport-ink: #1e40af;
+  --graph-kind-storage-strip: #34d399;
+  --graph-kind-storage-pill: #d1fae5;
+  --graph-kind-storage-ink: #065f46;
+  --graph-kind-biological-strip: #84cc16;
+  --graph-kind-biological-pill: #ecfccb;
+  --graph-kind-biological-ink: #3f6212;
+  --graph-kind-waste-strip: #facc15;
+  --graph-kind-waste-pill: #fef3c7;
+  --graph-kind-waste-ink: #92400e;
+  --graph-kind-participant-strip: #94a3b8;
+  --graph-kind-participant-pill: #e2e8f0;
+  --graph-kind-participant-ink: #1e293b;
+
   color-scheme: light;
 }
 
@@ -147,6 +189,49 @@
   --dot: #26262d;
   --stage: #0c0c10;
   --diagram-paper: #f4f5f8;
+
+  /* Per-kind graph node accents (dark mode). Brighter strips + lighter pills
+     so the coloured edge stays visible against the dark surface. */
+  --graph-kind-input-strip: #38bdf8;
+  --graph-kind-input-pill: #1e293b;
+  --graph-kind-input-ink: #bae6fd;
+  --graph-kind-capture-strip: #a78bfa;
+  --graph-kind-capture-pill: #2e1065;
+  --graph-kind-capture-ink: #ddd6fe;
+  --graph-kind-material-strip: #2dd4bf;
+  --graph-kind-material-pill: #042f2e;
+  --graph-kind-material-ink: #99f6e4;
+  --graph-kind-membrane-strip: #c4b5fd;
+  --graph-kind-membrane-pill: #2e1065;
+  --graph-kind-membrane-ink: #ddd6fe;
+  --graph-kind-conversion-strip: #d8b4fe;
+  --graph-kind-conversion-pill: #3b0764;
+  --graph-kind-conversion-ink: #f3e8ff;
+  --graph-kind-electrochemical-strip: #fde047;
+  --graph-kind-electrochemical-pill: #422006;
+  --graph-kind-electrochemical-ink: #fef9c3;
+  --graph-kind-regeneration-strip: #fb923c;
+  --graph-kind-regeneration-pill: #431407;
+  --graph-kind-regeneration-ink: #fed7aa;
+  --graph-kind-separation-strip: #f0abfc;
+  --graph-kind-separation-pill: #4a044e;
+  --graph-kind-separation-ink: #fae8ff;
+  --graph-kind-transport-strip: #93c5fd;
+  --graph-kind-transport-pill: #1e3a8a;
+  --graph-kind-transport-ink: #dbeafe;
+  --graph-kind-storage-strip: #6ee7b7;
+  --graph-kind-storage-pill: #022c22;
+  --graph-kind-storage-ink: #a7f3d0;
+  --graph-kind-biological-strip: #a3e635;
+  --graph-kind-biological-pill: #1a2e05;
+  --graph-kind-biological-ink: #ecfccb;
+  --graph-kind-waste-strip: #fde047;
+  --graph-kind-waste-pill: #451a03;
+  --graph-kind-waste-ink: #fef3c7;
+  --graph-kind-participant-strip: #cbd5e1;
+  --graph-kind-participant-pill: #1e293b;
+  --graph-kind-participant-ink: #e2e8f0;
+
   color-scheme: dark;
 }
 
