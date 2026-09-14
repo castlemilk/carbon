@@ -12,7 +12,7 @@ apiVersion: pipelines.paprika.io/v1alpha1
 kind: Application
 metadata:
   name: carbon
-  namespace: paprika-e2e
+  namespace: carbon
   labels:
     app.kubernetes.io/name: carbon
 spec:
@@ -21,17 +21,20 @@ spec:
     type: git
     repoUrl: https://github.com/castlemilk/carbon.git
     path: deploy/kubernetes/chart
+    targetNamespace: carbon
     revision: master
     pollInterval: 60s
   strategy: Canary
   syncPolicy: Auto
+  parameters:
+    persistence.existingClaim: carbon-release-data
   healthChecks:
     - name: app-health
       expression: "http.statusCode == 200 && http.bodyJson.status == \"ok\" && http.bodyJson.components.database.status == \"healthy\""
       httpProbe:
         method: GET
         timeout: 5
-        url: http://carbon-release-carbon.paprika-e2e.svc.cluster.local:3000/api/health
+        url: http://carbon-release-carbon.carbon.svc.cluster.local:3000/api/health
       interval: 30s
   stages:
     - name: vke-prod
