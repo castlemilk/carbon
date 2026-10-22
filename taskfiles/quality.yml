@@ -8,12 +8,14 @@ tasks:
     cmds:
       - task: ':check:node'
       - "{{.BIN}}/eslint ."
-      - "{{.BIN}}/tsc --noEmit"
+      - task: typecheck
 
   typecheck:
-    desc: TypeScript only (tsc --noEmit)
+    desc: Generate Next route types and typecheck (no build)
     cmds:
       - task: ':check:node'
+      # typegen loads production config; preserve its declared embed-parent guard.
+      - 'NEXT_PUBLIC_EMBED_PARENT_ORIGIN=https://benebsworth.com "{{.BIN}}/next" typegen'
       - "{{.BIN}}/tsc --noEmit"
 
   verify:
@@ -24,7 +26,7 @@ tasks:
     cmds:
       - task: ':check:node'
       - "{{.BIN}}/eslint ."
-      - "{{.BIN}}/tsc --noEmit"
+      - task: typecheck
       - "{{.BIN}}/vitest run"
       - task: ':data:check'
       - task: ':quality:mermaid'

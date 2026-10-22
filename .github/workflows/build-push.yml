@@ -1,20 +1,27 @@
-# Builds and pushes the container image on every push to master.
+# Verify PRs and gate image publication on the documented commit checks.
 # GHA runners are linux/amd64 — native builds, no QEMU (VKE nodes are amd64).
 name: build-push
 
 on:
+  pull_request:
   push:
     branches: [master]
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
-  build-push:
-    runs-on: ubuntu-latest
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+      NEXT_TELEMETRY_DISABLED: '1'
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -24,20 +31,33 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Install pinned Task
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2
+        with:
+          version: '3.52.0'
+          checksum: '02c679ffae53dca791804847d78b31731615894e292948397c971c87ac9e95bd'
+
       - name: Install Chromium for Mermaid validation
         run: |
-          npx puppeteer browsers install chrome-headless-shell
+          npx --no-install puppeteer browsers install chrome-headless-shell
           echo "PUPPETEER_EXECUTABLE_PATH=$(node --input-type=module -e 'import puppeteer from "puppeteer"; process.stdout.write(await puppeteer.executablePath({headless: "shell"}))')" >> "$GITHUB_ENV"
 
-      - name: Validate seed corpus
-        run: ./node_modules/.bin/tsx src/lib/seed/check.ts data
-
-      - name: Validate Mermaid sources
+      - name: Verify application
         env:
           MERMAID_PUPPETEER_CONFIG: ${{ runner.temp }}/mermaid-puppeteer.json
         run: |
           printf '%s\n' '{"args":["--no-sandbox"]}' > "$MERMAID_PUPPETEER_CONFIG"
-          node scripts/check-mermaid.mjs
+          task verify
+
+  build-push:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.verify.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
 
       - uses: docker/setup-buildx-action@v3
 

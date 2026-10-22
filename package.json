@@ -11,7 +11,7 @@
     "build": "task build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "task quality:typecheck",
     "test": "task test:unit",
     "e2e": "task test:e2e",
     "gen": "task quality:gen",
