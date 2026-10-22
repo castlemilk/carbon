@@ -29,7 +29,14 @@ tasks:
       - task: typecheck
       - "{{.BIN}}/vitest run"
       - task: ':data:check'
+      - task: ':quality:dependency-security'
       - task: ':quality:mermaid'
+
+  dependency-security:
+    desc: Check patched dependency behavior with the existing Mermaid browser
+    cmds:
+      - task: ':check:node'
+      - node scripts/check-dependency-security.mjs
 
   mermaid:
     desc: Validate all pathway Mermaid diagrams with mermaid-cli
