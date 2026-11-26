@@ -19,8 +19,8 @@ vars:
   # so the repo's pinned versions run instead of global installs.
   BIN: '{{.ROOT_DIR}}/node_modules/.bin'
   # better-sqlite3's prebuilt binding segfaults under older v22.x point
-  # releases (e.g. v22.9.0). .nvmrc pins the minimum known-good runtime;
-  # check:node enforces it before anything touches the db.
+  # releases (e.g. v22.9.0). Keep the lower bound for supported Node 22
+  # installations. The local development version is pinned in .nvmrc.
   NODE_MIN: '22.20'
 
 includes:

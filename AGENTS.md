@@ -39,9 +39,9 @@ If a stale process squats the port, kill it before testing.
 
 ## Node version
 
-Pinned in `.nvmrc` (currently v22.20.0) — required because better-sqlite3's
-prebuilt binding segfaults under older v22.x point releases (e.g. v22.9.0).
-`task check:node` enforces this before any db-touching command.
+Use the development version in `.nvmrc` for `npm ci` and local work.
+The older supported Node 22 runtime requires at least v22.20 for
+`better-sqlite3`. `task check:node` enforces that minimum before database access.
 
 ## Deployment (omega VKE via Paprika)
 
